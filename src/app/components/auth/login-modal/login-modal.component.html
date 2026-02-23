@@ -1,4 +1,4 @@
-@if (authService.loginModalOpen()) {
+<!-- @if (authService.loginModalOpen()) { -->
 <div class="modal-backdrop-custom" (click)="close()"></div>
 
 <div class="modal d-block" tabindex="-1" style="z-index:1055;">
@@ -9,7 +9,7 @@
                 <h5 class="modal-title text-white">
                     <i class="fas fa-user me-2"></i>Connexion
                 </h5>
-                <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
+                <!-- <button type="button" class="btn-close btn-close-white" (click)="close()"></button> -->
             </div>
 
             <div class="modal-body p-4">
@@ -25,7 +25,7 @@
                 </div>
                 }
 
-                <form (ngSubmit)="login()">
+                <form>
                     <!-- Email -->
                     <div class="mb-3">
                         <label for="email" class="form-label">
@@ -82,4 +82,4 @@
         </div>
     </div>
 </div>
-}
+<!-- } -->

@@ -4,12 +4,14 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/layout/navbar/navbar.component';
 import { FooterComponent } from './components/layout/footer/footer.component';
 
+
 @Component({
   selector: 'app-root',
   imports: [
     RouterOutlet,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'

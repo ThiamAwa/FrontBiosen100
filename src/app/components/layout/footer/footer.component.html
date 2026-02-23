@@ -1,0 +1,102 @@
+<footer class="footer pt-5 mt-5">
+    <div class="container footer-content">
+
+        <!-- Footer Top -->
+        <div class="footer-top">
+            <div class="row g-4 align-items-center">
+
+                <div class="col-lg-6 col-md-6">
+                    <h1 class="brand-title">BioSen 100%</h1>
+                    <p class="brand-subtitle mb-0">Produits biologiques sénégalais authentiques</p>
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <div class="social-links d-flex justify-content-md-end justify-content-center gap-3">
+                        @for (social of socialLinks; track social.title) {
+                        <a class="btn rounded-circle" [href]="social.url" [title]="social.title" target="_blank"
+                            rel="noopener noreferrer">
+                            <i [class]="social.icon"></i>
+                        </a>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer Main -->
+        <div class="row g-4">
+
+            <!-- À propos -->
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-item">
+                    <h4 class="footer-section-title">Pourquoi nous choisir ?</h4>
+                    <p class="footer-text">
+                        BioSen 100% s'engage à fournir des produits naturels, frais et cultivés
+                        par des producteurs locaux sénégalais. La qualité, l'authenticité et le
+                        respect de l'environnement sont au cœur de notre mission.
+                    </p>
+                    <a routerLink="/about" class="btn btn-primary-custom rounded-pill">
+                        En savoir plus <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Liens -->
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-item">
+                    <h4 class="footer-section-title">Informations</h4>
+                    <div class="d-flex flex-column">
+                        @for (link of infoLinks; track link.route) {
+                        <a class="footer-link" [routerLink]="link.route">{{ link.label }}</a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact + Paiements -->
+            <div class="col-lg-5 col-md-12">
+                <div class="footer-item">
+                    <h4 class="footer-section-title">Contact</h4>
+
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Yoff, Dakar, Sénégal</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>contact&#64;biosen.sn</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>+221 77 123 45 67</span>
+                    </div>
+
+                    <!-- Méthodes de paiement -->
+                    <div class="mt-4">
+                        <p class="payment-title">
+                            <i class="fas fa-lock me-2"></i>Paiements Acceptés
+                        </p>
+                        <div class="payment-methods">
+                            @for (payment of paymentMethods; track payment.alt) {
+                            <img [src]="payment.src" [alt]="payment.alt" [title]="payment.alt" class="payment-icon"
+                                (error)="onImgError($event)" />
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <p class="mb-0">
+                &copy; {{ currentYear }} <strong>BioSen 100%</strong>. Tous droits réservés.
+                | Fait avec <i class="fas fa-heart text-danger"></i> au Sénégal
+            </p>
+        </div>
+
+    </div>
+</footer>

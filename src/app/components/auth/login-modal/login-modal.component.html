@@ -1,0 +1,85 @@
+@if (authService.loginModalOpen()) {
+<div class="modal-backdrop-custom" (click)="close()"></div>
+
+<div class="modal d-block" tabindex="-1" style="z-index:1055;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header" style="background-color:#287747;">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-user me-2"></i>Connexion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <!-- Erreurs -->
+                @if (errors.length > 0) {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @for (error of errors; track error) {
+                    <div>{{ error }}</div>
+                    }
+                    <button type="button" class="btn-close" (click)="errors = []"></button>
+                </div>
+                }
+
+                <form (ngSubmit)="login()">
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-2"></i>Email
+                        </label>
+                        <input type="email" id="email" class="form-control" [(ngModel)]="credentials.email" name="email"
+                            required>
+                    </div>
+
+                    <!-- Mot de passe -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Mot de passe
+                        </label>
+                        <input type="password" id="password" class="form-control" [(ngModel)]="credentials.password"
+                            name="password" placeholder="••••••••" required>
+                    </div>
+
+                    <!-- Remember me -->
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" [(ngModel)]="credentials.remember"
+                            name="remember">
+                        <label class="form-check-label" for="remember">Se souvenir de moi</label>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-lg text-white" style="background-color:#287747;"
+                            [disabled]="isLoading">
+                            @if (isLoading) {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            } @else {
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            }
+                            Se connecter
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="#" class="text-muted small">Mot de passe oublié ?</a>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="mb-0">Pas encore de compte ?</p>
+                        <a routerLink="/register" class="fw-bold" style="color:#287747;" (click)="close()">
+                            Créer un compte
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+}

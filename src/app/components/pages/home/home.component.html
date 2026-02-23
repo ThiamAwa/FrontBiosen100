@@ -1,0 +1,629 @@
+<!-- Hero Start -->
+<div class="container-fluid py-5 mb-5 hero-header">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-md-12 col-lg-7">
+                <div data-aos="fade-right">
+                    <h4 class="">100% Produits Naturels du Sénégal</h4>
+                    <h1 class="mb-4 display-3 fw-bold" style="color:#287747">BioSen 100</h1>
+                    <p class="mb-4 fs-5 text-muted">
+                        Découvrez notre gamme de produits bio authentiques, cultivés avec passion au cœur du Sénégal
+                        pour votre bien-être naturel.
+                    </p>
+
+                    <div class="position-relative mx-auto mb-4">
+                        <input class="form-control border-2 border-secondary w-75 py-3 px-4 rounded-pill shadow-sm"
+                            type="text" placeholder="Rechercher un produit BioSen...">
+                        <button type="button"
+                            class="btn border-0 py-3 px-4 position-absolute rounded-pill text-white h-100 shadow"
+                            style="top: 0; right: 25%; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+                            <i class="fas fa-search me-2"></i> Rechercher
+                        </button>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <a (click)="scrollToElement('products')"
+                            class="btn btn-lg rounded-pill px-4 py-3 text-white shadow"
+                            style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+                            <i class="fas fa-shopping-bag me-2"></i> Nos Produits
+                        </a>
+                        <a (click)="scrollToElement('about')"
+                            class="btn btn-outline-success btn-lg rounded-pill px-4 py-3">
+                            <i class="fas fa-info-circle me-2"></i> En savoir plus
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-lg-5">
+                <div data-aos="fade-left">
+                    <div id="carouselId" class="carousel slide position-relative shadow-lg rounded"
+                        data-bs-ride="carousel" data-bs-interval="3000">
+                        <div class="carousel-indicators">
+                            <ng-container *ngIf="(gammes$ | async)?.length; else noGammesIndicators">
+                                <button *ngFor="let gamme of gammes$ | async; let i = index" type="button"
+                                    data-bs-target="#carouselId" [attr.data-bs-slide-to]="i" [class.active]="i === 0"
+                                    style="background-color: #287747;"></button>
+                            </ng-container>
+                            <ng-template #noGammesIndicators>
+                                <button type="button" data-bs-target="#carouselId" data-bs-slide-to="0" class="active"
+                                    style="background-color: #287747;"></button>
+                            </ng-template>
+                        </div>
+                        <div class="carousel-inner" role="listbox">
+                            <ng-container *ngIf="(gammes$ | async)?.length; else noGammesSlides">
+                                <div *ngFor="let gamme of gammes$ | async; let i = index" class="carousel-item rounded"
+                                    [class.active]="i === 0">
+                                    <img [src]="gamme.image ? '/storage/' + gamme.image : '/assets/img/biosen/default-product.png'"
+                                        class="img-fluid w-100 rounded" [alt]="gamme.nom"
+                                        style="height: 450px; object-fit: cover;">
+                                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                                        <h5 class="fw-bold">{{ gamme.nom }}</h5>
+                                        <p *ngIf="gamme.description">{{ truncate(gamme.description, 50) }}</p>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-template #noGammesSlides>
+                                <div class="carousel-item active rounded">
+                                    <img src="/assets/img/biosen/default-product.png" class="img-fluid w-100 rounded"
+                                        alt="Nos gammes bio" style="height: 450px; object-fit: cover;">
+                                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                                        <h5 class="fw-bold">Nos Gammes Bio</h5>
+                                        <p>Découvrez notre gamme complète de produits naturels</p>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselId"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-success rounded-circle p-3"
+                                aria-hidden="true"></span>
+                            <span class="visually-hidden">Précédent</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselId"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-success rounded-circle p-3"
+                                aria-hidden="true"></span>
+                            <span class="visually-hidden">Suivant</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Hero End -->
+
+<!-- Stats Section Start -->
+<div class="container-fluid py-4 mb-5" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+    <div class="container">
+        <div class="row text-center text-white">
+            <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                <div class="p-3">
+                    <h2 class="display-4 fw-bold mb-0 counter" data-target="5000">0</h2>
+                    <p class="mb-0">Clients Satisfaits</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                <div class="p-3">
+                    <h2 class="display-4 fw-bold mb-0 counter" [attr.data-target]="produitsCount">0</h2>
+                    <p class="mb-0">Produits Bio</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                <div class="p-3">
+                    <h2 class="display-4 fw-bold mb-0 counter" data-target="100">0</h2>
+                    <p class="mb-0">% Naturel</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="p-3">
+                    <h2 class="display-4 fw-bold mb-0 counter" data-target="10">0</h2>
+                    <p class="mb-0">Ans d'Expérience</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Stats Section End -->
+
+<!-- Pourquoi BioSen Section Start -->
+<div class="container-fluid py-5" style="background-color: #F9F9F9;">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
+            <h4 class="fw-semibold" style="color:#287747">Nos Avantages</h4>
+            <h1 class="display-5 fw-bold">Pourquoi choisir BioSen 100 ?</h1>
+            <p class="text-muted">Découvrez ce qui fait de BioSen votre partenaire santé idéal</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+                        <i class="fas fa-leaf fa-2x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">100% Naturel</h5>
+                    <p class="mb-0 text-muted">Produits à base de plantes naturelles du Sénégal, sans additifs chimiques
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+                        <i class="fas fa-certificate fa-2x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">Bio Sénégalais</h5>
+                    <p class="mb-0 text-muted">Cultivé et transformé localement selon les normes biologiques</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+                        <i class="fas fa-check-circle fa-2x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">Qualité Garantie</h5>
+                    <p class="mb-0 text-muted">Contrôle qualité rigoureux à chaque étape de production</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+                        <i class="fas fa-shipping-fast fa-2x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">Livraison Rapide</h5>
+                    <p class="mb-0 text-muted">Livraison à domicile partout au Sénégal sous 48-72h</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Pourquoi BioSen Section End -->
+
+<!-- Catégories Phares Section Start - CAROUSEL POUR TOUTES LES GAMMES -->
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
+            <h4 class="fw-semibold" style="color:#287747">Nos Solutions</h4>
+            <h1 class="display-5 fw-bold">Catégories Phares</h1>
+            <p class="text-muted">Explorez nos différentes gammes de produits naturels</p>
+        </div>
+
+        <ng-container *ngIf="(gammes$ | async)?.length; else noGammes">
+            <div class="owl-carousel gammes-carousel">
+                <div class="item" *ngFor="let gamme of gammes$ | async">
+                    <div class="category-item position-relative overflow-hidden rounded shadow">
+                        <img [src]="gamme.image ? '/storage/' + gamme.image : '/assets/img/biosen/default-gamme.png'"
+                            class="img-fluid w-100" [alt]="gamme.nom" style="height: 300px; object-fit: cover;">
+                        <div
+                            class="category-overlay position-absolute w-100 h-100 top-0 start-0 d-flex flex-column align-items-center justify-content-center">
+                            <h4 class="text-white mb-3 fw-bold">{{ gamme.nom }}</h4>
+                            <p *ngIf="gamme.description" class="text-white mb-3 text-center px-3">{{
+                                truncate(gamme.description, 60) }}</p>
+                            <a href="#" class="btn btn-light rounded-pill px-4 shadow" data-bs-toggle="modal"
+                                [attr.data-bs-target]="'#gammeModal' + gamme.id">
+                                <i class="fas fa-arrow-right me-2"></i> Découvrir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+        <ng-template #noGammes>
+            <div class="row">
+                <div class="col-12">
+                    <p class="text-center text-muted">Aucune gamme disponible pour le moment.</p>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</div>
+<!-- Catégories Phares Section End -->
+
+<!-- Products Shop Start -->
+<div class="container-fluid fruite py-5" style="background-color: #F9F9F9;" id="products">
+    <div class="container py-5">
+        <div class="tab-class text-center">
+            <div class="row g-4">
+                <div class="col-lg-12 text-center" data-aos="fade-up">
+                    <h4 class="fw-semibold" style="color:#287747">Nos Produits</h4>
+                    <h1 class="display-5 fw-bold">Produits Biologiques</h1>
+                    <p class="text-muted mb-4">Sélection de nos meilleurs produits naturels</p>
+                </div>
+                <div class="col-lg-12 text-center">
+                    <ul
+                        class="nav nav-pills d-inline-flex text-center mb-5 shadow-sm bg-white rounded-pill p-2 flex-wrap">
+                        <li class="nav-item">
+                            <a class="d-flex m-2 py-2 rounded-pill active" data-bs-toggle="pill" href="#tab-all"
+                                style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+                                <span class="text-white fw-semibold" style="width: 130px;">Tous</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" *ngFor="let categorie of categories$ | async">
+                            <a class="d-flex py-2 m-2 rounded-pill text-dark" data-bs-toggle="pill"
+                                [attr.href]="'#tab-' + categorie.id">
+                                <span style="width: 130px;" class="fw-semibold">{{ categorie.nom }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-content">
+                <!-- Onglet TOUS -->
+                <div id="tab-all" class="tab-pane fade show p-0 active">
+                    <div class="row g-4">
+                        <div class="col-lg-12">
+                            <div class="row g-4">
+                                <ng-container *ngIf="(produits$ | async)?.length; else noProduits">
+                                    <div *ngFor="let produit of produits$ | async; let i = index"
+                                        class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up"
+                                        [attr.data-aos-delay]="(i + 1) * 100">
+                                        <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
+                                            <div class="fruite-img overflow-hidden">
+                                                <img [src]="produit.image ? '/storage/' + produit.image : '/assets/img/biosen/default-product.png'"
+                                                    class="img-fluid w-100 rounded-top" [alt]="produit.nom"
+                                                    style="height: 250px; object-fit: cover;">
+                                            </div>
+
+                                            <!-- Badge Catégorie -->
+                                            <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
+                                                style="top: 15px; left: 15px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+                                                <i class="fas fa-leaf me-1"></i> {{ produit.categorie_nom || 'Bio' }}
+                                            </div>
+
+                                            <!-- Badge Promotion -->
+                                            <div *ngIf="produit.prix && produit.enPromotion && produit.prixPromo"
+                                                class="badge bg-danger position-absolute fw-semibold"
+                                                style="top: 15px; right: 15px;">
+                                                <i class="fas fa-fire me-1"></i> -{{ ((produit.prix - produit.prixPromo)
+                                                / produit.prix * 100) | number:'1.0-0' }}%
+                                            </div>
+
+                                            <div class="p-4 border-top-0">
+                                                <h5 class="fw-bold mb-2">{{ produit.nom }}</h5>
+                                                <p *ngIf="produit.description" class="text-muted small mb-3">{{
+                                                    truncate(produit.description, 60) }}</p>
+
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <ng-container *ngIf="produit.prix; else surDemande">
+                                                            <p *ngIf="produit.enPromotion && produit.prixPromo"
+                                                                class="text-success fw-bold mb-0">{{
+                                                                formatPrice(produit.prixPromo) }}</p>
+                                                            <p *ngIf="produit.enPromotion && produit.prixPromo"
+                                                                class="text-muted small text-decoration-line-through mb-0">
+                                                                {{ formatPrice(produit.prix) }}</p>
+                                                            <p *ngIf="!produit.enPromotion || !produit.prixPromo"
+                                                                class="text-dark fw-bold mb-0">{{
+                                                                formatPrice(produit.prix) }}</p>
+                                                        </ng-container>
+                                                        <ng-template #surDemande>
+                                                            <p class="text-muted fst-italic small mb-0">Sur demande</p>
+                                                        </ng-template>
+                                                    </div>
+
+                                                    <a href="#" class="btn btn-sm rounded-pill px-3"
+                                                        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); color: white;">
+                                                        <i class="fas fa-eye me-1"></i> Voir
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-template #noProduits>
+                                    <div class="col-12">
+                                        <div class="alert alert-info text-center" role="alert">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Aucun produit disponible pour le moment.
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onglets par catégorie -->
+                <ng-container *ngFor="let categorie of categories$ | async">
+                    <div [id]="'tab-' + categorie.id" class="tab-pane fade p-0">
+                        <div class="row g-4">
+                            <div class="col-lg-12">
+                                <div class="row g-4">
+                                    <ng-container
+                                        *ngIf="(produitsByCategorie(categorie.id) | async)?.length; else noProduitsCategorie">
+                                        <div *ngFor="let produit of produitsByCategorie(categorie.id) | async; let i = index"
+                                            class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up"
+                                            [attr.data-aos-delay]="(i + 1) * 100">
+                                            <!-- Même structure de carte produit -->
+                                            <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
+                                                <div class="fruite-img overflow-hidden">
+                                                    <img [src]="produit.image ? '/storage/' + produit.image : '/assets/img/biosen/default-product.png'"
+                                                        class="img-fluid w-100 rounded-top" [alt]="produit.nom"
+                                                        style="height: 250px; object-fit: cover;">
+                                                </div>
+                                                <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
+                                                    style="top: 15px; left: 15px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+                                                    <i class="fas fa-leaf me-1"></i> {{ categorie.nom }}
+                                                </div>
+                                                <div *ngIf="produit.prix && produit.enPromotion && produit.prixPromo"
+                                                    class="badge bg-danger position-absolute fw-semibold"
+                                                    style="top: 15px; right: 15px;">
+                                                    <i class="fas fa-fire me-1"></i> -{{ ((produit.prix -
+                                                    produit.prixPromo) / produit.prix * 100) | number:'1.0-0' }}%
+                                                </div>
+                                                <div class="p-4 border-top-0">
+                                                    <h5 class="fw-bold mb-2">{{ produit.nom }}</h5>
+                                                    <p *ngIf="produit.description" class="text-muted small mb-3">{{
+                                                        truncate(produit.description, 60) }}</p>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <ng-container *ngIf="produit.prix; else surDemandeCat">
+                                                                <p *ngIf="produit.enPromotion && produit.prixPromo"
+                                                                    class="text-success fw-bold mb-0">{{
+                                                                    formatPrice(produit.prixPromo) }}</p>
+                                                                <p *ngIf="produit.enPromotion && produit.prixPromo"
+                                                                    class="text-muted small text-decoration-line-through mb-0">
+                                                                    {{ formatPrice(produit.prix) }}</p>
+                                                                <p *ngIf="!produit.enPromotion || !produit.prixPromo"
+                                                                    class="text-dark fw-bold mb-0">{{
+                                                                    formatPrice(produit.prix) }}</p>
+                                                            </ng-container>
+                                                            <ng-template #surDemandeCat>
+                                                                <p class="text-muted fst-italic small mb-0">Sur demande
+                                                                </p>
+                                                            </ng-template>
+                                                        </div>
+                                                        <a href="#" class="btn btn-sm rounded-pill px-3"
+                                                            style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); color: white;">
+                                                            <i class="fas fa-eye me-1"></i> Voir
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #noProduitsCategorie>
+                                        <div class="col-12">
+                                            <div class="alert alert-info text-center" role="alert">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                Aucun produit dans cette catégorie.
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Products Shop End -->
+
+<!-- Comment ça marche Section Start -->
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #E8F5E9 0%, rgba(40, 119, 71, 0.1) 100%);">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
+            <h4 class="fw-semibold" style="color:#287747">Simple et Rapide</h4>
+            <h1 class="display-5 fw-bold">Comment ça marche ?</h1>
+            <p class="text-muted">Commandez vos produits bio en 3 étapes simples</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="text-center">
+                    <div class="position-relative d-inline-block mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg"
+                            style="width: 120px; height: 120px;">
+                            <i class="fas fa-search fa-3x" style="color:#287747"></i>
+                        </div>
+                        <div class="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow"
+                            style="font-size: 1.5rem; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">1
+                        </div>
+                    </div>
+                    <h4 class="mb-3 fw-bold">Choisissez vos produits</h4>
+                    <p class="text-muted">Parcourez notre catalogue et sélectionnez les produits naturels qui
+                        correspondent à vos besoins</p>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-center">
+                    <div class="position-relative d-inline-block mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg"
+                            style="width: 120px; height: 120px;">
+                            <i class="fas fa-shopping-cart fa-3x" style="color:#287747"></i>
+                        </div>
+                        <div class="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow"
+                            style="font-size: 1.5rem; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">2
+                        </div>
+                    </div>
+                    <h4 class="mb-3 fw-bold">Passez commande</h4>
+                    <p class="text-muted">Ajoutez au panier et finalisez votre commande en quelques clics. Paiement
+                        sécurisé garanti</p>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="text-center">
+                    <div class="position-relative d-inline-block mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg"
+                            style="width: 120px; height: 120px;">
+                            <i class="fas fa-truck fa-3x" style="color:#287747"></i>
+                        </div>
+                        <div class="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow"
+                            style="font-size: 1.5rem; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">3
+                        </div>
+                    </div>
+                    <h4 class="mb-3 fw-bold">Recevez chez vous</h4>
+                    <p class="text-muted">Livraison rapide partout au Sénégal sous 48-72h. Profitez de vos produits bio
+                        !</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Comment ça marche Section End -->
+
+<!-- Nos Engagements Section Start -->
+<div class="container-fluid py-5">
+    <div class="container" id="about">
+        <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
+            <h4 class="fw-semibold" style="color:#287747">Notre Promesse</h4>
+            <h1 class="display-5 fw-bold">Nos Engagements</h1>
+            <p class="text-muted">Des valeurs fortes pour des produits d'exception</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="100">
+                <div class="text-center p-4 h-100">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+                        <i class="fas fa-seedling fa-3x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">100% Plantes Naturelles</h5>
+                    <p class="mb-0 text-muted">Issues de l'agriculture biologique sénégalaise, sans OGM ni pesticides
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="200">
+                <div class="text-center p-4 h-100">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+                        <i class="fas fa-flask fa-3x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">Contrôle Qualité</h5>
+                    <p class="mb-0 text-muted">Tests rigoureux en laboratoire pour garantir efficacité et sécurité</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="300">
+                <div class="text-center p-4 h-100">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+                        <i class="fas fa-recycle fa-3x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">Emballage Écologique</h5>
+                    <p class="mb-0 text-muted">Packaging recyclable et biodégradable pour protéger notre planète</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="400">
+                <div class="text-center p-4 h-100">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                        style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+                        <i class="fas fa-handshake fa-3x text-white"></i>
+                    </div>
+                    <h5 class="mb-3 fw-bold">Production Locale</h5>
+                    <p class="mb-0 text-muted">Soutien aux producteurs locaux et commerce équitable au Sénégal</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Nos Engagements Section End -->
+
+<!-- Newsletter Section Start -->
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
+                <div class="text-white">
+                    <i class="fas fa-envelope fa-3x mb-3 opacity-75"></i>
+                    <h2 class="fw-bold mb-3">Inscrivez-vous à notre Newsletter</h2>
+                    <p class="mb-0 fs-5">Recevez nos offres exclusives et bénéficiez de <strong>10% de
+                            réduction</strong> sur votre première commande !</p>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="position-relative">
+                    <input class="form-control border-0 py-4 px-4 rounded-pill w-100 shadow-lg" type="email"
+                        placeholder="Votre adresse email">
+                    <button type="button"
+                        class="btn btn-light position-absolute rounded-pill py-3 px-4 fw-semibold shadow"
+                        style="top: 50%; right: 5px; transform: translateY(-50%); color: #287747;">
+                        <i class="fas fa-paper-plane me-2"></i> S'inscrire
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Newsletter Section End -->
+
+<!-- WhatsApp Flottant -->
+<app-whatsapp [vendeurs]="vendeurs$ | async"></app-whatsapp>
+
+<!-- MODALES POUR LES DIFFÉRENTES GAMMES -->
+<ng-container *ngFor="let gamme of gammes$ | async">
+    <div class="modal fade" [id]="'gammeModal' + gamme.id" tabindex="-1"
+        [attr.aria-labelledby]="'gammeModalLabel' + gamme.id" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0"
+                    style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+                    <h5 class="modal-title text-white fw-bold" [id]="'gammeModalLabel' + gamme.id">
+                        <i class="fas fa-leaf me-2"></i>{{ gamme.nom }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-5 mb-3 mb-md-0">
+                            <img [src]="gamme.image ? '/storage/' + gamme.image : '/assets/img/biosen/default-gamme.png'"
+                                class="img-fluid rounded shadow-sm w-100" [alt]="gamme.nom"
+                                style="height: 300px; object-fit: cover;">
+                            <div class="mt-3 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small"><i class="fas fa-box me-1"></i>Produits</span>
+                                    <span class="badge bg-info">{{ gamme.produits_count || 0 }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center"
+                                    *ngIf="gamme.prix && gamme.prix > 0">
+                                    <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix</span>
+                                    <span class="fw-bold" style="color:#287747">{{ formatPrice(gamme.prix) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <h6 class="fw-bold mb-3" style="color:#287747"><i
+                                    class="fas fa-info-circle me-2"></i>Description</h6>
+                            <p class="text-muted" style="text-align: justify; line-height: 1.8;"
+                                *ngIf="gamme.description; else noDesc">
+                                {{ gamme.description }}
+                            </p>
+                            <ng-template #noDesc>
+                                <p class="text-muted fst-italic">Aucune description disponible pour cette gamme.</p>
+                            </ng-template>
+
+                            <div class="mt-4" *ngIf="gamme.produits && gamme.produits.length > 0">
+                                <h6 class="fw-bold mb-3" style="color:#287747"><i
+                                        class="fas fa-box-open me-2"></i>Produits disponibles ({{ gamme.produits.length
+                                    }})</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark border px-3 py-2"
+                                        *ngFor="let produit of gamme.produits">
+                                        <i class="fas fa-check-circle me-1" style="color:#287747"></i>{{ produit.nom }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-light rounded text-center"
+                                *ngIf="!gamme.produits || gamme.produits.length === 0">
+                                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                <p class="text-muted mb-0 small">Aucun produit dans cette gamme pour le moment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Fermer
+                    </button>
+                    <a [routerLink]="['/boutique']" class="btn rounded-pill px-4 text-white"
+                        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);" data-bs-dismiss="modal">
+                        <i class="fas fa-shopping-bag me-2"></i>Voir la boutique
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>

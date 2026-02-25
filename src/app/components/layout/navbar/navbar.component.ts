@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { CartService } from '../../../services/cart/cart.service';
 
 import { AuthService } from '../../../services/auth/auth.service';
 
@@ -13,13 +12,15 @@ import { AuthService } from '../../../services/auth/auth.service';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
-  cartService = inject(CartService);
   authService = inject(AuthService);
   router = inject(Router);
 
   openCartModal() {
-    // Émet un signal pour ouvrir le modal panier
-    this.cartService.openCart();
+    const el = document.getElementById('cartModal');
+    if (el) {
+      const modal = (window as any).bootstrap.Modal.getOrCreateInstance(el);
+      modal.show();
+    }
   }
 
   openLoginModal() {

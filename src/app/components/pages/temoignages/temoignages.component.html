@@ -1,1 +1,217 @@
-<p>temoignages works!</p>
+<div class="container-fluid page-header py-5"
+     style="background: linear-gradient(135deg, #198754 0%, #146a43 100%); position: relative; overflow: hidden;">
+  <div style="position:absolute;inset:0;opacity:0.06;background-image:radial-gradient(circle at 20% 50%,#fff 1px,transparent 1px),radial-gradient(circle at 80% 20%,#fff 1px,transparent 1px);background-size:60px 60px;"></div>
+  <div class="container text-center" style="position: relative; z-index: 1;">
+    <h1 class="text-white display-4 fw-bold mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.25);">
+      Témoignages Clients
+    </h1>
+    <p class="text-white mb-0" style="opacity:.85; font-size:1.05rem;">Découvrez ce que nos clients pensent de nous</p>
+  </div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="container-fluid py-5" style="background: linear-gradient(to bottom, #f0f7f3 0%, #ffffff 100%);">
+  <div class="container py-4">
+
+    <!-- Section Header -->
+    <div class="text-center mx-auto mb-5" style="max-width: 680px;">
+      <p class="text-uppercase mb-2" style="color: #198754; font-weight: 600; letter-spacing: 2.5px; font-size:.82rem;">
+        <i class="fas fa-quote-left me-2" style="color: #ffc107;"></i>
+        Ce qu'ils disent de nous
+      </p>
+      <h2 class="display-5 mb-3" style="color: #146a43; font-weight: 700;">
+        La satisfaction de nos clients est notre priorité
+      </h2>
+      <p class="text-muted mb-0" style="font-size: 1.05rem; line-height:1.7;">
+        Découvrez les expériences authentiques de nos clients avec nos produits biologiques 100% sénégalais
+      </p>
+    </div>
+
+    <!-- Loading -->
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (error) {
+      <div class="alert alert-danger text-center py-4">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        {{ error }}
+      </div>
+    }
+
+    <!-- Grid des témoignages -->
+    @if (!loading && !error && temoignages.length > 0) {
+      <div class="row g-4">
+        @for (t of temoignages; track t.id) {
+          <div class="col-lg-4 col-md-6">
+            <div class="testimonial-card h-100">
+
+              <!-- Quote décoratif -->
+              <div class="quote-icon">
+                <i class="fa fa-quote-right fa-3x"></i>
+              </div>
+
+              <!-- Badge Gamme -->
+              @if (t.gamme) {
+                <span class="badge badge-gamme-public mb-3">
+                                    <i class="fas fa-layer-group me-1"></i>Gamme {{ t.gamme.nom }}
+                                </span>
+              }
+
+              <!-- Carousel d'images -->
+              @if (t.images && t.images.length > 0) {
+                <div class="carousel-fade-wrapper mb-3"
+                     (mouseenter)="stopCarousel(t.id)"
+                     (mouseleave)="startCarousel(t.id)">
+
+                  <div class="carousel-fade-stage">
+                    @for (img of t.images; track img; let i = $index) {
+                      <div class="carousel-fade-item"
+                           [class.active]="isImageActive(t.id, i)">
+                        <img [src]="img"
+                             alt="Image témoignage"
+                             class="carousel-img"
+                             (click)="openLightbox(img)">
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Flèches -->
+                  @if (hasMultipleImages(t.id)) {
+                    <button class="carousel-arrow carousel-arrow-left"
+                            (click)="prevSlide(t.id, $event)"
+                            [class.hidden]="getCurrentIndex(t.id) === 0">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-arrow carousel-arrow-right"
+                            (click)="nextSlide(t.id, $event)"
+                            [class.hidden]="getCurrentIndex(t.id) === getImageCount(t.id) - 1">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  }
+                </div>
+
+                <!-- Dots -->
+                @if (hasMultipleImages(t.id)) {
+                  <div class="carousel-dots mb-3">
+                    @for (img of t.images; track img; let i = $index) {
+                      <button class="carousel-dot"
+                              [class.active]="isImageActive(t.id, i)"
+                              (click)="goToSlide(t.id, i); pauseAndResume(t.id)">
+                      </button>
+                    }
+                  </div>
+                }
+              }
+
+              <!-- Bouton Vidéo -->
+              @if (t.video_url) {
+                <div class="video-play-wrapper mb-3">
+                  <button class="btn-play-video" (click)="openVideoModal(t.video_url!)">
+                    <div class="play-circle">
+                      <i class="fas fa-play play-icon"></i>
+                    </div>
+                    <span class="play-label">Regarder la vidéo</span>
+                  </button>
+                </div>
+              }
+
+              <!-- Description -->
+              @if (t.description) {
+                <p class="testimonial-text">
+                  {{ t.description }}
+                </p>
+              }
+
+              <!-- Footer -->
+              <div class="testimonial-footer">
+                <div class="avatar-public">
+                  {{ getInitials(t) }}
+                </div>
+                <div>
+                  <h5 class="mb-0" style="color: #198754; font-weight: 600; font-size:1rem;">
+                    {{ t.nom_complet }}
+                  </h5>
+                  @if (t.user_id) {
+                    <p class="mb-0 text-muted" style="font-size: 0.82rem;">
+                      <i class="fas fa-user me-1" style="color: #ffc107;"></i>Client inscrit
+                    </p>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!loading && !error && temoignages.length === 0) {
+      <div class="text-center py-5">
+        <div style="width:90px;height:90px;border-radius:50%;background:#eaf6ef;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+          <i class="fas fa-quote-left fa-3x" style="color:#198754;"></i>
+        </div>
+        <h4 style="color:#146a43; font-weight:600;">Aucun témoignage pour le moment</h4>
+        <p class="text-muted">Nous afficherons bientôt les retours de nos premiers clients.</p>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Call to Action -->
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #198754 0%, #146a43 100%); position: relative; overflow: hidden;">
+  <div style="position:absolute;inset:0;opacity:0.06;background-image:radial-gradient(circle at 70% 60%,#fff 1px,transparent 1px),radial-gradient(circle at 30% 80%,#fff 1px,transparent 1px);background-size:60px 60px;"></div>
+  <div class="container text-center" style="position: relative; z-index: 1;">
+    <h2 class="text-white display-6 fw-bold mb-3">Rejoignez nos clients satisfaits</h2>
+    <p class="text-white mb-4" style="font-size: 1.15rem; opacity: 0.9;">
+      Commandez dès aujourd'hui et découvrez la qualité BioSen 100%
+    </p>
+    <a routerLink="/boutique" class="btn btn-cta-public btn-lg px-5 py-3">
+      <i class="fas fa-shopping-cart me-2"></i>
+      Découvrir nos produits
+    </a>
+  </div>
+</div>
+
+<!-- Modal Vidéo -->
+@if (showVideoModal) {
+  <div class="modal-video-overlay active" (click)="closeVideoModal()">
+    <div class="modal-video-box" (click)="$event.stopPropagation()">
+      <button class="modal-video-close" (click)="closeVideoModal()">&times;</button>
+      <div class="modal-video-container">
+        @if (currentVideoUrl) {
+          <iframe [src]="currentVideoUrl"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+          </iframe>
+        } @else {
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#111;color:#fff;gap:12px;padding:2rem;text-align:center;">
+            <i class="fas fa-video fa-3x" style="color:#ffc107;"></i>
+            <p style="margin:0;font-size:0.95rem;opacity:0.85;">La vidéo ne peut pas être intégrée directement.<br>Cliquez ci-dessous pour la regarder.</p>
+          </div>
+        }
+      </div>
+      <div class="modal-video-actions">
+        <a [href]="currentVideoExternalUrl" target="_blank" class="btn-open-youtube">
+          <i class="fab fa-youtube me-2"></i>
+          Ouvrir sur YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Lightbox -->
+@if (showLightbox) {
+  <div class="modal-video-overlay active" (click)="closeLightbox()">
+    <div class="modal-video-box modal-lightbox-box" (click)="$event.stopPropagation()">
+      <button class="modal-video-close" (click)="closeLightbox()">&times;</button>
+      <img [src]="currentImageUrl" alt="Image pleine taille" class="lightbox-img">
+    </div>
+  </div>
+}

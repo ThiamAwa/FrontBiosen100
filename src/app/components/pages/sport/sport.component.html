@@ -1,0 +1,84 @@
+<div class="container-fluid py-5">
+  <div class="container py-5">
+
+    <div class="text-center mb-5">
+      <h1 class="display-5 fw-bold title-green">Collection Sport & Fitness</h1>
+      <p class="text-muted">Découvrez notre gamme complète</p>
+    </div>
+
+    <div class="row g-4">
+      @for (produit of produits; track produit.id) {
+        <div class="col-md-6 col-lg-4">
+          <div class="sport-card">
+
+            <!-- IMAGE -->
+            <div class="sport-card__img-wrap">
+              <img
+                [src]="getImageUrl(produit)"
+                class="img-fluid w-100"
+                style="height:280px;object-fit:cover;"
+                (error)="onImageError($event)"
+              alt="{{ produit.nom }}"
+              />
+
+              <!-- Overlay -->
+              <div class="card-overlay">
+                <button class="btn btn-light rounded-pill px-4" (click)="voirDetail(produit.id)">
+                  Voir détails
+                </button>
+              </div>
+            </div>
+
+            <!-- BADGES -->
+            @if (produit.categorie) {
+              <div class="badge-cat">
+                {{ produit.categorie.nom }}
+              </div>
+            }
+
+            @if (produit.enPromotion) {
+              <div class="badge-top-right badge-promo">
+                Promo
+              </div>
+            } @else if (isNew(produit)) {
+              <div class="badge-top-right badge-new">
+                Nouveau
+              </div>
+            }
+
+            <!-- BODY -->
+            <div class="sport-card__body">
+              <h5 class="fw-bold mb-1">
+                {{ produit.nom }}
+              </h5>
+
+              <p class="text-muted small mb-3">
+                {{ produit.description | slice:0:65 }}...
+              </p>
+
+              <div class="d-flex justify-content-between align-items-end">
+                <div>
+                  @if (produit.enPromotion && produit.prixPromo) {
+                    <small class="text-muted">
+                      <del>{{ produit.prix | number }} FCFA</del>
+                    </small>
+                    <div class="text-danger fs-5 fw-bold">
+                      {{ produit.prixPromo | number }} FCFA
+                    </div>
+                  } @else {
+                    <div class="fs-5 fw-bold text-green">
+                      {{ produit.prix | number }} FCFA
+                    </div>
+                  }
+                </div>
+                <button class="btn btn-sm btn-green rounded-pill px-3">
+                  →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

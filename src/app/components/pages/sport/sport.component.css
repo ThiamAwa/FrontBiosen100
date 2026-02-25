@@ -1,0 +1,88 @@
+.title-green {
+  color: #287747;
+}
+
+.text-green {
+  color: #287747;
+}
+
+.btn-green {
+  background: linear-gradient(135deg,#287747,#1a5230);
+  color: white;
+  border: none;
+}
+
+.sport-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+  transition: .3s;
+  position: relative;
+}
+
+.sport-card:hover {
+  box-shadow: 0 12px 32px rgba(40,119,71,.15);
+  transform: translateY(-5px);
+}
+
+.sport-card__img-wrap {
+  position: relative;
+  height: 280px;
+  overflow: hidden;
+  background: #e8f5eb;
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(40,119,71,.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: .3s;
+}
+
+.sport-card:hover .card-overlay {
+  opacity: 1;
+}
+
+.badge-cat {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #287747;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.badge-top-right {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.badge-promo {
+  background: #e53e3e;
+  color: white;
+}
+
+.badge-new {
+  background: #38a169;
+  color: white;
+}
+
+.no-img {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+  font-size:3rem;
+  color:#aaa;
+}

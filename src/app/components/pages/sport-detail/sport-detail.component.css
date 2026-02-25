@@ -1,0 +1,142 @@
+/* src/app/components/pages/sport-detail/sport-detail.component.css */
+.detail-main-viewer {
+  position: relative;
+  height: 460px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+}
+
+.viewer-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.viewer-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s;
+}
+
+.viewer-prev { left: 14px; }
+.viewer-next { right: 14px; }
+.viewer-arrow:hover { background: rgba(40,119,71,.9); }
+
+.viewer-counter {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  background: rgba(0,0,0,.55);
+  color: white;
+  padding: 3px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.viewer-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+}
+
+.badge-image {
+  background: rgba(40,119,71,.85);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.badge-video {
+  background: rgba(255,0,0,.85);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.thumb-strip {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.thumb-strip::-webkit-scrollbar { height: 4px; }
+.thumb-strip::-webkit-scrollbar-thumb { background: #287747; border-radius: 4px; }
+
+.thumb-item {
+  flex-shrink: 0;
+  width: 82px;
+  height: 82px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid #e0e0e0;
+  transition: border-color .2s, transform .2s;
+  position: relative;
+}
+
+.thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-active {
+  border-color: #287747 !important;
+}
+
+.thumb-item:hover {
+  border-color: #287747;
+  transform: scale(1.05);
+}
+
+.thumb-yt-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.thumb-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.price-box {
+  background: #f8fff9;
+  border-left: 4px solid #287747;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 20px;
+}

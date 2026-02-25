@@ -107,5 +107,4 @@ export class ProduitSportService {
     return this.http.get<any[]>(`${this.apiUrl}/categories`);
   }
 
-
 }

@@ -11,13 +11,12 @@ import { debounceTime, Subject, switchMap } from 'rxjs';
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule  // Important pour les formulaires
+    FormsModule
   ],
   templateUrl: './sport.component.html',
   styleUrls: ['./sport.component.css']
 })
 export class SportComponent implements OnInit {
-  // Données
   produits: any[] = [];
   categories: any[] = [];
   pagination: any = {

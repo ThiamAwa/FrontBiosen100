@@ -84,20 +84,30 @@
                       </li>
 
                       <!-- Catégories dynamiques -->
-                      @for (categorie of categories; track categorie.id) {
-                        <li class="mb-3">
-                          <div class="d-flex justify-content-between align-items-center">
-                            <a
-                              href="javascript:void(0)"
-                              (click)="filters.categorie=categorie.id; applyFilters()"
-                              [class.fw-bold]="filters.categorie == categorie.id"
-                              class="text-dark text-decoration-none">
-                              <i class="fas fa-tshirt me-2" style="color:#287747;"></i>{{ categorie.nom }}
-                            </a>
-                            <span class="badge rounded-pill" style="background:#287747;">
-                              {{ getCategoryCount(categorie.id) }}
-                            </span>
-                          </div>
+                      @if (categories && categories.length > 0) {
+                        @for (categorie of categories; track categorie.id) {
+                          <li class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <a
+                                href="javascript:void(0)"
+                                (click)="filters.categorie = categorie.id; applyFilters()"
+                                [class.fw-bold]="filters.categorie == categorie.id"
+                                class="text-dark text-decoration-none">
+                                <i class="fas fa-tshirt me-2" style="color:#287747;"></i>{{ categorie.nom }}
+                              </a>
+                              <span class="badge rounded-pill" style="background:#287747;">
+                                {{ getCategoryCount(categorie.id) }}
+                              </span>
+                            </div>
+                          </li>
+                        }
+                      } @else {
+                        <li class="mb-3 text-muted text-center">
+                          @if (loading) {
+                            Chargement des catégories...
+                          } @else {
+                            Aucune catégorie disponible
+                          }
                         </li>
                       }
                     </ul>
@@ -157,7 +167,7 @@
                 <div class="col-lg-12">
                   <div class="position-relative rounded overflow-hidden shadow-custom">
                     <img
-                      src="assets/img/sport/tenue1.jpeg"
+                      src="assets/img/biosen/tenue1.jpeg"
                       class="img-fluid w-100"
                       style="height:200px;object-fit:cover;"
                       onerror="this.src='assets/img/biosen/tenue1.jpeg'">

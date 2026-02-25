@@ -1,16 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router'; // Ajouter RouterModule
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ProduitSport, ProduitMedia } from '../../../models/produit-sport.model';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { ProduitSportService } from '../../../services/produit-sport/produit-sport.service';
-import { environment } from '../../../../environments/environment'; // 👈 IMPORTER ENVIRONMENT
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-sport-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule], // Ajouter RouterModule pour le lien retour
+  imports: [CommonModule, RouterModule],
   templateUrl: './sport-detail.component.html',
   styleUrls: ['./sport-detail.component.css']
 })
@@ -20,6 +20,15 @@ export class SportDetailComponent implements OnInit, OnDestroy {
   currentIndex = 0;
   loading = true;
   error = '';
+
+  // États pour la modale vidéo (comme dans témoignages)
+  showVideoModal = false;
+  currentVideoUrl: SafeResourceUrl | null = null;
+  currentVideoExternalUrl = '';
+
+  // Lightbox pour les images
+  showLightbox = false;
+  currentImageUrl = '';
 
   private subscription?: Subscription;
 
@@ -68,12 +77,49 @@ export class SportDetailComponent implements OnInit, OnDestroy {
     return media.type === 'video_url';
   }
 
-  getVideoEmbedUrl(media: ProduitMedia): SafeResourceUrl | null {
+  // Méthode pour ouvrir la modale vidéo (comme dans témoignages)
+  openVideoModal(media: ProduitMedia): void {
     const url = media.embed_url || media.url_externe;
-    if (!url) return null;
+    if (!url) return;
 
     const embedUrl = this.produitService.getEmbedUrl(url);
-    return embedUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl) : null;
+    this.currentVideoUrl = embedUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl) : null;
+    this.currentVideoExternalUrl = url;
+    this.showVideoModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Fermer la modale vidéo
+  closeVideoModal(): void {
+    this.showVideoModal = false;
+    this.currentVideoUrl = null;
+    document.body.style.overflow = '';
+  }
+
+  // Ouvrir la lightbox pour les images
+  openLightbox(imageUrl: string): void {
+    this.currentImageUrl = imageUrl;
+    this.showLightbox = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Fermer la lightbox
+  closeLightbox(): void {
+    this.showLightbox = false;
+    document.body.style.overflow = '';
+  }
+
+  // Fermer avec la touche Echap
+  @HostListener('document:keydown.escape')
+  onEscapePress(): void {
+    if (this.showVideoModal) this.closeVideoModal();
+    if (this.showLightbox) this.closeLightbox();
+  }
+
+  // Fermer en cliquant à l'extérieur
+  closeOnOutsideClick(event: MouseEvent): void {
+    if (this.showVideoModal) this.closeVideoModal();
+    if (this.showLightbox) this.closeLightbox();
   }
 
   getImagesCount(): number {
@@ -106,7 +152,6 @@ export class SportDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Pour l'image principale legacy
   getLegacyImage(): string {
     if (this.produit?.image) {
       return this.produit.image.startsWith('http')
@@ -128,10 +173,20 @@ export class SportDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  addToCart(): void {
-    if (!this.produit || this.produit.stock <= 0) return;
+  // Récupérer la vignette de la vidéo
+  getVideoThumbnail(media: ProduitMedia): string {
+    if (media.youtube_thumbnail) {
+      return media.youtube_thumbnail;
+    }
+    // Fallback si pas de vignette
+    return 'assets/img/video-placeholder.jpg';
+  }
 
-    // Logique d'ajout au panier
-    console.log('Ajout au panier:', this.produit);
+  onImageError(event: any): void {
+    event.target.src = 'assets/img/placeholder.jpeg';
+  }
+
+  formatPrice(price: number): string {
+    return new Intl.NumberFormat('fr-FR').format(price);
   }
 }

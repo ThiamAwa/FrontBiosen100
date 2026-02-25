@@ -1,31 +1,28 @@
-.title-green {
-  color: #287747;
+/* Header */
+.page-header {
+  background: linear-gradient(135deg, #1a5230, #287747);
+  min-height: 200px;
 }
 
-.text-green {
-  color: #287747;
-}
-
-.btn-green {
-  background: linear-gradient(135deg,#287747,#1a5230);
-  color: white;
-  border: none;
-}
-
+/* Cards */
 .sport-card {
   border: 1px solid #e0e0e0;
   border-radius: 14px;
   overflow: hidden;
   background: white;
-  transition: .3s;
+  transition: box-shadow 0.3s, transform 0.3s;
   position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .sport-card:hover {
-  box-shadow: 0 12px 32px rgba(40,119,71,.15);
+  box-shadow: 0 12px 32px rgba(40,119,71,0.15);
   transform: translateY(-5px);
 }
 
+/* Zone image */
 .sport-card__img-wrap {
   position: relative;
   height: 280px;
@@ -33,39 +30,129 @@
   background: #e8f5eb;
 }
 
+/* Slides */
+.sport-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.sport-slide.active {
+  opacity: 1;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.sport-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sport-slide.no-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #aaa;
+}
+
+/* Overlay */
 .card-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(40,119,71,.82);
+  z-index: 5;
+  background: rgba(40,119,71,0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: .3s;
+  transition: opacity 0.3s;
+  cursor: pointer;
 }
 
 .sport-card:hover .card-overlay {
   opacity: 1;
 }
 
+.card-overlay .btn {
+  pointer-events: none;
+}
+
+/* Points de navigation */
+.slider-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 4;
+}
+
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.45);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  z-index: 10;
+}
+
+.sdot:hover {
+  background: white;
+}
+
+.sdot-on {
+  background: white;
+  transform: scale(1.3);
+}
+
+/* Compteur */
+.slide-count {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  backdrop-filter: blur(2px);
+}
+
+/* Badges sur image */
 .badge-cat {
   position: absolute;
   top: 14px;
   left: 14px;
+  z-index: 3;
   background: #287747;
   color: white;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 6px;
   font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .badge-top-right {
   position: absolute;
   top: 14px;
   right: 14px;
-  padding: 3px 10px;
+  z-index: 3;
+  padding: 4px 12px;
   border-radius: 6px;
   font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .badge-promo {
@@ -78,11 +165,198 @@
   color: white;
 }
 
-.no-img {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100%;
-  font-size:3rem;
-  color:#aaa;
+.badge-vid {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 4;
+  background: rgba(255,0,0,0.85);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Corps de la carte */
+.sport-card__body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sidebar */
+.shadow-custom {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.fruite-categorie a {
+  transition: all 0.25s;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+.fruite-categorie a:hover {
+  color: #287747 !important;
+  padding-left: 5px;
+}
+
+.fruite-categorie a.fw-bold {
+  color: #287747 !important;
+}
+
+/* Range slider */
+.form-range::-webkit-slider-thumb {
+  background: #287747;
+}
+
+.form-range::-moz-range-thumb {
+  background: #287747;
+}
+
+.form-range::-ms-thumb {
+  background: #287747;
+}
+
+/* Pagination */
+.pagination {
+  gap: 5px;
+}
+
+.pagination .page-link {
+  color: #287747;
+  border: 1px solid #287747;
+  border-radius: 8px;
+  margin: 0 2px;
+  padding: 8px 14px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.pagination .page-item.active .page-link {
+  background: #287747;
+  border-color: #287747;
+  color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+  background: #f5f5f5;
+  border-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.pagination .page-link:hover:not(.disabled .page-link) {
+  background: #287747;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40,119,71,0.2);
+}
+
+/* Formulaire */
+.input-group-text {
+  border-radius: 0 8px 8px 0 !important;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.input-group-text:hover {
+  background: #1a5230 !important;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #287747;
+}
+
+.form-select-sm {
+  cursor: pointer;
+  outline: none;
+}
+
+.form-select-sm:focus {
+  box-shadow: none;
+  border-color: #287747;
+}
+
+/* Checkbox personnalisée */
+.form-check-input:checked {
+  background-color: #287747;
+  border-color: #287747;
+}
+
+/* Animation de chargement */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sport-card__img-wrap {
+    height: 220px;
+  }
+
+  .badge-cat, .badge-top-right {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .pagination .page-link {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}
+
+/* Newsletter section */
+.newsletter-section {
+  background: linear-gradient(135deg, #287747, #1a5230);
+  color: white;
+  padding: 60px 0;
+}
+
+/* Utilitaires */
+.text-green {
+  color: #287747;
+}
+
+.bg-green {
+  background: #287747;
+}
+
+.btn-green {
+  background: #287747;
+  color: white;
+  border: none;
+  transition: all 0.3s;
+}
+
+.btn-green:hover {
+  background: #1a5230;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40,119,71,0.2);
+}
+
+/* Animation d'entrée */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sport-card {
+  animation: fadeInUp 0.5s ease-out;
 }

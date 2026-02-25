@@ -81,4 +81,31 @@ export class ProduitSportService {
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
     return ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null;
   }
+
+  getProduitsWithFilters(params: any): Observable<any> {
+    let url = `${this.apiUrl}/produits-sport?`;
+
+    if (params.page) url += `page=${params.page}&`;
+    if (params.search) url += `search=${encodeURIComponent(params.search)}&`;
+    if (params.categorie) url += `categorie=${params.categorie}&`;
+    if (params.prix_max) url += `prix_max=${params.prix_max}&`;
+    if (params.en_promotion) url += `en_promotion=${params.en_promotion}&`;
+    if (params.sort && params.sort !== 'default') url += `sort=${params.sort}&`;
+
+    return this.http.get<any>(url).pipe(
+      map(response => ({
+        ...response,
+        produits: {
+          ...response.produits,
+          data: response.produits.data.map((p: any) => this.normalizeProduit(p))
+        }
+      }))
+    );
+  }
+
+  getCategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/categories`);
+  }
+
+
 }

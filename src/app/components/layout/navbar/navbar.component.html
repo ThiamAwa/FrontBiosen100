@@ -1,51 +1,26 @@
 <div class="container-fluid fixed-top">
 
-  <!-- Topbar -->
-  <div class="container topbar d-none d-lg-block" style="background-color:#287747">
-    <div class="d-flex justify-content-between">
-      <div class="top-info ps-2">
-        <small class="me-3">
-          <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
-          <a href="#" class="text-white">123 Street, New York</a>
-        </small>
-        <small class="me-3">
-          <i class="fas fa-envelope me-2 text-secondary"></i>
-          <a href="mailto:contact@biosen.com" class="text-white">contact&#64;biosen.com</a>
-        </small>
-      </div>
-      <div class="top-link pe-2">
-        <a routerLink="/confidentialite" class="text-white"><small class="mx-2">Confidentialité</small>/</a>
-        <a routerLink="/conditions" class="text-white"><small class="mx-2">Conditions d'utilisation</small>/</a>
-        <a routerLink="/remboursements" class="text-white"><small class="ms-2">Ventes et
-          Remboursements</small></a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Navbar principale -->
-  <div class="container px-0">
-    <nav class="navbar navbar-light bg-white navbar-expand-xl">
-      <a routerLink="/" class="navbar-brand">
-        <h1 style="color:#287747" class="display-6">BioSen 100</h1>
-      </a>
-
-      <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navbarCollapse">
-        <span class="fa fa-bars text-primary"></span>
-      </button>
-
-      <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
-
-        <!-- Liens de navigation -->
-        <div class="navbar-nav mx-auto">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}"
-             class="nav-item nav-link">Accueil</a>
-          <a routerLink="/boutique" routerLinkActive="active" class="nav-item nav-link">Boutique</a>
-          <a routerLink="/temoignages" routerLinkActive="active" class="nav-item nav-link">Témoignages et
-            Conseils</a>
-          <a routerLink="/sport" routerLinkActive="active" class="nav-item nav-link">Sport</a>
-          <a routerLink="/contact" routerLinkActive="active" class="nav-item nav-link">Contact</a>
+    <!-- Topbar -->
+    <div class="container topbar d-none d-lg-block" style="background-color:#287747">
+        <div class="d-flex justify-content-between">
+            <div class="top-info ps-2">
+                <small class="me-3">
+                    <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
+                    <a href="#" class="text-white">123 Street, New York</a>
+                </small>
+                <small class="me-3">
+                    <i class="fas fa-envelope me-2 text-secondary"></i>
+                    <a href="mailto:contact@biosen.com" class="text-white">contact&#64;biosen.com</a>
+                </small>
+            </div>
+            <div class="top-link pe-2">
+                <a routerLink="/confidentialite" class="text-white"><small class="mx-2">Confidentialité</small>/</a>
+                <a routerLink="/conditions" class="text-white"><small class="mx-2">Conditions d'utilisation</small>/</a>
+                <a routerLink="/remboursements" class="text-white"><small class="ms-2">Ventes et
+                        Remboursements</small></a>
+            </div>
         </div>
+    </div>
 
     <!-- Navbar principale -->
     <div class="container px-0">
@@ -72,6 +47,7 @@
                     <a routerLink="/contact" routerLinkActive="active" class="nav-item nav-link">Contact</a>
                 </div>
 
+                <!-- Actions droite -->
                 <div class="d-flex align-items-center m-3 me-0 gap-3">
 
                     <!-- Bouton Recherche -->
@@ -79,21 +55,7 @@
                         <i class="fas fa-search text-primary"></i>
                     </button>
 
-                    <!-- Bouton Panier -->
-                    <button type="button" class="btn-panier position-relative text-dark border-0 bg-transparent p-0"
-                        (click)="openCartModal()" title="Mon panier">
-                        <i class="fa fa-shopping-bag fa-2x"></i>
-                        <span
-                            class="position-absolute rounded-circle d-flex align-items-center justify-content-center text-white cart-badge"
-                            [class.d-none]="cartService.totalItems() === 0">
-                            {{ cartService.totalItems() }}
-                        </span>
-                    </button>
-
-
-
-                    <!-- Visiteur non connecté -->
-
+                    <!-- Dropdown Mon Compte -->
                     <div class="dropdown">
                         <a href="#" class="dropdown-toggle text-dark d-flex align-items-center gap-2"
                             data-bs-toggle="dropdown">
@@ -106,7 +68,8 @@
                             </li>
                             <li>
                                 <button class="dropdown-item" (click)="openLoginModal()">
-                                    <i class="fas fa-sign-in-alt me-2 text-primary"></i><strong>Se connecter</strong>
+                                    <i class="fas fa-sign-in-alt me-2 text-primary"></i>
+                                    <strong>Se connecter</strong>
                                 </button>
                             </li>
                             <li>
@@ -118,29 +81,27 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a href="#" class="dropdown-item" (click)="openCartModal()">
-                                    <i class="fas fa-shopping-bag me-2" style="color:#287747"></i>Mon Panier
-                                    <span class="badge ms-2" style="background:#287747">{{ cartService.totalItems()
-                                        }}</span>
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-shipping-fast me-2 text-secondary"></i>Suivre ma commande
                                 </a>
                             </li>
-                            <li><a href="#" class="dropdown-item"><i
-                                        class="fas fa-shipping-fast me-2 text-secondary"></i>Suivre ma commande</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a href="#" class="dropdown-item"><i class="fas fa-headset me-2 text-muted"></i>Aide &
-                                    Support</a></li>
+                            <li>
+                                <a href="#" class="dropdown-item">
+                                    <i class="fas fa-headset me-2 text-muted"></i>Aide & Support
+                                </a>
+                            </li>
                         </ul>
                     </div>
-
 
                 </div>
             </div>
         </nav>
     </div>
 
-    <!-- ✅ Modal Connexion -->
+    <!-- Modal Connexion -->
     @if (authService.loginModalOpen()) {
     <div class="modal-backdrop-custom" (click)="close()"></div>
     <div class="modal d-block" tabindex="-1" style="z-index:1055;">
@@ -153,6 +114,7 @@
                     <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
                 </div>
                 <div class="modal-body p-4">
+
                     <!-- Erreurs -->
                     @if (errors.length > 0) {
                     <div class="alert alert-danger alert-dismissible fade show">
@@ -163,6 +125,7 @@
                         <button type="button" class="btn-close" (click)="errors = []"></button>
                     </div>
                     }
+
                     <form (ngSubmit)="login()">
                         <!-- Email -->
                         <div class="mb-3">
@@ -172,6 +135,7 @@
                             <input type="email" id="email" class="form-control" [(ngModel)]="credentials.email"
                                 name="email" required>
                         </div>
+
                         <!-- Mot de passe -->
                         <div class="mb-3">
                             <label for="password" class="form-label">
@@ -180,12 +144,14 @@
                             <input type="password" id="password" class="form-control" [(ngModel)]="credentials.password"
                                 name="password" placeholder="••••••••" required>
                         </div>
-                        <!-- Remember me -->
+
+                        <!-- Se souvenir -->
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="remember"
                                 [(ngModel)]="credentials.remember" name="remember">
                             <label class="form-check-label" for="remember">Se souvenir de moi</label>
                         </div>
+
                         <!-- Submit -->
                         <div class="d-grid gap-2 mb-3">
                             <button type="submit" class="btn btn-lg text-white" style="background-color:#287747;"
@@ -198,10 +164,13 @@
                                 Se connecter
                             </button>
                         </div>
+
                         <div class="text-center">
                             <a href="#" class="text-muted small">Mot de passe oublié ?</a>
                         </div>
+
                         <hr class="my-4">
+
                         <div class="text-center">
                             <p class="mb-0">Pas encore de compte ?</p>
                             <a routerLink="/register" class="fw-bold" style="color:#287747;" (click)="close()">
@@ -214,5 +183,3 @@
         </div>
     </div>
     }
-
-</div>

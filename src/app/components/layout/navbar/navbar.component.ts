@@ -2,7 +2,8 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CartService } from '../../../services/cart/cart.service';
+// import { CartService } from '../../../services/cart/cart.service';
+
 import { AuthService, LoginCredentials } from '../../../services/auth/auth.service';
 
 @Component({
@@ -25,9 +26,9 @@ export class NavbarComponent {
     remember: false
   };
 
-  openCartModal() {
-    this.cartService.openCart();
-  }
+  // openCartModal() {
+  //   this.cartService.openCart();
+  // }
 
   openLoginModal() {
     this.authService.openLoginModal();

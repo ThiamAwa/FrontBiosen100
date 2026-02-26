@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { AccueilService } from '../../../services/accueil/accueil.service';
 import { AccueilData, Gamme, Produit, Vendeur } from '../../../models/produit.model';
+import Swiper from 'swiper';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 
 // Déclaration pour les librairies externes
 declare var $: any;
@@ -52,6 +54,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadData();
+
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        console.log('jQuery chargé:', typeof $ !== 'undefined');
+        console.log('Owl Carousel chargé:', typeof $ !== 'undefined' && $.fn.owlCarousel ? 'oui' : 'non');
+      }, 2000);
+    }
   }
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -87,7 +96,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
         setTimeout(() => {
           this.initLibraries();
-        }, 500);
+        }, 1000);
       },
       error: (err) => {
         console.error('Erreur chargement accueil:', err);
@@ -112,8 +121,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Initialiser le carousel Bootstrap
     this.initBootstrapCarousel();
 
-    // Initialiser Owl Carousel pour les gammes
-    this.initOwlCarousel();
+    // Initialiser Swiper au lieu d'Owl Carousel
+    this.initSwiper();
 
     // Initialiser les compteurs
     this.initCounters();
@@ -133,28 +142,63 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  initOwlCarousel(): void {
-    if (typeof $ !== 'undefined' && $('.gammes-carousel').length && !this.owlInitialized) {
-      $('.gammes-carousel').owlCarousel({
-        autoplay: true,
-        autoplayTimeout: 3000,
-        autoplayHoverPause: true,
-        smartSpeed: 1000,
-        margin: 24,
-        dots: false,
-        loop: true,
-        nav: false,
-        responsive: {
-          0: { items: 1 },
-          576: { items: 2 },
-          992: { items: 3 },
-          1200: { items: 4 }
-        }
-      });
-      this.owlInitialized = true;
-    }
-  }
+  initSwiper(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
 
+    import('swiper').then((module) => {
+      import('swiper/modules').then(({ Autoplay, Pagination, Navigation }) => {
+        setTimeout(() => {
+          try {
+            const swiperEl = document.querySelector('.gammes-swiper');
+            if (!swiperEl) {
+              console.warn('Swiper element not found');
+              return;
+            }
+
+            new module.default('.gammes-swiper', {
+              modules: [Autoplay, Pagination, Navigation],
+              slidesPerView: 1,
+              spaceBetween: 20,
+              loop: true,
+              speed: 600,              // ✅ Transition plus rapide (600ms au lieu de 800ms)
+
+              autoplay: {
+                delay: 1800,           // ✅ Défilement toutes les 1.8s (au lieu de 3s)
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              },
+
+              pagination: {
+                el: '.gammes-swiper .swiper-pagination',
+                clickable: true,
+                dynamicBullets: true,
+              },
+
+              navigation: {
+                nextEl: '.gammes-swiper .swiper-button-next',
+                prevEl: '.gammes-swiper .swiper-button-prev',
+              },
+
+              breakpoints: {
+                576: { slidesPerView: 2, spaceBetween: 16 },
+                992: { slidesPerView: 3, spaceBetween: 20 },
+                1200: { slidesPerView: 4, spaceBetween: 20 },
+              },
+
+              on: {
+                init: function () {
+                  console.log('✅ Swiper initialisé');
+                }
+              }
+            });
+
+          } catch (error) {
+            console.error('❌ Erreur Swiper:', error);
+          }
+        }, 800);
+      });
+    });
+  }
   initCounters(): void {
     const counters = document.querySelectorAll('.counter');
     const speed = 200;

@@ -63,57 +63,6 @@
             <div class="col-lg-3">
               <div class="row g-4">
 
-                <!-- Filtre Catégories -->
-                <div class="col-lg-12">
-                  <div class="mb-3 bg-white p-4 rounded shadow-custom">
-                    <h4 class="mb-4 fw-bold" style="color:#287747;">Catégories</h4>
-                    <ul class="list-unstyled fruite-categorie">
-
-                      <!-- Tous -->
-                      <li class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                          <a
-                            href="javascript:void(0)"
-                            (click)="filters.categorie=''; applyFilters()"
-                            [class.fw-bold]="!filters.categorie"
-                            class="text-dark text-decoration-none">
-                            <i class="fas fa-th me-2" style="color:#287747;"></i>Tous
-                          </a>
-                          <span class="badge rounded-pill" style="background:#287747;">{{ stats.total }}</span>
-                        </div>
-                      </li>
-
-                      <!-- Catégories dynamiques -->
-                      @if (categories && categories.length > 0) {
-                        @for (categorie of categories; track categorie.id) {
-                          <li class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                              <a
-                                href="javascript:void(0)"
-                                (click)="filters.categorie = categorie.id; applyFilters()"
-                                [class.fw-bold]="filters.categorie == categorie.id"
-                                class="text-dark text-decoration-none">
-                                <i class="fas fa-tshirt me-2" style="color:#287747;"></i>{{ categorie.nom }}
-                              </a>
-                              <span class="badge rounded-pill" style="background:#287747;">
-                                {{ getCategoryCount(categorie.id) }}
-                              </span>
-                            </div>
-                          </li>
-                        }
-                      } @else {
-                        <li class="mb-3 text-muted text-center">
-                          @if (loading) {
-                            Chargement des catégories...
-                          } @else {
-                            Aucune catégorie disponible
-                          }
-                        </li>
-                      }
-                    </ul>
-                  </div>
-                </div>
-
                 <!-- Filtre Prix -->
                 <div class="col-lg-12">
                   <div class="mb-3 bg-white p-4 rounded shadow-custom">

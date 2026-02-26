@@ -1,0 +1,244 @@
+/* Header */
+.page-header {
+  background: linear-gradient(135deg, #1a5230, #287747);
+  min-height: 200px;
+}
+
+/* Cards */
+.fruite-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.3s ease;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.fruite-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(40, 119, 71, 0.15);
+}
+
+/* Image container */
+.fruite-img {
+  position: relative;
+  height: 280px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.fruite-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.fruite-item:hover .fruite-img img {
+  transform: scale(1.1);
+}
+
+/* Overlay */
+.product-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(40, 119, 71, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.fruite-img:hover .product-overlay {
+  opacity: 1;
+}
+
+.product-overlay .btn {
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.fruite-img:hover .product-overlay .btn {
+  transform: translateY(0);
+}
+
+/* Badges */
+.badge {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 2;
+}
+
+/* Content */
+.fruite-item .p-4 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fruite-item .p-4 p {
+  flex: 1;
+}
+
+/* Bouton ajout panier */
+.btn-primary-custom {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary-custom:hover:not(:disabled) {
+  background-color: #1a5230 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 119, 71, 0.3);
+}
+
+.btn-primary-custom:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sidebar */
+.shadow-custom {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.fruite-categorie a {
+  transition: all 0.25s;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+.fruite-categorie a:hover {
+  color: #287747 !important;
+  padding-left: 5px;
+}
+
+.fruite-categorie a.fw-bold {
+  color: #287747 !important;
+}
+
+/* Range slider */
+.form-range::-webkit-slider-thumb {
+  background: #287747;
+}
+
+.form-range::-moz-range-thumb {
+  background: #287747;
+}
+
+/* Checkbox */
+.form-check-input:checked {
+  background-color: #287747;
+  border-color: #287747;
+}
+
+/* Pagination */
+.pagination {
+  gap: 5px;
+}
+
+.pagination .page-link {
+  color: #287747;
+  border: 1px solid #287747;
+  border-radius: 8px;
+  transition: all 0.3s;
+  cursor: pointer;
+  background: white;
+}
+
+.pagination .page-item.active .page-link {
+  background: #287747;
+  border-color: #287747;
+  color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+  background: #f5f5f5;
+  border-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pagination .page-link:hover:not(.disabled .page-link) {
+  background: #287747;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40,119,71,0.3);
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #287747;
+}
+
+/* Notification */
+.position-fixed.top-0.end-0 {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fruite-img {
+    height: 220px;
+  }
+
+  .page-header {
+    min-height: 150px;
+  }
+
+  .display-4 {
+    font-size: 2.2rem;
+  }
+
+  .display-5 {
+    font-size: 1.8rem;
+  }
+
+  .pagination .page-link {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}
+
+/* Animation d'entrée des cartes */
+.fruite-item {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

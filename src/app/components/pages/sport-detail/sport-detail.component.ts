@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { ProduitSport, ProduitMedia } from '../../../models/produit-sport.model';
+import { ProduitSport, ProduitMedia } from '../../../models/produit-sport';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { ProduitSportService } from '../../../services/produit-sport/produit-sport.service';

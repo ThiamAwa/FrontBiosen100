@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TemoignageService } from '../../../services/temoignage/temoignage.service';
-import { Temoignage } from '../../../models/temoignage.model';
+import { Temoignage } from '../../../models/temoignage';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 

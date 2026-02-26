@@ -1,0 +1,34 @@
+<div class="sb-nav-fixed admin-shell admin-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
+
+    <!-- ① Navbar admin -->
+    <app-admin-navbar [sidebarCollapsed]="sidebarCollapsed()" (toggleSidebar)="toggleSidebar()">
+    </app-admin-navbar>
+
+    <div id="layoutSidenav">
+
+        <!-- ② Sidebar admin -->
+        <app-admin-sidebar [collapsed]="sidebarCollapsed()">
+        </app-admin-sidebar>
+
+        <!-- ③ Contenu des pages admin -->
+        <div id="layoutSidenav_content">
+            <main>
+                <router-outlet></router-outlet>
+            </main>
+
+            <footer class="admin-footer py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; BioSen100 {{ currentYear }}</div>
+                        <div>
+                            <a href="#">Politique de confidentialité</a>
+                            &middot;
+                            <a href="#">Conditions d'utilisation</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+    </div>
+</div>

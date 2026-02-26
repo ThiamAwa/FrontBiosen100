@@ -35,10 +35,7 @@
               "src/styles.css",
               "src/assets/css/style.css",
               "src/assets/css/bootstrap.min.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/owl.carousel/dist/assets/owl.carousel.min.css",
-              "node_modules/owl.carousel/dist/assets/owl.theme.default.min.css",
-
+              "src/assets/css/styleAdmin.css"
             ],
             "scripts": [
               "src/assets/lib/easing/easing.min.js",
@@ -79,10 +76,12 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Biosen100:build:production"
+              "buildTarget": "Biosen100:build:production",
+              "proxyConfig": "proxy.conf.json"
             },
             "development": {
-              "buildTarget": "Biosen100:build:development"
+              "buildTarget": "Biosen100:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

@@ -310,16 +310,15 @@
   transform: scale(1.35);
 }
 
-/* ── Flèches Swiper ──
-   ✅ Version stable : on utilise uniquement les variables CSS Swiper
-   sans toucher à ::after pour ne pas casser le rendu des slides      */
+/* ── Flèches Swiper ──*/
+
 .gammes-swiper .swiper-button-prev,
 .gammes-swiper .swiper-button-next {
   --swiper-navigation-size: 18px;
   --swiper-navigation-color: #287747;
 
   position: absolute !important;
-  top: 150px !important;
+  top: 50% !important;
   transform: translateY(-50%) !important;
   margin-top: 0 !important;
 
@@ -335,8 +334,6 @@
 .gammes-swiper .swiper-button-prev { left: 6px !important; }
 .gammes-swiper .swiper-button-next { right: 6px !important; }
 
-/* ✅ Centrage de l'icône : on ajuste uniquement la taille et couleur
-   SANS redéfinir content ni width/height sur ::after              */
 .gammes-swiper .swiper-button-prev::after,
 .gammes-swiper .swiper-button-next::after {
   font-size: 16px !important;

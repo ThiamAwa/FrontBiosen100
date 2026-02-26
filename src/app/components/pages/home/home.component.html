@@ -35,7 +35,7 @@
                 </div>
             </div>
 
-            <div class="col-md-12 col-lg-5">
+            <!-- <div class="col-md-12 col-lg-5">
                 <div data-aos="fade-left">
                     <div id="carouselId" class="carousel slide position-relative shadow-lg rounded"
                         data-bs-ride="carousel" data-bs-interval="3000">
@@ -88,7 +88,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -183,7 +183,7 @@
 <!-- Pourquoi BioSen Section End -->
 
 <!-- Catégories Phares Section Start - CAROUSEL POUR TOUTES LES GAMMES -->
-<div class="container-fluid py-5">
+<!-- <div class="container-fluid py-5">
     <div class="container">
         <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
             <h4 class="fw-semibold" style="color:#287747">Nos Solutions</h4>
@@ -219,7 +219,7 @@
             </div>
         </ng-template>
     </div>
-</div>
+</div> -->
 <!-- Catégories Phares Section End -->
 
 <!-- Products Shop Start -->
@@ -241,18 +241,18 @@
                                 <span class="text-white fw-semibold" style="width: 130px;">Tous</span>
                             </a>
                         </li>
-                        <li class="nav-item" *ngFor="let categorie of categories$ | async">
+                        <!-- <li class="nav-item" *ngFor="let categorie of categories$ | async">
                             <a class="d-flex py-2 m-2 rounded-pill text-dark" data-bs-toggle="pill"
                                 [attr.href]="'#tab-' + categorie.id">
                                 <span style="width: 130px;" class="fw-semibold">{{ categorie.nom }}</span>
                             </a>
-                        </li>
+                        </li> -->
                     </ul>
                 </div>
             </div>
             <div class="tab-content">
                 <!-- Onglet TOUS -->
-                <div id="tab-all" class="tab-pane fade show p-0 active">
+                <!-- <div id="tab-all" class="tab-pane fade show p-0 active">
                     <div class="row g-4">
                         <div class="col-lg-12">
                             <div class="row g-4">
@@ -267,13 +267,13 @@
                                                     style="height: 250px; object-fit: cover;">
                                             </div>
 
-                                            <!-- Badge Catégorie -->
+                                            
                                             <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
                                                 style="top: 15px; left: 15px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
                                                 <i class="fas fa-leaf me-1"></i> {{ produit.categorie_nom || 'Bio' }}
                                             </div>
 
-                                            <!-- Badge Promotion -->
+                                           
                                             <div *ngIf="produit.prix && produit.enPromotion && produit.prixPromo"
                                                 class="badge bg-danger position-absolute fw-semibold"
                                                 style="top: 15px; right: 15px;">
@@ -324,10 +324,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Onglets par catégorie -->
-                <ng-container *ngFor="let categorie of categories$ | async">
+                <!-- <ng-container *ngFor="let categorie of categories$ | async">
                     <div [id]="'tab-' + categorie.id" class="tab-pane fade p-0">
                         <div class="row g-4">
                             <div class="col-lg-12">
@@ -337,7 +337,7 @@
                                         <div *ngFor="let produit of produitsByCategorie(categorie.id) | async; let i = index"
                                             class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up"
                                             [attr.data-aos-delay]="(i + 1) * 100">
-                                            <!-- Même structure de carte produit -->
+                                           
                                             <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
                                                 <div class="fruite-img overflow-hidden">
                                                     <img [src]="produit.image ? '/storage/' + produit.image : '/assets/img/biosen/default-product.png'"
@@ -397,7 +397,7 @@
                             </div>
                         </div>
                     </div>
-                </ng-container>
+                </ng-container> -->
             </div>
         </div>
     </div>
@@ -553,7 +553,7 @@
 <app-whatsapp [vendeurs]="vendeurs$ | async"></app-whatsapp>
 
 <!-- MODALES POUR LES DIFFÉRENTES GAMMES -->
-<ng-container *ngFor="let gamme of gammes$ | async">
+<!-- <ng-container *ngFor="let gamme of gammes$ | async">
     <div class="modal fade" [id]="'gammeModal' + gamme.id" tabindex="-1"
         [attr.aria-labelledby]="'gammeModalLabel' + gamme.id" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -626,4 +626,4 @@
             </div>
         </div>
     </div>
-</ng-container>
+</ng-container> -->

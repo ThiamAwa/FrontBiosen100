@@ -1,0 +1,300 @@
+/* ============================================================
+   ADMIN SIDEBAR — admin-sidebar.component.css
+   ✅ Icônes VERTES — sélecteurs ultra-spécifiques anti-override
+   ✅ Scrollbar VERTE Chrome + Firefox
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+/* ══════════════════════════════════════════
+      VARIABLES
+   ══════════════════════════════════════════ */
+:root {
+    --green: #287747;
+    --green-dark: #1a5230;
+    --green-light: #52b788;
+    --green-icon-bg: #e8f5ee;
+    --text-dark: #1c1c1e;
+    --text-heading: #8a9e90;
+    --border: #f0f4f1;
+    --font: 'Nunito', sans-serif;
+}
+
+/* ══════════════════════════════════════════
+      SHELL
+   ══════════════════════════════════════════ */
+nav#layoutSidenav_nav {
+    width: 280px;
+    min-height: 100vh;
+    background: #ffffff !important;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 0;
+    z-index: 1020;
+    font-family: var(--font);
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+    box-shadow: inset -3px 0 0 var(--green);
+}
+
+/* ══════════════════════════════════════════
+      ✅ SCROLLBAR VERTE
+   ══════════════════════════════════════════ */
+nav#layoutSidenav_nav .sb-sidenav-menu {
+    flex: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 8px 0 20px;
+
+    /* ✅ Firefox scrollbar verte */
+    scrollbar-width: thin;
+    scrollbar-color: #287747 #e8f5ee;
+}
+
+/* ✅ Chrome / Edge / Safari scrollbar verte */
+nav#layoutSidenav_nav .sb-sidenav-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu::-webkit-scrollbar-track {
+    background: #e8f5ee;
+    border-radius: 10px;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu::-webkit-scrollbar-thumb {
+    background: #287747;
+    border-radius: 10px;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu::-webkit-scrollbar-thumb:hover {
+    background: #1a5230;
+}
+
+/* ══════════════════════════════════════════
+      SECTION HEADINGS
+   ══════════════════════════════════════════ */
+nav#layoutSidenav_nav .sb-sidenav-menu-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 26px 20px 10px 28px;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-heading);
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu-heading::before {
+    content: '';
+    display: block;
+    width: 22px;
+    height: 2.5px;
+    background: #287747;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+      NAV LINKS
+   ══════════════════════════════════════════ */
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 12px 16px 12px 20px !important;
+    margin: 2px 14px 2px 14px;
+    border-radius: 14px;
+    text-decoration: none !important;
+    color: var(--text-dark) !important;
+    font-family: var(--font);
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    transition: background 0.18s ease, color 0.18s ease;
+    background: transparent;
+    opacity: 0;
+    animation: sidebarIn 0.3s ease forwards;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(1) {
+    animation-delay: 0.03s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(2) {
+    animation-delay: 0.06s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(3) {
+    animation-delay: 0.09s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(4) {
+    animation-delay: 0.12s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(5) {
+    animation-delay: 0.15s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(6) {
+    animation-delay: 0.18s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(7) {
+    animation-delay: 0.21s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(8) {
+    animation-delay: 0.24s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(9) {
+    animation-delay: 0.27s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(10) {
+    animation-delay: 0.30s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(11) {
+    animation-delay: 0.33s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(12) {
+    animation-delay: 0.36s;
+}
+
+@keyframes sidebarIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Hover */
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:hover {
+    background: #f2faf5 !important;
+    color: #287747 !important;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:hover .sb-nav-link-icon {
+    background: #d0ebdb !important;
+    transform: scale(1.05);
+}
+
+/* Active */
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active {
+    background: #edf7f1 !important;
+    color: #287747 !important;
+    font-weight: 800;
+}
+
+/* ══════════════════════════════════════════
+      ✅ ICÔNE BOX — fond vert pâle
+   ══════════════════════════════════════════ */
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    border-radius: 12px !important;
+    background: #e8f5ee !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0;
+    transition: all 0.18s ease;
+}
+
+/* ✅ ICÔNE COULEUR VERTE — sélecteurs maximalement spécifiques */
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon i {
+    color: #287747 !important;
+    font-size: 18px !important;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon .fas {
+    color: #287747 !important;
+    font-size: 18px !important;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon .far {
+    color: #287747 !important;
+    font-size: 18px !important;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon .fab {
+    color: #287747 !important;
+    font-size: 18px !important;
+}
+
+/* ✅ Lien ACTIF — icône blanche sur fond vert */
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
+    background: linear-gradient(135deg, #287747 0%, #1a5230 100%) !important;
+    box-shadow: 0 4px 12px rgba(40, 119, 71, 0.32) !important;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active .sb-nav-link-icon i,
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active .sb-nav-link-icon .fas,
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active .sb-nav-link-icon .far,
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active .sb-nav-link-icon .fab {
+    color: #ffffff !important;
+}
+
+/* ══════════════════════════════════════════
+      FOOTER
+   ══════════════════════════════════════════ */
+nav#layoutSidenav_nav .sb-sidenav-footer {
+    padding: 16px 22px;
+    border-top: 1px solid var(--border);
+    background: #f9fcfa !important;
+    font-family: var(--font);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-footer::before {
+    content: 'A';
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #287747 0%, #52b788 100%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    font-family: var(--font);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(40, 119, 71, 0.28);
+}
+
+nav#layoutSidenav_nav .sb-sidenav-footer>div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-footer .small {
+    font-size: 10px !important;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-heading) !important;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-footer>div>*:not(.small) {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-dark);
+}

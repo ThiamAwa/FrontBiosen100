@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Vendeur } from '../../services/vendeur.service';
+import { Vendeur } from '../../services/vendeur/vendeur.service';
 
 @Component({
   selector: 'app-whatsapp',

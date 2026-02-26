@@ -1,14 +1,14 @@
 import { Component, OnInit, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
+
 import { Observable } from 'rxjs';
 
 // Services
 
-import { GammeService, Gamme } from '../../../services/gamme.service';
-import { ProduitService, Produit } from '../../../services/produit.service';
-import { CategorieService, Categorie } from '../../../services/categorie.service';
-import { VendeurService, Vendeur } from '../../../services/vendeur.service';
+// import { GammeService, Gamme } from '../../../services/gamme/gamme.service';
+// import { ProduitService, Produit } from '../../../services/produit/produit.service';
+// import { CategorieService, Categorie } from '../../../services/categorie/categorie.service';
+import { VendeurService, Vendeur } from '../../../services/vendeur/vendeur.service';
 
 // Composant WhatsApp (à créer)
 
@@ -22,39 +22,39 @@ declare var AOS: any; // Pour AOS
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
-    WhatsappComponent // Composant WhatsApp
+
+    WhatsappComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   // Observables exposés au template avec le pipe async
-  gammes$: Observable<Gamme[]>;
-  produits$: Observable<Produit[]>;
-  categories$: Observable<Categorie[]>;
+  // gammes$: Observable<Gamme[]>;
+  // produits$: Observable<Produit[]>;
+  // categories$: Observable<Categorie[]>;
   vendeurs$: Observable<Vendeur[]>;
 
   // Pour le compteur de produits (statistiques)
   produitsCount: number = 0;
 
   constructor(
-    private gammeService: GammeService,
-    private produitService: ProduitService,
-    private categorieService: CategorieService,
+    // private gammeService: GammeService,
+    // private produitService: ProduitService,
+    // private categorieService: CategorieService,
     private vendeurService: VendeurService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     // Initialisation des observables
-    this.gammes$ = this.gammeService.getGammes();
-    this.produits$ = this.produitService.getProduits();
-    this.categories$ = this.categorieService.getCategories();
+    // this.gammes$ = this.gammeService.getGammes();
+    // this.produits$ = this.produitService.getProduits();
+    // this.categories$ = this.categorieService.getCategories();
     this.vendeurs$ = this.vendeurService.getVendeurs();
 
     // Souscription pour obtenir le nombre total de produits (compteur)
-    this.produits$.subscribe(produits => {
-      this.produitsCount = produits.length;
-    });
+    // this.produits$.subscribe(produits => {
+    //   this.produitsCount = produits.length;
+    // });
   }
 
   ngOnInit(): void {
@@ -166,7 +166,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
    * Retourne un observable des produits filtrés par catégorie.
    * Utilisé dans les onglets par catégorie.
    */
-  produitsByCategorie(categorieId: number): Observable<Produit[]> {
-    return this.produitService.getProduitsByCategorie(categorieId);
-  }
+  // produitsByCategorie(categorieId: number): Observable<Produit[]> {
+  //   return this.produitService.getProduitsByCategorie(categorieId);
+  // }
 }

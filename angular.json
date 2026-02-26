@@ -34,7 +34,8 @@
             "styles": [
               "src/styles.css",
               "src/assets/css/style.css",
-              "src/assets/css/bootstrap.min.css"
+              "src/assets/css/bootstrap.min.css",
+              "src/assets/css/styleAdmin.css"
             ],
             "scripts": [
               "src/assets/lib/easing/easing.min.js",
@@ -72,10 +73,12 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Biosen100:build:production"
+              "buildTarget": "Biosen100:build:production",
+              "proxyConfig": "proxy.conf.json"
             },
             "development": {
-              "buildTarget": "Biosen100:build:development"
+              "buildTarget": "Biosen100:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

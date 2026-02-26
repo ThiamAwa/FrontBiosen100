@@ -10,13 +10,5 @@ import { Vendeur } from '../../services/vendeur/vendeur.service';
   styleUrls: ['./whatsapp.component.css']
 })
 export class WhatsappComponent {
-  @Input() vendeurs: Vendeur[] | null = [];
 
-  get whatsappLink(): string {
-    if (this.vendeurs && this.vendeurs.length > 0) {
-      // Si le vendeur a un lien whatsapp, l'utiliser, sinon construire depuis le téléphone
-      return this.vendeurs[0].whatsapp || `https://wa.me/${this.vendeurs[0].telephone.replace(/\s/g, '')}`;
-    }
-    return 'https://wa.me/221771234567'; // lien par défaut
-  }
 }

@@ -42,7 +42,10 @@
               "src/assets/lib/waypoints/waypoints.min.js",
               "src/assets/lib/lightbox/js/lightbox.min.js",
               "src/assets/lib/owlcarousel/owl.carousel.min.js",
-              "src/assets/js/main.js"
+              "src/assets/js/main.js",
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "node_modules/owl.carousel/dist/owl.carousel.min.js"
             ]
           },
           "configurations": {

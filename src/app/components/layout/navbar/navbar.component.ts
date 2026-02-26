@@ -13,7 +13,6 @@ import { AuthService, LoginCredentials } from '../../../services/auth/auth.servi
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
-  cartService = inject(CartService);
   authService = inject(AuthService);
   router = inject(Router);
 

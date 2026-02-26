@@ -1,0 +1,201 @@
+<div class="container py-5" *ngIf="!loading && produit">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/">Accueil</a></li>
+      <li class="breadcrumb-item"><a routerLink="/sport">Sport</a></li>
+      <li class="breadcrumb-item active">{{ produit.nom }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-5">
+    <!-- Galerie -->
+    <div class="col-lg-7">
+      <div *ngIf="medias.length > 0; else noMedia">
+        <!-- Visualiseur principal -->
+        <div class="detail-main-viewer">
+          <div class="viewer-content" [ngSwitch]="getCurrentMedia()?.type">
+            <!-- Image - cliquable pour lightbox -->
+            <img *ngSwitchCase="'image'"
+                 [src]="getCurrentMedia()?.url"
+                 class="img-fluid"
+                 style="max-height:450px; object-fit:contain; cursor:pointer;"
+                 (click)="openLightbox(getCurrentMedia()?.url!)"
+                 (error)="onImageError($event)">
+
+            <!-- Vidéo - maintenant avec un bouton play comme dans témoignages -->
+            <div *ngSwitchCase="'video_url'" class="video-preview-container">
+              <img [src]="getVideoThumbnail(getCurrentMedia()!)"
+                   class="video-thumbnail"
+                   (error)="onImageError($event)">
+              <button class="btn-play-video-large" (click)="openVideoModal(getCurrentMedia()!)">
+                <div class="play-circle-large">
+                  <i class="fas fa-play play-icon-large"></i>
+                </div>
+                <span class="play-label">Regarder la vidéo</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Flèches de navigation -->
+          <button *ngIf="medias.length > 1" class="viewer-arrow viewer-prev" (click)="previousMedia()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button *ngIf="medias.length > 1" class="viewer-arrow viewer-next" (click)="nextMedia()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+
+          <div class="viewer-counter" *ngIf="medias.length > 1">
+            {{ currentIndex + 1 }} / {{ medias.length }}
+          </div>
+
+          <div class="viewer-badge">
+            <span [ngClass]="isImage(getCurrentMedia()!) ? 'badge-image' : 'badge-video'">
+              <i [ngClass]="isImage(getCurrentMedia()!) ? 'fas fa-image' : 'fab fa-youtube'"></i>
+              {{ isImage(getCurrentMedia()!) ? 'Photo' : 'Vidéo' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Vignettes -->
+        <div class="thumb-strip" *ngIf="medias.length > 1">
+          <div *ngFor="let media of medias; let i = index"
+               class="thumb-item" [class.thumb-active]="i === currentIndex"
+               (click)="goToMedia(i)">
+            <ng-container [ngSwitch]="media.type">
+              <!-- Vignette image -->
+              <img *ngSwitchCase="'image'" [src]="media.url" loading="lazy" (error)="onImageError($event)">
+
+              <!-- Vignette vidéo -->
+              <div *ngSwitchCase="'video_url'" class="thumb-video">
+                <img [src]="getVideoThumbnail(media)" (error)="onImageError($event)">
+                <div class="thumb-yt-overlay">
+                  <i class="fab fa-youtube text-danger"></i>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Compteurs médias -->
+        <div class="d-flex gap-2 mt-3">
+          <span class="badge bg-success" *ngIf="getImagesCount() > 0">
+            <i class="fas fa-images me-1"></i>{{ getImagesCount() }} photo(s)
+          </span>
+          <span class="badge bg-danger" *ngIf="getVideosCount() > 0">
+            <i class="fab fa-youtube me-1"></i>{{ getVideosCount() }} vidéo(s)
+          </span>
+        </div>
+      </div>
+
+      <ng-template #noMedia>
+        <div class="no-media-placeholder">
+          <img [src]="getLegacyImage()" class="img-fluid" style="max-height:450px;" (error)="onImageError($event)">
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Infos produit (inchangé) -->
+    <div class="col-lg-5">
+      <div class="sticky-top" style="top:20px;">
+        <!-- Badges catégorie/promo -->
+        <div class="mb-3 d-flex gap-2">
+          <span class="badge bg-success" *ngIf="produit.categorie">
+            <i class="fas fa-tshirt me-1"></i>{{ produit.categorie.nom }}
+          </span>
+          <span class="badge bg-danger" *ngIf="produit.enPromotion">
+            <i class="fas fa-fire me-1"></i>En promotion
+          </span>
+        </div>
+
+        <h1 class="fw-bold mb-3">{{ produit.nom }}</h1>
+
+        <!-- Prix -->
+        <div class="price-box mb-4">
+          <ng-container *ngIf="produit.enPromotion && produit.prixPromo; else normalPrice">
+            <p class="text-muted mb-1"><del>{{ formatPrice(produit.prix) }} FCFA</del></p>
+            <h2 class="fw-bold text-danger mb-0">{{ formatPrice(produit.prixPromo) }} FCFA</h2>
+            <small class="text-success">Économisez {{ formatPrice(produit.prix - produit.prixPromo!) }} FCFA</small>
+          </ng-container>
+          <ng-template #normalPrice>
+            <h2 class="fw-bold text-success mb-0">{{ formatPrice(produit.prix) }} FCFA</h2>
+          </ng-template>
+          <small class="text-muted">/ pièce</small>
+        </div>
+
+        <!-- Stock -->
+        <div class="mb-4">
+          <span class="badge" [ngClass]="getStockStatus().class">
+            <i class="fas" [ngClass]="{
+              'fa-check-circle': produit.stock > 10,
+              'fa-exclamation-triangle': produit.stock > 0 && produit.stock <= 10,
+              'fa-ban': produit.stock <= 0
+            }"></i>
+            {{ getStockStatus().text }}
+          </span>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-4" *ngIf="produit.description">
+          <h5 class="fw-bold">Description</h5>
+          <p class="text-muted">{{ produit.description }}</p>
+        </div>
+
+        <!-- Boutons -->
+        <div class="d-grid gap-3">
+          <button class="btn btn-lg btn-success rounded-pill"
+                  [disabled]="produit.stock <= 0">
+            <i class="fas fa-shopping-bag me-2"></i>
+            {{ produit.stock > 0 ? 'Ajouter au panier' : 'Rupture de stock' }}
+          </button>
+          <a routerLink="/sport" class="btn btn-outline-success rounded-pill">
+            <i class="fas fa-arrow-left me-2"></i>Retour aux produits
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="text-center py-5" *ngIf="loading">
+  <div class="spinner-border text-success" role="status">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+</div>
+
+<!-- Error -->
+<div class="alert alert-danger" *ngIf="error">
+  {{ error }}
+</div>
+
+<!-- MODAL VIDÉO (comme dans témoignages) -->
+<div class="modal-video-overlay" [class.active]="showVideoModal" (click)="closeVideoModal()">
+  <div class="modal-video-box" (click)="$event.stopPropagation()">
+    <button class="modal-video-close" (click)="closeVideoModal()">&times;</button>
+    <div class="modal-video-container">
+      <iframe *ngIf="currentVideoUrl" [src]="currentVideoUrl"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+      </iframe>
+      <div *ngIf="!currentVideoUrl" class="video-error-placeholder">
+        <i class="fas fa-video fa-3x" style="color:#ffc107;"></i>
+        <p>La vidéo ne peut pas être intégrée directement.</p>
+      </div>
+    </div>
+    <div class="modal-video-actions">
+      <a [href]="currentVideoExternalUrl" target="_blank" class="btn-open-youtube">
+        <i class="fab fa-youtube me-2"></i>
+        Ouvrir sur YouTube
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX POUR IMAGES -->
+<div class="modal-video-overlay" [class.active]="showLightbox" (click)="closeLightbox()">
+  <div class="modal-video-box modal-lightbox-box" (click)="$event.stopPropagation()">
+    <button class="modal-video-close" (click)="closeLightbox()">&times;</button>
+    <img [src]="currentImageUrl" alt="Image pleine taille" class="lightbox-img" (error)="onImageError($event)">
+  </div>
+</div>

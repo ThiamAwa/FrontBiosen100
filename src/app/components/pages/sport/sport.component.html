@@ -1,0 +1,383 @@
+<!-- Header -->
+<div class="container-fluid page-header py-5 mb-5">
+  <div class="container text-center py-5">
+    <h1 class="display-4 text-white fw-bold">Produits de Sport</h1>
+  </div>
+</div>
+
+<div class="container-fluid py-5">
+  <div class="container py-5">
+
+    <!-- Titre de la section -->
+    <div class="text-center mb-5">
+      <h1 class="display-5 fw-bold" style="color:#287747;">Collection Sport & Fitness</h1>
+      <p class="text-muted">Découvrez notre gamme complète de tenues de sport confortables et stylées</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-12">
+
+        <!-- Formulaire de filtres -->
+        <form (ngSubmit)="applyFilters()" #filterForm="ngForm">
+
+          <!-- Barre de recherche et tri -->
+          <div class="row g-4 mb-5">
+            <div class="col-xl-4">
+              <div class="input-group shadow-sm">
+                <input
+                  type="search"
+                  class="form-control p-3 border-0"
+                  placeholder="Rechercher une tenue..."
+                  [(ngModel)]="filters.search"
+                  name="search"
+                  (ngModelChange)="onSearchChange($event)">
+                <button type="submit" class="input-group-text p-3 border-0 text-white" style="background:#287747;">
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="col-xl-4"></div>
+
+            <div class="col-xl-4">
+              <div class="bg-white shadow-sm ps-3 py-3 rounded d-flex justify-content-between align-items-center border">
+                <label class="mb-0 fw-semibold" style="color:#287747;">Trier par :</label>
+                <select
+                  name="sort"
+                  class="border-0 form-select-sm bg-white me-3"
+                  style="color:#287747;"
+                  [(ngModel)]="filters.sort"
+                  (ngModelChange)="applyFilters()">
+                  <option value="default">Par défaut</option>
+                  <option value="new">Nouveautés</option>
+                  <option value="price_asc">Prix croissant</option>
+                  <option value="price_desc">Prix décroissant</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4">
+
+            <!-- Sidebar gauche avec filtres -->
+            <div class="col-lg-3">
+              <div class="row g-4">
+
+                <!-- Filtre Catégories -->
+                <div class="col-lg-12">
+                  <div class="mb-3 bg-white p-4 rounded shadow-custom">
+                    <h4 class="mb-4 fw-bold" style="color:#287747;">Catégories</h4>
+                    <ul class="list-unstyled fruite-categorie">
+
+                      <!-- Tous -->
+                      <li class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <a
+                            href="javascript:void(0)"
+                            (click)="filters.categorie=''; applyFilters()"
+                            [class.fw-bold]="!filters.categorie"
+                            class="text-dark text-decoration-none">
+                            <i class="fas fa-th me-2" style="color:#287747;"></i>Tous
+                          </a>
+                          <span class="badge rounded-pill" style="background:#287747;">{{ stats.total }}</span>
+                        </div>
+                      </li>
+
+                      <!-- Catégories dynamiques -->
+                      @if (categories && categories.length > 0) {
+                        @for (categorie of categories; track categorie.id) {
+                          <li class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <a
+                                href="javascript:void(0)"
+                                (click)="filters.categorie = categorie.id; applyFilters()"
+                                [class.fw-bold]="filters.categorie == categorie.id"
+                                class="text-dark text-decoration-none">
+                                <i class="fas fa-tshirt me-2" style="color:#287747;"></i>{{ categorie.nom }}
+                              </a>
+                              <span class="badge rounded-pill" style="background:#287747;">
+                                {{ getCategoryCount(categorie.id) }}
+                              </span>
+                            </div>
+                          </li>
+                        }
+                      } @else {
+                        <li class="mb-3 text-muted text-center">
+                          @if (loading) {
+                            Chargement des catégories...
+                          } @else {
+                            Aucune catégorie disponible
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Filtre Prix -->
+                <div class="col-lg-12">
+                  <div class="mb-3 bg-white p-4 rounded shadow-custom">
+                    <h4 class="mb-4 fw-bold" style="color:#287747;">Prix (FCFA)</h4>
+                    <input
+                      type="range"
+                      class="form-range w-100"
+                      name="prix_max"
+                      min="0"
+                      [max]="stats.prix_max || 50000"
+                      [(ngModel)]="filters.prix_max"
+                      (input)="updatePrixMax($event)">
+
+                    <div class="d-flex justify-content-between mt-2">
+                      <span class="text-muted small">0</span>
+                      <span class="fw-bold small" style="color:#287747;">
+                        {{ filters.prix_max | number }} FCFA
+                      </span>
+                      <span class="text-muted small">{{ stats.prix_max | number }}</span>
+                    </div>
+
+                    <button
+                      type="submit"
+                      class="btn btn-sm mt-2 w-100"
+                      style="background:#287747;color:white;border:none;">
+                      Filtrer
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Filtre Promotion -->
+                <div class="col-lg-12">
+                  <div class="mb-3 bg-white p-4 rounded shadow-custom">
+                    <h4 class="mb-4 fw-bold" style="color:#287747;">Filtres</h4>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="fPromo"
+                        name="en_promotion"
+                        [(ngModel)]="filters.en_promotion"
+                        (ngModelChange)="applyFilters()">
+                      <label class="form-check-label" for="fPromo">
+                        En promotion
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bannière -->
+                <div class="col-lg-12">
+                  <div class="position-relative rounded overflow-hidden shadow-custom">
+                    <img
+                      src="assets/img/biosen/tenue1.jpeg"
+                      class="img-fluid w-100"
+                      style="height:200px;object-fit:cover;"
+                      onerror="this.src='assets/img/biosen/tenue1.jpeg'">
+                    <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                         style="top:0;left:0;background:linear-gradient(135deg,rgba(40,119,71,.85),rgba(26,82,48,.85));">
+                      <h3 class="text-white fw-bold text-center mb-0">Sport<br>& Bien-être</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grille des produits -->
+            <div class="col-lg-9">
+
+              <!-- Message d'erreur -->
+              @if (error) {
+                <div class="alert alert-danger">
+                  <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                </div>
+              }
+
+              <!-- Indicateur de chargement -->
+              @if (loading) {
+                <div class="text-center py-5">
+                  <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                  </div>
+                </div>
+              }
+
+              <!-- Grille des produits -->
+              @if (!loading) {
+                <div class="row g-4 justify-content-start">
+                  @for (produit of produits; track produit.id) {
+                    <div class="col-md-6 col-lg-4">
+                      <div class="sport-card">
+
+                        <!-- Zone image avec auto-défilement -->
+                        <div class="sport-card__img-wrap">
+
+                          <!-- Images -->
+                          @if (getImages(produit).length > 0) {
+                            @for (img of getImages(produit); track img.id; let first = $first) {
+                              <div class="sport-slide" [class.active]="first">
+                                <img
+                                  [src]="img.url || getImageUrl(produit)"
+                                  [alt]="produit.nom"
+                                  loading="lazy"
+                                  (error)="onImageError($event)">
+                              </div>
+                            }
+
+                            @if (getImages(produit).length > 1) {
+                              <!-- Points de navigation -->
+                              <div class="slider-dots">
+                                @for (img of getImages(produit); track img.id; let i = $index) {
+                                  <span
+                                    class="sdot"
+                                    [class.sdot-on]="i === 0"
+                                    (click)="goToSlide($event, produit.id, i)">
+                                  </span>
+                                }
+                              </div>
+                              <!-- Compteur -->
+                              <div class="slide-count">1 / {{ getImages(produit).length }}</div>
+                            }
+                          } @else {
+                            <div class="sport-slide active no-img">
+                              <i class="fas fa-dumbbell"></i>
+                            </div>
+                          }
+
+                          <!-- Overlay lien détail -->
+                          <div class="card-overlay" (click)="voirDetail(produit.id)">
+                            <span class="btn btn-light rounded-pill px-4 py-2 fw-semibold">
+                              <i class="fa fa-eye me-2"></i>Voir détails
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Badges positionnés sur l'image -->
+                        @if (produit.categorie) {
+                          <div class="badge-cat">
+                            <i class="fas fa-tshirt me-1"></i>{{ produit.categorie.nom }}
+                          </div>
+                        }
+
+                        @if (produit.enPromotion) {
+                          <div class="badge-top-right badge-promo">
+                            <i class="fas fa-fire me-1"></i>Promo
+                          </div>
+                        } @else if (isNew(produit)) {
+                          <div class="badge-top-right badge-new">
+                            <i class="fas fa-star me-1"></i>Nouveau
+                          </div>
+                        }
+
+                        <!-- Badge vidéo -->
+                        @if (getVideos(produit).length > 0) {
+                          <div class="badge-vid">
+                            <i class="fab fa-youtube me-1"></i>{{ getVideos(produit).length }} vidéo(s)
+                          </div>
+                        }
+
+                        <!-- Corps de la carte -->
+                        <div class="sport-card__body">
+                          <h5 class="fw-bold mb-1">{{ produit.nom }}</h5>
+                          <p class="text-muted small mb-3">{{ produit.description | slice:0:65 }}...</p>
+
+                          <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                              @if (produit.enPromotion && produit.prixPromo) {
+                                <small class="text-muted">
+                                  <del>{{ formatPrice(produit.prix) }} FCFA</del>
+                                </small>
+                                <div class="text-danger fs-5 fw-bold">
+                                  {{ formatPrice(produit.prixPromo) }} FCFA
+                                </div>
+                              } @else {
+                                <div class="fs-5 fw-bold" style="color:#287747;">
+                                  {{ formatPrice(produit.prix) }} FCFA
+                                </div>
+                              }
+                              <small class="text-muted">/ pièce</small>
+                            </div>
+
+                            <button
+                              class="btn btn-sm rounded-pill px-3"
+                              style="background:linear-gradient(135deg,#287747,#1a5230);color:white;border:none;"
+                              (click)="voirDetail(produit.id)">
+                              <i class="fas fa-arrow-right"></i>
+                            </button>
+                          </div>
+
+                          <!-- Indicateur de stock -->
+                          @if (produit.stock <= 0) {
+                            <small class="text-danger d-block mt-2">
+                              <i class="fas fa-ban me-1"></i>Rupture de stock
+                            </small>
+                          } @else if (produit.stock < 10) {
+                            <small class="text-warning d-block mt-2">
+                              <i class="fas fa-exclamation-triangle me-1"></i>Plus que {{ produit.stock }} en stock
+                            </small>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  } @empty {
+                    <!-- Aucun produit -->
+                    <div class="col-12 text-center py-5">
+                      <i class="fas fa-dumbbell fa-3x text-muted mb-3"></i>
+                      <h4 class="text-muted">Aucun produit trouvé</h4>
+                      <button
+                        class="btn mt-3"
+                        style="background:#287747;color:white;border-radius:50px;"
+                        (click)="resetFilters()">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Pagination -->
+              @if (pagination && pagination.last_page > 1) {
+                <nav class="d-flex justify-content-center mt-5">
+                  <ul class="pagination">
+
+                    <!-- Bouton précédent -->
+                    <li class="page-item" [class.disabled]="pagination.current_page === 1">
+                      <a class="page-link" href="javascript:void(0)" (click)="changePage(pagination.current_page - 1)">
+                        <i class="fas fa-chevron-left"></i>
+                      </a>
+                    </li>
+
+                    <!-- Pages -->
+                    @for (page of getPages(); track page) {
+                      <li class="page-item" [class.active]="page === pagination.current_page">
+                        <a class="page-link" href="javascript:void(0)" (click)="changePage(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                    }
+
+                    <!-- Bouton suivant -->
+                    <li class="page-item" [class.disabled]="pagination.current_page === pagination.last_page">
+                      <a class="page-link" href="javascript:void(0)" (click)="changePage(pagination.current_page + 1)">
+                        <i class="fas fa-chevron-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              }
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section Newsletter -->
+<div class="container-fluid py-5" style="background:linear-gradient(135deg,#287747,#1a5230);">
+  <div class="container text-center py-4">
+    <h2 class="text-white fw-bold mb-2">
+      <i class="fas fa-dumbbell me-2"></i>Restez en forme avec BioSen
+    </h2>
+    <p class="text-white-50 mb-0">
+      Inscrivez-vous et recevez nos conseils fitness et offres exclusives
+    </p>
+  </div>
+</div>

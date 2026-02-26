@@ -1,0 +1,108 @@
+<!-- Hero -->
+<div class="container-fluid page-header py-5">
+  <div class="container text-center">
+    <h1 class="text-white display-4 fw-bold mb-4">
+      Contactez-nous
+    </h1>
+  </div>
+</div>
+
+<!-- Contact Section -->
+<div class="container-fluid py-5 bg-light">
+  <div class="container py-5">
+
+    <div class="text-center mx-auto mb-5" style="max-width:700px;">
+      <h4 class="text-uppercase mb-3" style="color: #287747">
+        Parlons ensemble
+      </h4>
+      <h1 class="display-5 mb-4">
+        Nous sommes à votre écoute
+      </h1>
+      <p class="text-muted">
+        Une question ? Notre équipe est là pour vous répondre.
+      </p>
+    </div>
+
+    <div class="row g-5">
+
+      <!-- Form -->
+      <div class="col-lg-6">
+        <div class="contact-form">
+
+          <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+
+            <div class="row g-4">
+
+              <div class="col-md-6">
+                <input type="text"
+                       formControlName="nom"
+                       class="form-control"
+                       placeholder="Votre nom">
+              </div>
+
+              <div class="col-md-6">
+                <input type="email"
+                       formControlName="email"
+                       class="form-control"
+                       placeholder="Votre email">
+              </div>
+
+              <div class="col-12">
+                <input type="tel"
+                       formControlName="telephone"
+                       class="form-control"
+                       placeholder="Téléphone">
+              </div>
+
+              <div class="col-12">
+                <input type="text"
+                       formControlName="sujet"
+                       class="form-control"
+                       placeholder="Sujet">
+              </div>
+
+              <div class="col-12">
+                <textarea
+                  formControlName="message"
+                  class="form-control"
+                  rows="5"
+                  placeholder="Votre message">
+                </textarea>
+              </div>
+
+              <div class="col-12">
+                <button class="btn w-100" style="background: #287747;color: white" type="submit">
+                  Envoyer le message
+                </button>
+              </div>
+
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-5">
+
+        <div class="info-card mb-4">
+          <h4>Adresse</h4>
+          <p>Liberté 6, Dakar, Sénégal</p>
+        </div>
+
+        <div class="info-card mb-4">
+          <h4>Email</h4>
+          <p>contact&#64;biosen.sn</p>
+        </div>
+
+        <div class="info-card mb-4">
+          <h4>Téléphone</h4>
+          <p>+221 77 123 45 67</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

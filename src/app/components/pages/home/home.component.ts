@@ -4,8 +4,11 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
-import { AccueilService } from '../../../services/accueil/accueil.service';
-import { AccueilData, Gamme, Produit, Vendeur } from '../../../models/produit.model';
+import { HomeService } from '../../../services/home/home.service';
+import { Produit } from '../../../models/produit';
+import {AccueilData} from '../../../models/accueilData';
+import {Gamme} from '../../../models/gamme';
+import {Vendeur} from '../../../models/vendeur';
 import Swiper from 'swiper';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 
@@ -48,7 +51,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private observer: IntersectionObserver | null = null;
 
   constructor(
-    private accueilService: AccueilService,
+    private accueilService: HomeService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -320,5 +323,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('Produit:', produit.nom, 'Catégorie:', produit.categorie);
     return produit.categorie?.type_categorie_id === 1;
   }
-
+  getGammeImageUrl(gamme: Gamme | null): string {
+    return gamme?.image ? this.getImageUrl(gamme.image) : 'assets/img/biosen/default-product.png';
+  }
 }

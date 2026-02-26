@@ -56,7 +56,7 @@
               @if (gammes.length > 0) {
                 @for (gamme of gammes; track gamme.id; let index = $index; let first = $first) {
                   <div class="carousel-item" [class.active]="first">
-                    <img [src]="getImageUrl(gamme.image)"
+                    <img [src]="getImageUrl(gamme.image ?? '')"
                          class="img-fluid w-100 rounded"
                          [alt]="gamme.nom"
                          style="height: 450px; object-fit: cover;">
@@ -213,7 +213,7 @@
               <div class="swiper-slide">
                 <!-- ✅ Suppression des classes Bootstrap qui conflictent avec notre CSS -->
                 <div class="category-item">
-                  <img [src]="getImageUrl(gamme.image)"
+                  <img [src]="getImageUrl(gamme.image ?? '')"
                        [alt]="gamme.nom"
                        loading="lazy">
                   <div class="category-overlay">
@@ -284,7 +284,7 @@
                     <div class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up" [attr.data-aos-delay]="(index + 1) * 100">
                       <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
                         <div class="fruite-img overflow-hidden">
-                          <img [src]="getImageUrl(produit.image)"
+                          <img [src]="getImageUrl(produit.image ?? '')"
                                class="img-fluid w-100 rounded-top"
                                [alt]="produit.nom"
                                style="height: 250px; object-fit: cover;">
@@ -354,7 +354,7 @@
                       <div class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up" [attr.data-aos-delay]="(index + 1) * 100">
                         <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
                           <div class="fruite-img overflow-hidden">
-                            <img [src]="getImageUrl(produit.image)"
+                            <img [src]="getImageUrl(produit.image ?? '')"
                                  class="img-fluid w-100 rounded-top"
                                  [alt]="produit.nom"
                                  style="height: 250px; object-fit: cover;">
@@ -561,7 +561,7 @@
           @if (selectedGamme) {
             <div class="row">
               <div class="col-md-5 mb-3 mb-md-0">
-                <img [src]="getImageUrl(selectedGamme.image)"
+                <img [src]="getGammeImageUrl(selectedGamme)"
                      class="img-fluid rounded shadow-sm w-100"
                      [alt]="selectedGamme.nom"
                      style="height: 300px; object-fit: cover;">

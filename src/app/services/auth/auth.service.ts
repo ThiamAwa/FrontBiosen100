@@ -1,7 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-// Interface représentant un utilisateur (adaptez selon vos données)
 export interface User {
   id: number;
   prenom: string;
@@ -11,58 +10,58 @@ export interface User {
   isAdmin?: boolean;
 }
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+  remember: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Signal contenant l'utilisateur courant (null si non connecté)
   public currentUser = signal<User | null>(null);
+  public loginModalOpen = signal<boolean>(false);
 
-  constructor(private router: Router) {
-    // Optionnel : simuler un utilisateur pour les tests (à commenter en production)
-    // this.setMockUser();
-  }
+  constructor(private router: Router) { }
 
-  /**
-   * Ouvre le modal de connexion.
-   * À implémenter selon votre système de modals (ex: MatDialog, NgbModal, etc.)
-   */
   openLoginModal(): void {
-    console.log('Ouverture du modal de connexion');
-    // Exemple avec NgbModal :
-    // const modalRef = this.modalService.open(LoginModalComponent);
-    // modalRef.result.then(user => this.login(user)).catch(() => {});
+    this.loginModalOpen.set(true);
+  }
+
+  closeLoginModal(): void {
+    this.loginModalOpen.set(false);
   }
 
   /**
-   * Déconnecte l'utilisateur et redirige vers l'accueil.
+   * Connexion avec email/password.
+   * Remplacez le corps par votre appel HTTP réel.
    */
+  async login(credentials: LoginCredentials): Promise<void> {
+    // Simulation pour le développement :
+    if (credentials.email === 'admin@biosen.com' && credentials.password === 'admin') {
+      const user: User = {
+        id: 1,
+        prenom: 'Admin',
+        nom: 'BioSen',
+        email: credentials.email,
+        isAdmin: true
+      };
+      this.currentUser.set(user);
+      if (credentials.remember) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+      // Redirection dans tous les cas
+      this.router.navigate(['/admin/dashboard']);
+    } else {
+      throw new Error('Email ou mot de passe incorrect.');
+    }
+  }
+
   logout(): void {
     this.currentUser.set(null);
-    // Effacer d'éventuels tokens stockés (localStorage, etc.)
+    localStorage.removeItem('user');
     localStorage.removeItem('token');
     this.router.navigate(['/']);
-  }
-
-  /**
-   * Connecte un utilisateur (appelé après succès d'authentification).
-   */
-  login(user: User): void {
-    this.currentUser.set(user);
-    // Stocker le token si nécessaire
-    // localStorage.setItem('token', user.token);
-  }
-
-  // --- Méthodes utilitaires pour le développement (à supprimer ensuite) ---
-  private setMockUser(): void {
-    const mockUser: User = {
-      id: 1,
-      prenom: 'Jean',
-      nom: 'Dupont',
-      email: 'jean.dupont@example.com',
-      avatar: 'assets/img/avatars/default.jpg',
-      isAdmin: true
-    };
-    this.currentUser.set(mockUser);
   }
 }

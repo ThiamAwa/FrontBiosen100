@@ -1,0 +1,564 @@
+<div class="categories-wrapper">
+    <div class="categories-container">
+        <div class="page-header-custom">
+            <h1><i class="fas fa-box"></i> Gestion des Produits Bio</h1>
+        </div>
+
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Liste des Produits</span>
+                </div>
+                <button type="button" class="btn btn-add-custom" (click)="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>Nouveau Produit</span>
+                </button>
+            </div>
+
+            <!-- Alerts -->
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+
+            <div class="card-body-custom">
+                <!-- Barre de recherche -->
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Rechercher un produit..."
+                                [(ngModel)]="searchTerm" (keyup.enter)="search()">
+                            <button class="btn btn-primary" type="button" (click)="search()">
+                                <i class="fas fa-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <div class="table-container">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Nom</th>
+                                    <th>Catégorie</th>
+                                    <th>Gammes</th>
+                                    <th>Prix</th>
+                                    <th>Promotion</th>
+                                    <th>Stock</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (prod of produits; track prod.id) {
+                                <tr>
+                                    <td>
+                                        @if (prod.image) {
+                                        <img [src]="'http://localhost:8000/storage/' + prod.image" [alt]="prod.nom"
+                                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #e2e8f0; cursor: pointer;"
+                                            (click)="openImageModal('http://localhost:8000/storage/' + prod.image, prod.nom)"
+                                            (error)="handleImageError($event)" title="Cliquer pour agrandir">
+                                        } @else {
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded"
+                                            style="width: 60px; height: 60px; border: 2px dashed #e2e8f0;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>{{ prod.nom }}</strong>
+                                        @if (prod.description) {
+                                        <small class="d-block text-muted mt-1">
+                                            {{ prod.description | slice:0:30 }}{{ prod.description.length > 30 ? '...' :
+                                            '' }}
+                                        </small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (prod.categorie) {
+                                        <span>{{ prod.categorie.nom }}</span>
+                                        } @else {
+                                        <span class="text-muted fst-italic">Non défini</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (prod.gammes && prod.gammes.length > 0) {
+                                        <button type="button" class="btn btn-sm btn-gammes-list"
+                                            (click)="openGammesModal(prod)">
+                                            <i class="fas fa-layer-group me-1"></i>
+                                            <span class="badge bg-success">{{ prod.gammes.length }}</span>
+                                            {{ prod.gammes.length > 1 ? 'gammes' : 'gamme' }}
+                                        </button>
+                                        } @else {
+                                        <span class="text-muted fst-italic">
+                                            <i class="fas fa-minus-circle me-1"></i>Aucune
+                                        </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (prod.enPromotion && prod.prixPromo) {
+                                        <span class="text-decoration-line-through text-muted d-block">
+                                            {{ prod.prix | number }} FCFA
+                                        </span>
+                                        <span class="text-danger fw-bold">
+                                            {{ prod.prixPromo | number }} FCFA
+                                        </span>
+                                        } @else {
+                                        <span class="fw-bold">{{ prod.prix | number }} FCFA</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (prod.enPromotion) {
+                                        <span class="badge"
+                                            style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white;">
+                                            <i class="fas fa-tag me-1"></i>Promo
+                                        </span>
+                                        } @else {
+                                        <span class="badge bg-secondary">Non</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge" [class]="getStockClass(prod.stock)">
+                                            {{ prod.stock }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-light me-2"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openEditModal(prod)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            (click)="openDeleteModal(prod)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                } @empty {
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-box-open fa-2x text-muted mb-3"></i>
+                                            <p class="text-muted">Aucun produit trouvé</p>
+                                            <small class="text-muted">Commencez par créer votre premier produit</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage
+                        <span class="fw-medium">{{ firstItem }}</span>
+                        à
+                        <span class="fw-medium">{{ lastItem }}</span>
+                        sur
+                        <span class="fw-medium">{{ total }}</span>
+                        produits
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
+                                    aria-label="Précédent">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
+                                    aria-label="Suivant">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Création -->
+@if (showCreateModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Nouveau Produit</h5>
+                <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                }
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nom_create" class="form-label">Nom *</label>
+                        <input type="text" class="form-control" id="nom_create" [(ngModel)]="createForm.nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="categorie_id_create" class="form-label">Catégorie</label>
+                        <select class="form-select" id="categorie_id_create" [(ngModel)]="createForm.categorie_id">
+                            <option value="">-- Sélectionner --</option>
+                            @for (cat of categories; track cat.id) {
+                            <option [value]="cat.id">{{ cat.nom }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-layer-group me-2 text-success"></i>Gammes
+                    </label>
+                    <div class="gammes-selection-grid">
+                        @for (gam of gammes; track gam.id) {
+                        <div class="gamme-checkbox-item">
+                            <input type="checkbox" class="gamme-checkbox-input" [id]="'gamme_create_' + gam.id"
+                                (change)="toggleGamme(gam.id, false)" [checked]="createForm.gammesIds.includes(gam.id)">
+                            <label [for]="'gamme_create_' + gam.id" class="gamme-checkbox-label">
+                                <span class="gamme-checkbox-circle">
+                                    <i class="fas fa-check gamme-checkbox-icon"></i>
+                                </span>
+                                <span class="gamme-checkbox-text">{{ gam.nom }}</span>
+                            </label>
+                        </div>
+                        } @empty {
+                        <div class="text-muted text-center py-3">
+                            <i class="fas fa-info-circle me-2"></i>Aucune gamme disponible
+                        </div>
+                        }
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Sélectionnez une ou plusieurs gammes pour ce produit
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description_create" class="form-label">Description</label>
+                    <textarea class="form-control" id="description_create" [(ngModel)]="createForm.description"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="modeUtilisation_create" class="form-label">Mode d'utilisation</label>
+                    <input type="text" class="form-control" id="modeUtilisation_create"
+                        [(ngModel)]="createForm.modeUtilisation">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="prix_create" class="form-label">Prix (FCFA) *</label>
+                        <input type="number" class="form-control" id="prix_create" [(ngModel)]="createForm.prix"
+                            step="0.01" required>
+                    </div>
+                    <div class="col-md-3 mb-3 offset-1">
+                        <label for="prixPromo_create" class="form-label">Prix Promo</label>
+                        <input type="number" class="form-control" id="prixPromo_create"
+                            [(ngModel)]="createForm.prixPromo" step="0.01">
+                    </div>
+                    <div class="col-md-3 mb-3 offset-1">
+                        <label for="stock_create" class="form-label">Stock *</label>
+                        <input type="number" class="form-control" id="stock_create" [(ngModel)]="createForm.stock"
+                            required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enPromotion_create"
+                            [(ngModel)]="createForm.enPromotion">
+                        <label class="form-check-label" for="enPromotion_create">En promotion</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image_create" class="form-label">Image</label>
+                    <input type="file" class="form-control" id="image_create"
+                        (change)="onFileSelected($event, 'create')" accept="image/*">
+                    <small class="text-muted">Formats acceptés: JPG, PNG, GIF, WEBP (max 2MB)</small>
+                    @if (createPreview) {
+                    <img [src]="createPreview" alt="Aperçu"
+                        style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px dashed #e2e8f0; padding: 4px; margin-top: 10px; cursor: pointer;"
+                        (click)="openImageModal(createPreview, 'Aperçu')">
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="createProduit()">Créer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Édition -->
+@if (showEditModal && selectedProduit) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier Produit</h5>
+                <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                }
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nom_edit" class="form-label">Nom *</label>
+                        <input type="text" class="form-control" id="nom_edit" [(ngModel)]="editForm.nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="categorie_id_edit" class="form-label">Catégorie</label>
+                        <select class="form-select" id="categorie_id_edit" [(ngModel)]="editForm.categorie_id">
+                            <option value="">-- Sélectionner --</option>
+                            @for (cat of categories; track cat.id) {
+                            <option [value]="cat.id">{{ cat.nom }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-layer-group me-2 text-success"></i>Gammes
+                    </label>
+                    <div class="gammes-selection-grid">
+                        @for (gam of gammes; track gam.id) {
+                        <div class="gamme-checkbox-item">
+                            <input type="checkbox" class="gamme-checkbox-input" [id]="'gamme_edit_' + gam.id"
+                                (change)="toggleGamme(gam.id, true)" [checked]="editForm.gammesIds.includes(gam.id)">
+                            <label [for]="'gamme_edit_' + gam.id" class="gamme-checkbox-label">
+                                <span class="gamme-checkbox-circle">
+                                    <i class="fas fa-check gamme-checkbox-icon"></i>
+                                </span>
+                                <span class="gamme-checkbox-text">{{ gam.nom }}</span>
+                            </label>
+                        </div>
+                        } @empty {
+                        <div class="text-muted text-center py-3">
+                            <i class="fas fa-info-circle me-2"></i>Aucune gamme disponible
+                        </div>
+                        }
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Sélectionnez une ou plusieurs gammes pour ce produit
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description_edit" class="form-label">Description</label>
+                    <textarea class="form-control" id="description_edit" [(ngModel)]="editForm.description"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="modeUtilisation_edit" class="form-label">Mode d'utilisation</label>
+                    <input type="text" class="form-control" id="modeUtilisation_edit"
+                        [(ngModel)]="editForm.modeUtilisation">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="prix_edit" class="form-label">Prix (FCFA) *</label>
+                        <input type="number" class="form-control" id="prix_edit" [(ngModel)]="editForm.prix" step="0.01"
+                            required>
+                    </div>
+                    <div class="col-md-3 mb-3 offset-1">
+                        <label for="prixPromo_edit" class="form-label">Prix Promo</label>
+                        <input type="number" class="form-control" id="prixPromo_edit" [(ngModel)]="editForm.prixPromo"
+                            step="0.01">
+                    </div>
+                    <div class="col-md-3 mb-3 offset-1">
+                        <label for="stock_edit" class="form-label">Stock *</label>
+                        <input type="number" class="form-control" id="stock_edit" [(ngModel)]="editForm.stock" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enPromotion_edit"
+                            [(ngModel)]="editForm.enPromotion">
+                        <label class="form-check-label" for="enPromotion_edit">En promotion</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image_edit" class="form-label">Image</label>
+                    @if (editForm.existingImage && !editPreview) {
+                    <div class="mb-3">
+                        <img [src]="'http://localhost:8000/storage/' + editForm.existingImage" alt="Image actuelle"
+                            style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px dashed #e2e8f0; padding: 4px; margin-bottom: 8px; cursor: pointer;"
+                            (click)="openImageModal('http://localhost:8000/storage/' + editForm.existingImage, 'Image actuelle')">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remove_image_edit"
+                                [(ngModel)]="editForm.removeImage">
+                            <label class="form-check-label text-danger" for="remove_image_edit">Supprimer l'image
+                                actuelle</label>
+                        </div>
+                    </div>
+                    }
+                    <input type="file" class="form-control" id="image_edit" (change)="onFileSelected($event, 'edit')"
+                        accept="image/*">
+                    <small class="text-muted">Formats acceptés: JPG, PNG, GIF, WEBP (max 2MB)</small>
+                    @if (editPreview) {
+                    <img [src]="editPreview" alt="Aperçu"
+                        style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px dashed #e2e8f0; padding: 4px; margin-top: 10px; cursor: pointer;"
+                        (click)="openImageModal(editPreview, 'Aperçu')">
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="updateProduit()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Suppression -->
+@if (showDeleteModal && selectedProduit) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center w-100">
+                    <div class="warning-icon bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style="width: 48px; height: 48px;">
+                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title mb-0 fw-bold">Confirmer la suppression</h5>
+                    </div>
+                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                </div>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer ce produit ?</h6>
+                    <p class="mb-0">
+                        Le produit <span class="fw-bold text-danger">"{{ selectedProduit.nom }}"</span> sera
+                        définitivement supprimé.
+                    </p>
+                </div>
+
+                @if (hasAvis) {
+                <div class="alert alert-warning border-warning mb-4">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-info-circle mt-1 me-3 text-warning"></i>
+                        <div>
+                            <h6 class="alert-heading fw-semibold mb-2">Attention !</h6>
+                            <p class="mb-2">Ce produit est actuellement associé à des avis.</p>
+                            <p class="mb-0 mt-2">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Ces avis seront également supprimés.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                <div class="w-100 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-success px-4" (click)="closeDeleteModal()">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="button" class="btn btn-danger px-4" (click)="deleteProduit()">
+                        <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Gammes (liste des gammes d'un produit) -->
+@if (showGammesModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header"
+                style="background: linear-gradient(135deg, #198754 0%, #157347 100%); border: none;">
+                <h6 class="modal-title text-white fw-semibold">
+                    <i class="fas fa-layer-group me-2"></i>
+                    {{ gammesModalProduitNom }}
+                </h6>
+                <button type="button" class="btn-close btn-close-white" (click)="closeGammesModal()"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="gammes-modal-list">
+                    @for (gam of gammesModalList; track gam.id) {
+                    <div class="list-group-item border-0 py-2 px-3">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        {{ gam.nom }}
+                    </div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-sm btn-success" (click)="closeGammesModal()">
+                    <i class="fas fa-check me-2"></i>Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Image -->
+@if (showImageModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 bg-transparent">
+            <div class="modal-header border-0 bg-transparent">
+                <h5 class="modal-title text-white">{{ imageModalAlt }}</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeImageModal()"></button>
+            </div>
+            <div class="modal-body p-0 text-center">
+                <img [src]="imageModalSrc" [alt]="imageModalAlt" class="img-fluid rounded shadow-lg"
+                    style="max-height: 80vh; max-width: 100%; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+}

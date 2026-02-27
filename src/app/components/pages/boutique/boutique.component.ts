@@ -6,6 +6,7 @@ import { GammeService } from '../../../services/gamme/gamme.service';
 import { Gamme } from '../../../models/gamme';
 import { Categorie } from '../../../models/categorie';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import {ProduitSportService} from '../../../services/produit-sport/produit-sport.service';
 
 @Component({
   selector: 'app-boutique',
@@ -18,7 +19,8 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   // Données
   gammes: Gamme[] = [];
   categories: Categorie[] = [];
-
+  produitsSport: any[] = [];
+  typeCategories: { id: number; nom: string; count: number }[] = [];
   // Statistiques
   stats = {
     total_gammes: 0,
@@ -39,6 +41,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   filters = {
     search: '',
     categorie: '',
+    type_categorie: '1',
     prix_max: 50000,
     promo: false,
     tri: 'default',
@@ -52,8 +55,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  constructor(private gammeService: GammeService) {
-    // Debounce pour la recherche
+  constructor(private gammeService: GammeService, private produitSportService: ProduitSportService) {
     this.searchSubject.pipe(
       debounceTime(500),
       distinctUntilChanged()
@@ -74,50 +76,121 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   // ========== CHARGEMENT DES DONNÉES ==========
 
+  // Dans boutique.component.ts
+
   loadGammes(): void {
     this.loading = true;
 
-    this.gammeService.getGammesBoutique(
-      this.filters.page,
-      this.filters.search,
-      this.filters.categorie,
-      this.filters.prix_max,
-      this.filters.tri
-    ).subscribe({
+    // Si type_categorie = '2' (Sport), charger les produits sport
+    if (this.filters.type_categorie === '2') {
+      this.loadProduitsSport();
+    } else {
+      // Sinon (Bio ou Tous), charger les gammes
+      this.gammeService.getGammesBoutique(
+        this.filters.page,
+        this.filters.search,
+        this.filters.type_categorie,
+        this.filters.prix_max,
+        this.filters.tri
+      ).subscribe({
+        next: (response) => {
+          this.gammes = response.data;
+          this.produitsSport = []; // Vider les produits sport
+          this.pagination = {
+            current_page: response.current_page,
+            last_page: response.last_page,
+            per_page: response.per_page,
+            total: response.total
+          };
+
+          this.updatePrixMaxValue();
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Erreur chargement gammes:', err);
+          this.error = 'Erreur lors du chargement des produits';
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  // Dans boutique.component.ts - Modifier loadProduitsSport()
+
+  loadProduitsSport(): void {
+    this.produitSportService.getProduits(this.filters.page).subscribe({
       next: (response) => {
-        this.gammes = response.data;
+        // La réponse est de type ProduitSportResponse avec une structure { produits: { data: [...] } }
+        this.produitsSport = response.produits?.data || [];
+        this.gammes = []; // Vider les gammes
+
+        // Utiliser les infos de pagination depuis response.produits
         this.pagination = {
-          current_page: response.current_page,
-          last_page: response.last_page,
-          per_page: response.per_page,
-          total: response.total
+          current_page: response.produits?.current_page || 1,
+          last_page: response.produits?.last_page || 1,
+          per_page: response.produits?.per_page || 12,
+          total: response.produits?.total || 0
         };
 
-        // Mettre à jour la valeur max du prix
-        if (this.gammes.length > 0) {
-          const maxPrix = Math.max(...this.gammes.map(g => g.prix));
-          this.prixMaxValue = maxPrix > 0 ? maxPrix : 50000;
-          if (this.filters.prix_max > this.prixMaxValue) {
-            this.filters.prix_max = this.prixMaxValue;
-          }
-        }
-
+        this.updatePrixMaxValue();
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur chargement gammes:', err);
-        this.error = 'Erreur lors du chargement des produits';
+        console.error('Erreur chargement produits sport:', err);
+        this.error = 'Erreur lors du chargement des produits sport';
         this.loading = false;
       }
     });
   }
 
+// Méthode utilitaire pour mettre à jour la valeur max du prix
+  updatePrixMaxValue(): void {
+    const items = this.filters.type_categorie === '2' ? this.produitsSport : this.gammes;
+
+    if (items.length > 0) {
+      const maxPrix = Math.max(...items.map(item => item.prix));
+      this.prixMaxValue = maxPrix > 0 ? maxPrix : 50000;
+      if (this.filters.prix_max > this.prixMaxValue) {
+        this.filters.prix_max = this.prixMaxValue;
+      }
+    }
+  }
   loadCategories(): void {
-    this.gammeService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories as Categorie[];
+    this.gammeService.getCategories(1).subscribe({
+      next: (response) => {
+        const categoriesData = response.data;
+
+        //  NE PAS toucher à this.categories
+        // this.categories = categoriesData; // Si tu veux garder les catégories originales
+
+        // Calculer les types de catégories avec compteurs
+        const typeMap = new Map<number, { id: number; nom: string; count: number }>();
+
+        categoriesData.forEach((cat: any) => {
+          if (cat.type_categorie) {
+            const typeId = cat.type_categorie.id;
+            if (!typeMap.has(typeId)) {
+              typeMap.set(typeId, {
+                id: typeId,
+                nom: cat.type_categorie.nom,
+                count: 0
+              });
+            }
+            if (cat.produits_count) {
+              const current = typeMap.get(typeId)!;
+              current.count += cat.produits_count;
+            }
+          }
+        });
+
+        //  Utiliser typeCategories au lieu de categories
+        this.typeCategories = Array.from(typeMap.values());
+        console.log('Types de catégories avec compteurs:', this.typeCategories);
       },
-      error: (err) => console.error('Erreur chargement catégories:', err)
+      error: (err) => {
+        console.error('Erreur chargement catégories:', err);
+        this.typeCategories = [];
+      }
     });
   }
 
@@ -131,10 +204,17 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     this.loadGammes();
   }
 
+  filterByTypeCategorie(typeId: string): void {
+    this.filters.type_categorie = typeId;
+    this.filters.page = 1;
+    this.loadGammes();
+  }
+
   resetFilters(): void {
     this.filters = {
       search: '',
       categorie: '',
+      type_categorie: '1',
       prix_max: this.prixMaxValue,
       promo: false,
       tri: 'default',
@@ -168,10 +248,8 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     return pages;
   }
 
-// Améliorer changePage pour gérer les nombres uniquement
   changePage(page: number | string): void {
     if (typeof page !== 'number') return;
-
     if (page >= 1 && page <= this.pagination.last_page) {
       this.filters.page = page;
       this.loadGammes();
@@ -182,7 +260,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   // ========== MÉTHODES UTILITAIRES ==========
 
   isCategorieActive(categorieId: string): boolean {
-    return this.filters.categorie === categorieId;
+    return this.filters.type_categorie === categorieId;
   }
 
   formatPrice(price?: number | null): string {
@@ -208,9 +286,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
     try {
       let cart = JSON.parse(localStorage.getItem('biosen_cart') || '[]');
-
       const price = gamme.enPromotion && gamme.prixPromo ? gamme.prixPromo : gamme.prix;
-
       const existingItem = cart.find((item: any) => item.id === gamme.id);
 
       if (existingItem) {
@@ -227,10 +303,8 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
       }
 
       localStorage.setItem('biosen_cart', JSON.stringify(cart));
-
-      this.showNotification('✅ Produit ajouté au panier');
+      this.showNotification(' Produit ajouté au panier');
       this.updateCartCounter();
-
     } catch (error) {
       console.error('Erreur ajout panier:', error);
     }
@@ -242,7 +316,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     notification.style.zIndex = '9999';
     notification.style.background = '#287747';
     notification.innerHTML = message;
-
     document.body.appendChild(notification);
 
     setTimeout(() => {
@@ -255,7 +328,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   updateCartCounter(): void {
     const cart = JSON.parse(localStorage.getItem('biosen_cart') || '[]');
     const count = cart.reduce((total: number, item: any) => total + item.quantity, 0);
-
     const cartBadge = document.getElementById('cart-count');
     if (cartBadge) {
       cartBadge.textContent = count.toString();

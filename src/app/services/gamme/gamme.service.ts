@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Gamme } from '../../models/gamme';
 import { environment } from '../../../environments/environment';
+import {PaginatedResponse} from '../produit/produit.service';
 
 export interface TypeCategorie {
   id: number;
@@ -90,7 +91,7 @@ export class GammeService {
   getGammesBoutique(
     page: number = 1,
     search: string = '',
-    categorie: string = '',
+    type_categorie: string = '1',
     prix_max: number = 0,
     tri: string = 'default'
   ): Observable<GammePagination> {
@@ -98,7 +99,7 @@ export class GammeService {
       .set('page', page.toString());
 
     if (search) params = params.set('search', search);
-    if (categorie) params = params.set('categorie', categorie);
+    if (type_categorie) params = params.set('type_categorie', type_categorie); // 👈 Ajouter ce filtre
     if (prix_max > 0) params = params.set('prix_max', prix_max.toString());
     if (tri !== 'default') params = params.set('tri', tri);
 
@@ -114,12 +115,12 @@ export class GammeService {
       }))
     );
   }
-
   /**
    * Récupérer toutes les catégories
    */
-  getCategories(): Observable<Categorie[]> {
-    return this.http.get<Categorie[]>(`${this.publicApiUrl}/categories`);
+  getCategories(page: number = 1): Observable<PaginatedResponse<Categorie>> {
+    const params = new HttpParams().set('page', page.toString());
+    return this.http.get<PaginatedResponse<Categorie>>(`${this.publicApiUrl}/categories`,{ params });
   }
 
   /**

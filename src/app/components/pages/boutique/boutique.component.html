@@ -77,41 +77,39 @@
             <div class="col-lg-3">
               <div class="row g-4">
 
-                <!-- Categories -->
+                <!-- Sidebar Filters - Section Catégories  -->
                 <div class="col-lg-12">
                   <div class="mb-3 bg-white p-4 rounded shadow-custom">
                     <h4 class="mb-4 fw-bold" style="color: #287747;">Catégories</h4>
                     <ul class="list-unstyled fruite-categorie">
+
+                      <!-- Option Tous -->
                       <li class="mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                           <a href="javascript:void(0)"
-                             (click)="filters.categorie=''; applyFilters()"
-                             [class.fw-bold]="!filters.categorie"
+                             (click)="filterByTypeCategorie('')"
+                             [class.fw-bold]="filters.type_categorie === ''"
                              class="text-dark text-decoration-none">
                             <i class="fas fa-th me-2" style="color: #287747;"></i>Tous
                           </a>
-                          <span class="badge rounded-pill" style="background-color: #287747;">{{ stats.total_gammes }}</span>
+                          <span class="badge rounded-pill" style="background-color: #287747;"> </span>
                         </div>
                       </li>
 
-                      <!-- Remplacer la boucle des catégories par ceci -->
-                      @if (categories && categories.length > 0) {
-                        @for (categorie of categories; track categorie.id) {
+                      @if (typeCategories && typeCategories.length > 0) {
+                        @for (categorie of typeCategories; track categorie.id) {
                           <li class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                               <a href="javascript:void(0)"
-                                 (click)="filters.categorie = categorie.id.toString(); applyFilters()"
-                                 [class.fw-bold]="filters.categorie === categorie.id.toString()"
+                                 (click)="filterByTypeCategorie(categorie.id.toString())"
+                                 [class.fw-bold]="filters.type_categorie === categorie.id.toString()"
                                  class="text-dark text-decoration-none">
                                 <i class="fas fa-tag me-2" style="color: #287747;"></i>{{ categorie.nom }}
                               </a>
-                              <!-- Remplacer produits_count par 0 temporairement -->
-                              <span class="badge rounded-pill" style="background-color: #287747;">0</span>
+                              <span class="badge rounded-pill" style="background-color: #287747;"> </span>
                             </div>
                           </li>
                         }
-                      } @else {
-                        <li class="mb-3 text-muted text-center">Aucune catégorie disponible</li>
                       }
                     </ul>
                   </div>
@@ -165,7 +163,7 @@
                          class="img-fluid w-100 rounded"
                          alt="Bio Banner"
                          style="height: 200px; object-fit: cover;"
-                         onerror="this.src='assets/img/biosen/default-product.jpg'">
+                         (error)="onImageError($event)">
                     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center"
                          style="top: 0; left: 0; background: linear-gradient(135deg, rgba(40, 119, 71, 0.85) 0%, rgba(26, 82, 48, 0.85) 100%);">
                       <h3 class="text-white fw-bold text-center mb-0">Produits<br>100%<br>Bio & Naturels</h3>
@@ -179,39 +177,45 @@
             <div class="col-lg-9">
               <div class="row g-4 justify-content-start">
 
-                @if (gammes.length > 0) {
-                  @for (gamme of gammes; track gamme.id) {
+                <!-- Déterminer quel tableau afficher selon la catégorie sélectionnée -->
+                @let items = filters.type_categorie === '2' ? produitsSport : gammes;
+
+                @if (items.length > 0) {
+                  @for (item of items; track item.id) {
                     <div class="col-md-6 col-lg-4">
                       <div class="fruite-item h-100">
 
                         <!-- Image du produit -->
                         <div class="fruite-img position-relative">
-                          <img [src]="getImageUrl(gamme.image)"
+                          <img [src]="getImageUrl(item.image)"
                                class="img-fluid w-100"
-                               [alt]="gamme.nom"
+                               [alt]="item.nom"
                                style="height: 280px; object-fit: cover;"
                                (error)="onImageError($event)">
 
+                          <!-- Overlay au survol avec lien dynamique -->
                           <div class="product-overlay">
-                            <a  class="btn btn-light rounded-pill px-4 py-2">
+                            <a [routerLink]="['/' + (filters.type_categorie === '2' ? 'sport' : 'gamme'), item.id]"
+                               class="btn btn-light rounded-pill px-4 py-2">
                               <i class="fa fa-eye me-2"></i> Voir détails
                             </a>
                           </div>
                         </div>
 
-                        <!-- Badge catégorie -->
+                        <!-- Badge catégorie dynamique -->
                         <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
                              style="top: 15px; left: 15px; background-color: #287747;">
-                          <i class="fas fa-tag me-1"></i>{{ gamme.type_categorie?.nom ?? 'Produit' }}
+                          <i class="fas fa-tag me-1"></i>
+                          {{ filters.type_categorie === '2' ? 'Sport' : (item.type_categorie?.nom ?? 'Bio') }}
                         </div>
 
                         <!-- Badge promo ou rupture -->
-                        @if (gamme.enPromotion && gamme.prixPromo) {
+                        @if (item.enPromotion && item.prixPromo) {
                           <div class="badge bg-success position-absolute fw-semibold" style="top: 15px; right: 15px;">
                             <i class="fas fa-tag me-1"></i>
-                            -{{ calculateDiscount(gamme.prix, gamme.prixPromo) }}%
+                            -{{ calculateDiscount(item.prix, item.prixPromo) }}%
                           </div>
-                        } @else if (gamme.stock <= 0) {
+                        } @else if (item.stock <= 0) {
                           <div class="badge bg-danger position-absolute fw-semibold" style="top: 15px; right: 15px;">
                             <i class="fas fa-ban me-1"></i>Rupture
                           </div>
@@ -219,23 +223,23 @@
 
                         <!-- Contenu du produit -->
                         <div class="p-4">
-                          <h5 class="text-dark fw-bold mb-2">{{ gamme.nom }}</h5>
+                          <h5 class="text-dark fw-bold mb-2">{{ item.nom }}</h5>
                           <p class="text-muted small mb-3">
-                            {{ limitText(gamme.description) }}
+                            {{ limitText(item.description) }}
                           </p>
 
-                          <!-- Prix EN GRAS -->
+                          <!-- Prix -->
                           <div class="mb-3">
-                            @if (gamme.enPromotion && gamme.prixPromo) {
+                            @if (item.enPromotion && item.prixPromo) {
                               <p class="text-dark fw-bold mb-0" style="color: #287747; font-size: 1.5rem;">
-                                {{ formatPrice(gamme.prixPromo) }}
+                                {{ formatPrice(item.prixPromo) }}
                               </p>
                               <small class="text-muted text-decoration-line-through d-block">
-                                {{ formatPrice(gamme.prix) }}
+                                {{ formatPrice(item.prix) }}
                               </small>
                             } @else {
                               <p class="text-dark fw-bold mb-0" style="color: #287747; font-size: 1.5rem;">
-                                {{ formatPrice(gamme.prix) }}
+                                {{ formatPrice(item.prix) }}
                               </p>
                             }
                           </div>
@@ -246,8 +250,7 @@
                                     class="btn btn-primary-custom w-100 rounded-pill py-2 add-to-cart-btn"
                                     style="background-color: #287747; color: white; font-weight: 600; border: none;">
                               <i class="fa fa-shopping-bag me-2"></i>
-                                  Ajouter au Panier
-<!--                              {{ gamme.stock > 0 ? 'Ajouter au Panier' : 'Rupture de stock' }}-->
+                              {{ item.stock > 0 ? 'Ajouter au Panier' : 'Rupture de stock' }}
                             </button>
                           </div>
                         </div>

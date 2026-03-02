@@ -52,10 +52,10 @@ export const routes: Routes = [
                 path: 'produits',
                 loadComponent: () => import('./components/admin/produit/produit.component').then(m => m.ProduitComponent)
             },
-            {
-                path: 'produits-sport',
-                loadComponent: () => import('./components/admin/produit-sport/produit-sport.component').then(m => m.ProduitSportComponent)
-            },
+            // {
+            //     path: 'produits-sport',
+            //     loadComponent: () => import('./components/admin/produit-sport/produit-sport.component').then(m => m.ProduitSportComponent)
+            // },
             {
                 path: 'vendeurs',
                 loadComponent: () => import('./components/admin/vendeur/vendeur.component').then(m => m.VendeurComponent)
@@ -79,6 +79,12 @@ export const routes: Routes = [
             {
                 path: 'factures',
                 loadComponent: () => import('./components/admin/factures/factures.component').then(m => m.FacturesComponent)
+            },
+            {
+                path: 'temoignages',
+
+                loadComponent: () => import('./components/admin/temoignage/temoignage.component').then(m => m.TemoignageComponent)
+
             }
         ]
     },

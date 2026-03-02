@@ -7,6 +7,7 @@ import { Gamme } from '../../../models/gamme';
 import { Categorie } from '../../../models/categorie';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import {ProduitSportService} from '../../../services/produit-sport/produit-sport.service';
+import {CartService} from '../../../services/cart/cart.service';
 
 @Component({
   selector: 'app-boutique',
@@ -55,7 +56,11 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  constructor(private gammeService: GammeService, private produitSportService: ProduitSportService) {
+  constructor(
+    private gammeService: GammeService,
+    private produitSportService: ProduitSportService,
+    private cartService: CartService
+  ) {
     this.searchSubject.pipe(
       debounceTime(500),
       distinctUntilChanged()
@@ -104,6 +109,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
           };
 
           this.updatePrixMaxValue();
+
           this.loading = false;
         },
         error: (err) => {
@@ -133,6 +139,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
         };
 
         this.updatePrixMaxValue();
+
         this.loading = false;
       },
       error: (err) => {
@@ -156,36 +163,61 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     }
   }
   loadCategories(): void {
+    // Charger les catégories
     this.gammeService.getCategories(1).subscribe({
       next: (response) => {
         const categoriesData = response.data;
 
-        //  NE PAS toucher à this.categories
-        // this.categories = categoriesData; // Si tu veux garder les catégories originales
+        // Map pour les compteurs
+        const totalCounts = new Map<number, number>();
 
-        // Calculer les types de catégories avec compteurs
-        const typeMap = new Map<number, { id: number; nom: string; count: number }>();
-
+        // Compter les gammes (Bio)
         categoriesData.forEach((cat: any) => {
           if (cat.type_categorie) {
             const typeId = cat.type_categorie.id;
-            if (!typeMap.has(typeId)) {
-              typeMap.set(typeId, {
-                id: typeId,
-                nom: cat.type_categorie.nom,
-                count: 0
-              });
-            }
-            if (cat.produits_count) {
-              const current = typeMap.get(typeId)!;
-              current.count += cat.produits_count;
-            }
+            const currentCount = totalCounts.get(typeId) || 0;
+            totalCounts.set(typeId, currentCount + (cat.produits_count || 0));
           }
         });
 
-        //  Utiliser typeCategories au lieu de categories
-        this.typeCategories = Array.from(typeMap.values());
-        console.log('Types de catégories avec compteurs:', this.typeCategories);
+        this.produitSportService.getProduits(1).subscribe({
+          next: (sportResponse) => {
+            const sportCount = sportResponse.produits?.total || 0;
+
+            totalCounts.set(2, (totalCounts.get(2) || 0) + sportCount);
+
+            // Créer le tableau final
+            const typeMap = new Map<number, { id: number; nom: string; count: number }>();
+
+            categoriesData.forEach((cat: any) => {
+              if (cat.type_categorie) {
+                const typeId = cat.type_categorie.id;
+                if (!typeMap.has(typeId)) {
+                  typeMap.set(typeId, {
+                    id: typeId,
+                    nom: cat.type_categorie.nom,
+                    count: totalCounts.get(typeId) || 0
+                  });
+                }
+              }
+            });
+
+            this.typeCategories = Array.from(typeMap.values());
+            console.log('Types de catégories avec compteurs:', this.typeCategories);
+          },
+          error: () => {
+            this.typeCategories = Array.from(
+              new Map(categoriesData
+                .filter((cat: any) => cat.type_categorie)
+                .map((cat: any) => [cat.type_categorie.id, {
+                  id: cat.type_categorie.id,
+                  nom: cat.type_categorie.nom,
+                  count: totalCounts.get(cat.type_categorie.id) || 0
+                }])
+              ).values()
+            );
+          }
+        });
       },
       error: (err) => {
         console.error('Erreur chargement catégories:', err);
@@ -253,7 +285,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     if (page >= 1 && page <= this.pagination.last_page) {
       this.filters.page = page;
       this.loadGammes();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top: 0, behavior: 'smooth'});
     }
   }
 
@@ -281,33 +313,21 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   // ========== PANIER ==========
 
-  addToCart(gamme: Gamme): void {
-    if (!gamme || gamme.stock <= 0) return;
+  // Dans boutique.component.ts - Remplacer addToCart()
+  addToCart(item: any): void {
+    if (!item || item.stock <= 0) return;
 
-    try {
-      let cart = JSON.parse(localStorage.getItem('biosen_cart') || '[]');
-      const price = gamme.enPromotion && gamme.prixPromo ? gamme.prixPromo : gamme.prix;
-      const existingItem = cart.find((item: any) => item.id === gamme.id);
+    // Utiliser CartService au lieu de localStorage direct
+    this.cartService.addToCart({
+      id: item.id,
+      name: item.nom,
+      price: item.enPromotion && item.prixPromo ? item.prixPromo : item.prix,
+      image: item.image,
+      category: this.filters.type_categorie === '2' ? 'Sport' : (item.type_categorie?.nom ?? 'Bio'),
+      quantity: 1
+    });
 
-      if (existingItem) {
-        existingItem.quantity++;
-      } else {
-        cart.push({
-          id: gamme.id,
-          name: gamme.nom,
-          price: price,
-          image: gamme.image,
-          category: gamme.type_categorie?.nom || 'Produit',
-          quantity: 1
-        });
-      }
-
-      localStorage.setItem('biosen_cart', JSON.stringify(cart));
-      this.showNotification(' Produit ajouté au panier');
-      this.updateCartCounter();
-    } catch (error) {
-      console.error('Erreur ajout panier:', error);
-    }
+    this.showNotification('Produit ajouté au panier');
   }
 
   showNotification(message: string): void {

@@ -1,0 +1,212 @@
+/* src/app/components/pages/checkout-confirmation/checkout-confirmation.component.css */
+.container-fluid {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #287747;
+}
+
+/* Cartes d'action */
+.action-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.action-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(40, 119, 71, 0.15) !important;
+}
+
+.icon-wrapper {
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .icon-wrapper {
+  transform: scale(1.1);
+}
+
+/* Boutons */
+.btn-success {
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(40, 119, 71, 0.3);
+}
+
+.btn-outline-success {
+  border: 2px solid #287747;
+  color: #287747;
+  background: transparent;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-outline-success:hover {
+  background-color: #287747;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Table */
+.table {
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #287747;
+  padding: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.table tbody td {
+  padding: 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table tbody tr:hover {
+  background-color: #f0f7ff;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badge numéro commande */
+.card {
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.card.shadow-lg:hover {
+  box-shadow: 0 25px 50px rgba(40, 119, 71, 0.2) !important;
+}
+
+/* Alertes */
+.alert {
+  border-radius: 15px;
+  border: none;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Animations */
+@keyframes pulseSuccess {
+  0% {
+    box-shadow: 0 0 0 0 rgba(40, 119, 71, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(40, 119, 71, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(40, 119, 71, 0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .display-5 {
+    font-size: 1.8rem;
+  }
+
+  h3.fw-bold {
+    font-size: 1.5rem;
+  }
+
+  .table {
+    font-size: 0.9rem;
+  }
+
+  .table td, .table th {
+    padding: 10px;
+  }
+
+  .action-card {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Styles pour les icônes */
+.fa-check-circle {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Style pour le fond des sections */
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.rounded-3 {
+  border-radius: 15px;
+}
+
+/* Style pour les bordures */
+.border-top {
+  border-top: 2px solid #287747 !important;
+}
+
+/* Style pour le texte */
+.text-muted {
+  color: #6c757d !important;
+}
+
+.fw-bold {
+  font-weight: 600 !important;
+}
+
+/* Style pour les prix */
+.fs-4 {
+  font-size: 1.5rem;
+}
+
+/* Animation d'entrée */
+.card, .alert {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

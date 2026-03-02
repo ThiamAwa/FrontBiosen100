@@ -1,0 +1,384 @@
+<!-- src/app/components/pages/checkout/checkout.component.html -->
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+  <div class="container">
+
+    <!-- En-tête -->
+    <div class="text-center mb-5">
+      <h1 class="display-5 fw-bold mb-3" style="color: #287747;">
+        <i class="fas fa-credit-card me-3"></i>Finaliser votre commande
+      </h1>
+      <p class="text-muted fs-6">Entrez vos informations de livraison et validez votre commande</p>
+    </div>
+
+    <!-- Messages d'erreur généraux -->
+    @if (errors.general) {
+      <div class="alert alert-danger alert-dismissible fade show rounded-lg">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.5rem;"></i>
+          <div>
+            <h5 class="alert-heading mb-2">Erreur :</h5>
+            <p class="mb-0">{{ errors.general }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="row g-5">
+
+      <!-- Formulaire de commande -->
+      <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-lg" style="border-top: 4px solid #287747;">
+          <div class="card-body p-5">
+            <form (ngSubmit)="onSubmit()" #checkoutForm="ngForm">
+
+              <!-- Informations personnelles -->
+              <div class="mb-5">
+                <h4 class="fw-bold mb-4 pb-3" style="color: #287747; border-bottom: 2px solid #287747;">
+                  <i class="fas fa-user me-2"></i>Informations personnelles
+                </h4>
+
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Prénom <span class="text-danger">*</span></label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           [class.is-invalid]="isInvalid('prenom')"
+                           [(ngModel)]="formData.prenom"
+                           name="prenom"
+                           required>
+                    @if (errors.prenom) {
+                      <div class="invalid-feedback d-block">{{ errors.prenom }}</div>
+                    }
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nom <span class="text-danger">*</span></label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           [class.is-invalid]="isInvalid('nom')"
+                           [(ngModel)]="formData.nom"
+                           name="nom"
+                           required>
+                    @if (errors.nom) {
+                      <div class="invalid-feedback d-block">{{ errors.nom }}</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="row mb-4">
+                  <div class="col-md-12">
+                    <label class="form-label fw-semibold">Téléphone WhatsApp <span class="text-danger">*</span></label>
+                    <input type="tel"
+                           class="form-control form-control-lg"
+                           [class.is-invalid]="isInvalid('telephone')"
+                           [(ngModel)]="formData.telephone"
+                           name="telephone"
+                           placeholder="Ex: +221 77 123 45 67"
+                           required>
+                    @if (errors.telephone) {
+                      <div class="invalid-feedback d-block">{{ errors.telephone }}</div>
+                    }
+                    <small class="text-muted">Votre facture sera envoyée à ce numéro via WhatsApp</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Adresse de livraison -->
+              <div class="mb-5">
+                <h4 class="fw-bold mb-4 pb-3" style="color: #287747; border-bottom: 2px solid #287747;">
+                  <i class="fas fa-map-marker-alt me-2"></i>Adresse de livraison
+                </h4>
+
+                <!-- Pays -->
+                <div class="row mb-4">
+                  <div class="col-md-12">
+                    <label class="form-label fw-semibold">Pays <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-lg"
+                            [class.is-invalid]="isInvalid('pays')"
+                            [(ngModel)]="formData.pays"
+                            name="pays"
+                            (ngModelChange)="onCountryChange()"
+                            required>
+                      <option value="" disabled selected>Sélectionnez votre pays</option>
+                      @for (country of countries; track country.value) {
+                        <option [value]="country.value">{{ country.label }}</option>
+                      }
+                    </select>
+                    @if (errors.pays) {
+                      <div class="invalid-feedback d-block">{{ errors.pays }}</div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Zone de livraison (Sénégal) -->
+                @if (formData.pays === 'Senegal') {
+                  <div class="row mb-4">
+                    <div class="col-md-12">
+                      <label class="form-label fw-semibold">Zone de livraison <span class="text-danger">*</span></label>
+                      <select class="form-select form-select-lg"
+                              [class.is-invalid]="isInvalid('zone_livraison')"
+                              [(ngModel)]="formData.zone_livraison"
+                              name="zone_livraison"
+                              (ngModelChange)="onShippingZoneChange()"
+                              required>
+                        <option value="" disabled selected>Sélectionnez votre zone</option>
+                        @for (zone of shippingZones; track zone.value) {
+                          <option [value]="zone.value">{{ zone.label }}</option>
+                        }
+                      </select>
+                      @if (errors.zone_livraison) {
+                        <div class="invalid-feedback d-block">{{ errors.zone_livraison }}</div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- Adresse complète -->
+                <div class="row mb-4">
+                  <div class="col-md-12">
+                    <label class="form-label fw-semibold">Adresse complète <span class="text-danger">*</span></label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           [class.is-invalid]="isInvalid('adresse')"
+                           [(ngModel)]="formData.adresse"
+                           name="adresse"
+                           placeholder="Numéro, rue, résidence, etc."
+                           required>
+                    @if (errors.adresse) {
+                      <div class="invalid-feedback d-block">{{ errors.adresse }}</div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Champs pour les autres pays -->
+                @if (formData.pays && formData.pays !== 'Senegal') {
+                  <div class="row mb-4">
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">Code Postal <span class="text-danger">*</span></label>
+                      <input type="text"
+                             class="form-control form-control-lg"
+                             [class.is-invalid]="isInvalid('code_postal')"
+                             [(ngModel)]="formData.code_postal"
+                             name="code_postal"
+                             placeholder="Ex: 75000"
+                             required>
+                      @if (errors.code_postal) {
+                        <div class="invalid-feedback d-block">{{ errors.code_postal }}</div>
+                      }
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">Ville <span class="text-danger">*</span></label>
+                      <input type="text"
+                             class="form-control form-control-lg"
+                             [class.is-invalid]="isInvalid('ville')"
+                             [(ngModel)]="formData.ville"
+                             name="ville"
+                             placeholder="Ex: Paris"
+                             required>
+                      @if (errors.ville) {
+                        <div class="invalid-feedback d-block">{{ errors.ville }}</div>
+                      }
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">Région/État <span class="text-danger">*</span></label>
+                      <input type="text"
+                             class="form-control form-control-lg"
+                             [class.is-invalid]="isInvalid('region')"
+                             [(ngModel)]="formData.region"
+                             name="region"
+                             placeholder="Ex: Île-de-France"
+                             required>
+                      @if (errors.region) {
+                        <div class="invalid-feedback d-block">{{ errors.region }}</div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- Affichage des frais de livraison -->
+                @if (shippingCost > 0) {
+                  <div class="alert alert-info py-2 px-3" style="background-color: #e8f5e9; border-color: #287747; border-left: 4px solid #287747;">
+                    <i class="fas fa-truck me-2" style="color: #287747;"></i>
+                    <strong>Frais de livraison :</strong>
+                    <span style="color: #287747; font-weight: bold;">{{ formatPrice(shippingCost) }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Création de compte -->
+              @if (!authService.currentUser()) {
+                <div class="mb-5">
+                  <div class="card border-0 shadow-sm" style="border-left: 4px solid #287747;">
+                    <div class="card-body p-4">
+                      <div class="form-check mb-3">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="create_account"
+                               [(ngModel)]="formData.create_account"
+                               name="create_account"
+                               (ngModelChange)="toggleAccountFields()">
+                        <label class="form-check-label fw-semibold" for="create_account" style="color: #287747;">
+                          <i class="fas fa-user-plus me-2"></i>Créer un compte pour suivre ses commandes
+                        </label>
+                      </div>
+
+                      @if (formData.create_account) {
+                        <div class="row mb-4">
+                          <div class="col-md-12">
+                            <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                            <input type="email"
+                                   class="form-control form-control-lg"
+                                   [class.is-invalid]="isInvalid('email')"
+                                   [(ngModel)]="formData.email"
+                                   name="email"
+                                   placeholder="votre.email@exemple.com"
+                                   required>
+                            @if (errors.email) {
+                              <div class="invalid-feedback d-block">{{ errors.email }}</div>
+                            }
+                          </div>
+                        </div>
+
+                        <div class="row mb-4">
+                          <div class="col-md-12">
+                            <label class="form-label fw-semibold">Mot de passe <span class="text-danger">*</span></label>
+                            <input type="password"
+                                   class="form-control form-control-lg"
+                                   [class.is-invalid]="isInvalid('password')"
+                                   [(ngModel)]="formData.password"
+                                   name="password"
+                                   placeholder="Minimum 8 caractères"
+                                   required>
+                            @if (errors.password) {
+                              <div class="invalid-feedback d-block">{{ errors.password }}</div>
+                            }
+                            <small class="text-muted">Au moins 8 caractères</small>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Notes spéciales -->
+              <div class="mb-5">
+                <h4 class="fw-bold mb-4 pb-3" style="color: #287747; border-bottom: 2px solid #287747;">
+                  <i class="fas fa-sticky-note me-2"></i>Notes spéciales
+                </h4>
+
+                <label class="form-label fw-semibold">Message (optionnel)</label>
+                <textarea class="form-control form-control-lg"
+                          rows="3"
+                          [(ngModel)]="formData.notes"
+                          name="notes"
+                          placeholder="Demandes spéciales, instructions de livraison..."></textarea>
+                <small class="text-muted">Ex: Livrer avant 18h, sonner fort, etc.</small>
+              </div>
+
+              <!-- Conditions -->
+              <div class="mb-5">
+                <div class="form-check p-4 rounded-lg" style="background: #f0f7ff; border-left: 4px solid #287747;">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         id="terms"
+                         [class.is-invalid]="isInvalid('terms')"
+                         [(ngModel)]="formData.terms"
+                         name="terms"
+                         required>
+                  <label class="form-check-label" for="terms">
+                    J'accepte les <a href="#" style="color: #287747;" class="fw-bold">conditions générales</a>,
+                    la <a href="#" style="color: #287747;" class="fw-bold">politique de confidentialité</a>
+                    et les <a href="#" style="color: #287747;" class="fw-bold">conditions de livraison</a>
+                  </label>
+                </div>
+                @if (errors.terms) {
+                  <div class="text-danger small mt-2">{{ errors.terms }}</div>
+                }
+              </div>
+
+              <!-- Boutons -->
+              <div class="d-grid gap-3 d-sm-flex gap-sm-3">
+                <a routerLink="/boutique" class="btn btn-outline-secondary rounded-pill py-3 px-5 fw-semibold flex-grow-1" style="border-color: #287747; color: #287747;">
+                  <i class="fas fa-arrow-left me-2"></i>Continuer les achats
+                </a>
+                <button type="submit"
+                        class="btn btn-primary rounded-pill py-3 px-5 fw-semibold flex-grow-1"
+                        [disabled]="isLoading"
+                        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); border: none;">
+                  @if (isLoading) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  } @else {
+                    <i class="fas fa-check-circle me-2"></i>
+                  }
+                  Valider la commande
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résumé de commande -->
+      <div class="col-lg-4">
+        <div class="card shadow-lg border-0 rounded-lg sticky-top" style="top: 20px; border-top: 4px solid #287747;">
+          <div class="card-body p-5">
+            <h4 class="fw-bold mb-4" style="color: #287747;">
+              <i class="fas fa-receipt me-2"></i>Résumé de la commande
+            </h4>
+
+            <!-- Liste des produits -->
+            <div class="mb-4 pb-4 border-bottom">
+              @for (item of cart; track item.id) {
+                <div class="mb-3 pb-3 border-bottom">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <p class="mb-1 fw-semibold small" style="color: #287747;">{{ item.name }}</p>
+                      <small class="text-muted">Quantité: {{ item.quantity }}</small>
+                    </div>
+                    <p class="mb-0 fw-bold" style="color: #287747;">
+                      {{ formatPrice(item.price * item.quantity) }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Totaux -->
+            <div class="space-y-3">
+              <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Sous-total</span>
+                <span class="fw-semibold">{{ formatPrice(subtotal) }}</span>
+              </div>
+
+              <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Livraison</span>
+                <span class="fw-semibold">{{ shippingCost > 0 ? formatPrice(shippingCost) : 'À définir' }}</span>
+              </div>
+
+              <div class="d-flex justify-content-between mb-4 pb-4 border-bottom">
+                <span class="text-success">Réduction</span>
+                <span class="fw-semibold text-success">- 0 FCFA</span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 3px solid #287747;">
+                <h5 class="mb-0 fw-bold">Total à payer</h5>
+                <h3 class="mb-0 fw-bold" style="color: #287747;">
+                  {{ total > 0 ? formatPrice(total) : 'À définir' }}
+                </h3>
+              </div>
+            </div>
+
+            <!-- Garanties -->
+            <div class="mt-4 p-3 rounded-lg" style="background: #f0f7ff; border-left: 4px solid #287747;">
+              <small class="text-muted">
+                <i class="fas fa-check-circle me-2" style="color: #287747;"></i>
+                <strong>Garantie satisfait ou remboursé</strong>
+                <br>30 jours pour changer d'avis
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

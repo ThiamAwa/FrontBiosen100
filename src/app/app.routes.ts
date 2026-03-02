@@ -8,6 +8,11 @@ import { TemoignagesComponent } from './components/pages/temoignages/temoignages
 import { SportComponent } from './components/pages/sport/sport.component';
 import { ContactComponent } from './components/pages/contact/contact.component';
 import { SportDetailComponent } from './components/pages/sport-detail/sport-detail.component';
+import {CheckoutComponent} from './components/pages/checkout/checkout.component';
+import {
+  CheckoutConfirmationComponent
+} from './components/pages/checkout-confirmation/checkout-confirmation.component';
+
 export const routes: Routes = [
 
     // Routes publiques avec layout public
@@ -23,6 +28,8 @@ export const routes: Routes = [
             { path: 'sport', component: SportComponent },
             { path: 'sport/:id', component: SportDetailComponent },
             { path: 'contact', component: ContactComponent },
+          { path: 'checkout', component: CheckoutComponent },
+          { path: 'checkout/confirmation/:order_number', component: CheckoutConfirmationComponent },
         ]
     },
 

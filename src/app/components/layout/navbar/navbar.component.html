@@ -55,6 +55,18 @@
                         <i class="fas fa-search text-primary"></i>
                     </button>
 
+                  <button type="button"
+                          class="btn-panier position-relative text-dark border-0 bg-transparent p-0"
+                          (click)="openCartModal()"
+                          title="Mon panier"
+                          style="cursor: pointer; color: #287747 !important;">
+                    <i class="fa fa-shopping-bag fa-2x"></i>
+                    <span class="position-absolute rounded-circle d-flex align-items-center justify-content-center text-white cart-count-badge"
+                          style="top: -5px; left: 15px; height: 20px; min-width: 20px; font-size: 11px; font-weight: bold; background: linear-gradient(135deg, #287747 0%, #1a5230 100%) !important;">
+                          {{ cartService.cartCount$ | async }}
+                    </span>
+                  </button>
+
                     <!-- Dropdown Mon Compte -->
                     <div class="dropdown">
                         <a href="#" class="dropdown-toggle text-dark d-flex align-items-center gap-2"

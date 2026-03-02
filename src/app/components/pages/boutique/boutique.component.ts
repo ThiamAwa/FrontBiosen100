@@ -104,6 +104,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
           };
 
           this.updatePrixMaxValue();
+
           this.loading = false;
         },
         error: (err) => {
@@ -133,6 +134,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
         };
 
         this.updatePrixMaxValue();
+
         this.loading = false;
       },
       error: (err) => {
@@ -156,36 +158,61 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     }
   }
   loadCategories(): void {
+    // Charger les catégories
     this.gammeService.getCategories(1).subscribe({
       next: (response) => {
         const categoriesData = response.data;
 
-        //  NE PAS toucher à this.categories
-        // this.categories = categoriesData; // Si tu veux garder les catégories originales
+        // Map pour les compteurs
+        const totalCounts = new Map<number, number>();
 
-        // Calculer les types de catégories avec compteurs
-        const typeMap = new Map<number, { id: number; nom: string; count: number }>();
-
+        // Compter les gammes (Bio)
         categoriesData.forEach((cat: any) => {
           if (cat.type_categorie) {
             const typeId = cat.type_categorie.id;
-            if (!typeMap.has(typeId)) {
-              typeMap.set(typeId, {
-                id: typeId,
-                nom: cat.type_categorie.nom,
-                count: 0
-              });
-            }
-            if (cat.produits_count) {
-              const current = typeMap.get(typeId)!;
-              current.count += cat.produits_count;
-            }
+            const currentCount = totalCounts.get(typeId) || 0;
+            totalCounts.set(typeId, currentCount + (cat.produits_count || 0));
           }
         });
 
-        //  Utiliser typeCategories au lieu de categories
-        this.typeCategories = Array.from(typeMap.values());
-        console.log('Types de catégories avec compteurs:', this.typeCategories);
+        this.produitSportService.getProduits(1).subscribe({
+          next: (sportResponse) => {
+            const sportCount = sportResponse.produits?.total || 0;
+
+            totalCounts.set(2, (totalCounts.get(2) || 0) + sportCount);
+
+            // Créer le tableau final
+            const typeMap = new Map<number, { id: number; nom: string; count: number }>();
+
+            categoriesData.forEach((cat: any) => {
+              if (cat.type_categorie) {
+                const typeId = cat.type_categorie.id;
+                if (!typeMap.has(typeId)) {
+                  typeMap.set(typeId, {
+                    id: typeId,
+                    nom: cat.type_categorie.nom,
+                    count: totalCounts.get(typeId) || 0
+                  });
+                }
+              }
+            });
+
+            this.typeCategories = Array.from(typeMap.values());
+            console.log('Types de catégories avec compteurs:', this.typeCategories);
+          },
+          error: () => {
+            this.typeCategories = Array.from(
+              new Map(categoriesData
+                .filter((cat: any) => cat.type_categorie)
+                .map((cat: any) => [cat.type_categorie.id, {
+                  id: cat.type_categorie.id,
+                  nom: cat.type_categorie.nom,
+                  count: totalCounts.get(cat.type_categorie.id) || 0
+                }])
+              ).values()
+            );
+          }
+        });
       },
       error: (err) => {
         console.error('Erreur chargement catégories:', err);
@@ -253,7 +280,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     if (page >= 1 && page <= this.pagination.last_page) {
       this.filters.page = page;
       this.loadGammes();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top: 0, behavior: 'smooth'});
     }
   }
 

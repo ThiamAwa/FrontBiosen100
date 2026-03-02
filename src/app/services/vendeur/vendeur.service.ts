@@ -1,49 +1,80 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Vendeur, Role, Boutique } from '../../models/vendeur';
 
-export interface Vendeur {
-  id: number;
-  nom: string;
-  telephone: string;
-  whatsapp?: string; // lien direct vers WhatsApp (ex: https://wa.me/221771234567)
-  photo?: string;
+export interface VendeurResponse {
+  vendeurs: {
+    data: Vendeur[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+  roles: Role[];
+  boutiques: Boutique[];
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class VendeurService {
-  private mockVendeurs: Vendeur[] = [
-    {
-      id: 1,
-      nom: 'Fatou Seck',
-      telephone: '+221 77 123 45 67',
-      whatsapp: 'https://wa.me/221771234567',
-      photo: 'assets/img/vendeurs/fatou.jpg'
-    },
-    {
-      id: 2,
-      nom: 'Ousmane Sow',
-      telephone: '+221 78 987 65 43',
-      whatsapp: 'https://wa.me/221789876543',
-      photo: 'assets/img/vendeurs/ousmane.jpg'
-    }
-  ];
+  private apiUrl = `${environment.apiUrl}/admin/vendeurs`;
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  // Récupère la liste de tous les vendeurs
-  getVendeurs(): Observable<Vendeur[]> {
-    return of(this.mockVendeurs);
+  /**
+   * Récupère la liste paginée des vendeurs.
+   * @param page Numéro de la page (défaut = 1)
+   */
+  getVendeurs(page: number = 1): Observable<VendeurResponse> {
+    const params = new HttpParams().set('page', page.toString());
+    return this.http.get<VendeurResponse>(this.apiUrl, { params });
   }
 
-  // Récupère un vendeur par son ID
-  getVendeurById(id: number): Observable<Vendeur | undefined> {
-    return of(this.mockVendeurs.find(v => v.id === id));
+  /**
+   * Récupère un vendeur par son ID.
+   * @param id ID du vendeur
+   */
+  getVendeur(id: number): Observable<Vendeur> {
+    return this.http.get<Vendeur>(`${this.apiUrl}/${id}`);
   }
 
-  // Récupère le premier vendeur (par défaut)
-  getDefaultVendeur(): Observable<Vendeur | undefined> {
-    return of(this.mockVendeurs[0]);
+  /**
+   * Crée un nouveau vendeur.
+   * @param data Données du formulaire (nom, prénom, email, téléphone, adresse, password, role_id, boutique_id)
+   */
+  createVendeur(data: any): Observable<Vendeur> {
+    return this.http.post<Vendeur>(this.apiUrl, data);
+  }
+
+  /**
+   * Met à jour un vendeur existant.
+   * @param id ID du vendeur
+   * @param data Données mises à jour (les mêmes que pour la création, password optionnel)
+   */
+  updateVendeur(id: number, data: any): Observable<Vendeur> {
+    return this.http.put<Vendeur>(`${this.apiUrl}/${id}`, data);
+  }
+
+  /**
+   * Change le rôle d'un vendeur (endpoint PATCH spécifique).
+   * @param id ID du vendeur
+   * @param roleId Nouvel ID du rôle
+   */
+  changeRole(id: number, roleId: number): Observable<{ message: string; user: Vendeur }> {
+    return this.http.patch<{ message: string; user: Vendeur }>(
+      `${this.apiUrl}/${id}/change-role`,
+      { role_id: roleId }
+    );
+  }
+
+  /**
+   * Supprime un vendeur.
+   * @param id ID du vendeur
+   */
+  deleteVendeur(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
 }

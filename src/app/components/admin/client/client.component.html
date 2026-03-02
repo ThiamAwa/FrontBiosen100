@@ -1,0 +1,436 @@
+<div class="categories-wrapper">
+    <div class="categories-container">
+        <!-- Header -->
+        <div class="page-header-custom">
+            <h1><i class="fas fa-users"></i> Gestion des Clients</h1>
+        </div>
+
+        <!-- Carte principale -->
+        <div class="card-custom">
+            <!-- En-tête de la carte -->
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-address-book"></i>
+                    <span>Liste des Clients</span>
+                </div>
+                <div class="header-actions d-flex gap-2">
+                    <!-- Filtres rapides -->
+                    <div class="filter-group d-flex gap-1">
+                        <button class="btn btn-sm" [class.btn-success]="currentFilter === 'all'"
+                            (click)="onFilter('all')">
+                            <i class="fas fa-list"></i> Tous <span class="badge bg-light text-dark">{{ total }}</span>
+                        </button>
+                        <button class="btn btn-sm" [class.btn-success]="currentFilter === 'verified'"
+                            (click)="onFilter('verified')">
+                            <i class="fas fa-check-circle"></i> Vérifiés <span class="badge bg-light text-dark">{{
+                                verifiedCount }}</span>
+                        </button>
+                        <button class="btn btn-sm" [class.btn-success]="currentFilter === 'unverified'"
+                            (click)="onFilter('unverified')">
+                            <i class="fas fa-exclamation-circle"></i> Non vérifiés <span
+                                class="badge bg-light text-dark">{{ unverifiedCount }}</span>
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-add-custom" (click)="openCreateModal()">
+                        <i class="fas fa-plus"></i> <span>Nouveau Client</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alertes -->
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (validationErrors.length > 0) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Erreur de validation :</strong>
+                    <ul class="mb-0 mt-2">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                <button type="button" class="btn-close" (click)="validationErrors = []"></button>
+            </div>
+            }
+
+            <!-- Corps de la carte -->
+            <div class="card-body-custom">
+                <!-- Barre de recherche -->
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control"
+                                placeholder="Rechercher par nom, prénom, email ou téléphone..." [(ngModel)]="searchTerm"
+                                (keyup.enter)="onSearch()">
+                            @if (searchTerm) {
+                            <button class="btn btn-outline-secondary" type="button" (click)="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tableau -->
+                <div class="table-responsive">
+                    <div class="table-container">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <th>Adresse</th>
+                                    <!-- <th>Inscription</th> -->
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (client of clients; track client.id) {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-2"
+                                                style="width: 35px; height: 35px; background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px;">
+                                                {{ getInitials(client) }}
+                                            </div>
+                                            <div>
+                                                <strong>{{ client.prenom }} {{ client.nom }}</strong><br>
+                                                <!-- <small class="text-muted"> {{
+                                                    client.role?.name ?? 'Client' }}</small> -->
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ client.email }}</td>
+                                    <td>{{ client.telephone }}</td>
+                                    <td>{{ (client.adresse || '') |
+                                        slice:0:30 }}{{ (client.adresse?.length ?? 0) > 30 ? '...' : '' }}</td>
+                                    <!-- <td>
+                                        <div>{{
+                                            formatDate(client.created_at) }}</div>
+                                        <small class="text-muted">{{ client.created_at | date:'dd/MM/yyyy' }}</small>
+                                    </td> -->
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-light me-2"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openViewModal(client)" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-light me-2"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openEditModal(client)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            (click)="openDeleteModal(client)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                } @empty {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted fw-semibold mb-1">Aucun client trouvé</p>
+                                        <small class="text-muted">Commencez par créer votre premier client</small>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage <span class="fw-medium">{{ firstItem }}</span> à <span class="fw-medium">{{ lastItem
+                            }}</span> sur <span class="fw-medium">{{ total }}</span> clients
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
+                                    aria-label="Précédent">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
+                                    aria-label="Suivant">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Création -->
+@if (showCreateModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"
+                style="background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%); color: white;">
+                <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Nouveau Client</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                }
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Prénom *</label>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.prenom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" [(ngModel)]="createForm.email" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Téléphone *</label>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.telephone" required>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Adresse *</label>
+                        <textarea class="form-control" [(ngModel)]="createForm.adresse" rows="2"></textarea>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
+                <button type="button" class="btn btn-success" (click)="createClient()">Créer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Édition -->
+@if (showEditModal && selectedClient) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"
+                style="background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%); color: white;">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier Client</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                }
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Prénom *</label>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.prenom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" [(ngModel)]="editForm.email" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Téléphone *</label>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.telephone" required>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Adresse *</label>
+                        <textarea class="form-control" [(ngModel)]="editForm.adresse" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Rôle *</label>
+                        <select class="form-select" [(ngModel)]="editForm.role_id" required>
+                            <option value="">Sélectionner un rôle</option>
+                            <!-- Vous pouvez charger dynamiquement les rôles via un service -->
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" id="email_verified_edit" class="form-check-input"
+                                [(ngModel)]="editForm.email_verified">
+                            <label class="form-check-label" for="email_verified_edit">Email vérifié</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
+                <button type="button" class="btn btn-success" (click)="updateClient()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Suppression -->
+@if (showDeleteModal && clientToDelete) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center w-100">
+                    <div class="warning-icon bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style="width: 48px; height: 48px;">
+                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title mb-0 fw-bold">Confirmer la suppression</h5>
+                    </div>
+                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                </div>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer ce client ?</h6>
+                    <p class="mb-0">Le client <span class="fw-bold text-danger">"{{ clientToDelete.prenom }} {{
+                            clientToDelete.nom }}"</span> sera définitivement supprimé.</p>
+                </div>
+                <div class="alert alert-warning border-warning">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-info-circle mt-1 me-3 text-warning"></i>
+                        <div>
+                            <p class="mb-0"><i class="fas fa-exclamation-circle me-1"></i>Cette action est
+                                <strong>irréversible</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                <div class="w-100 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-success px-4" (click)="closeDeleteModal()">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="button" class="btn btn-danger px-4" (click)="deleteClient()">
+                        <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Détails Client -->
+@if (showViewModal && clientToView) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"
+                style="background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%); color: white;">
+                <h5 class="modal-title"><i class="fas fa-user-circle me-2"></i>Détails du Client</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeViewModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-semibold">Nom complet</label>
+                        <p>{{ clientToView.prenom }} {{ clientToView.nom }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-semibold">Email</label>
+                        <p>{{ clientToView.email }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-semibold">Téléphone</label>
+                        <p>{{ clientToView.telephone }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-semibold">Rôle</label>
+                        <p><span class="badge bg-primary">{{ clientToView.role?.name ?? 'Client' }}</span></p>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="fw-semibold">Adresse</label>
+                        <p>{{ clientToView.adresse }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-semibold">Statut email</label>
+                        <p>
+                            @if (clientToView.email_verified_at) {
+                            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Vérifié le {{
+                                formatDateTime(clientToView.email_verified_at) }}</span>
+                            } @else {
+                            <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle"></i> Non
+                                vérifié</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-semibold">Date d'inscription</label>
+                        <p>{{ formatDateTime(clientToView.created_at) }}</p>
+                    </div>
+                </div>
+                @if (clientStats) {
+                <hr>
+                <h6 class="fw-bold">Statistiques</h6>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <strong>{{ clientStats.total_commandes }}</strong><br>
+                            <small>Commandes</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <strong>{{ clientStats.total_depense | number:'':'fr' }}</strong><br>
+                            <small>Dépenses (FCFA)</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <strong>{{ clientStats.total_avis }}</strong><br>
+                            <small>Avis</small>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeViewModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}

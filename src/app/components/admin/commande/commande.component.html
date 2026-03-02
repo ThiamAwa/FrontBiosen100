@@ -1,0 +1,459 @@
+<div class="commandes-wrapper">
+    <div class="commandes-container">
+        <!-- Header -->
+        <div class="page-header-custom">
+            <h1><i class="fas fa-shopping-cart"></i> Gestion des Commandes</h1>
+        </div>
+
+        <!-- Boutons d'export -->
+        <div class="d-flex gap-2 mb-3" style="margin-top: 1rem;">
+            <button type="button" class="btn btn-export btn-export-excel" (click)="exportExcel()"
+                title="Exporter en Excel">
+                <i class="fas fa-file-excel"></i> <span>Excel</span>
+            </button>
+            <button type="button" class="btn btn-export btn-export-pdf" (click)="exportPDF()" title="Exporter en PDF">
+                <i class="fas fa-file-pdf"></i> <span>PDF</span>
+            </button>
+            <button type="button" class="btn btn-export btn-export-print" (click)="print()" title="Imprimer">
+                <i class="fas fa-print"></i> <span>Imprimer</span>
+            </button>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-list"></i>
+                    <span>Liste des Commandes</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    @if (hasActiveFilters) {
+                    <span class="badge bg-success">
+                        <i class="fas fa-filter me-1"></i>Filtres actifs
+                    </span>
+                    }
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleFilterPanel()"
+                        title="Filtrer">
+                        <i class="fas fa-filter"></i> <span>Filtrer</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (validationErrors.length > 0) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Erreur de validation :</strong>
+                    <ul class="mb-0 mt-2">
+                        @for (err of validationErrors; track err) {
+                        <li>{{ err }}</li>
+                        }
+                    </ul>
+                </div>
+                <button type="button" class="btn-close" (click)="validationErrors = []"></button>
+            </div>
+            }
+
+            <!-- Filter Panel -->
+            @if (showFilterPanel) {
+            <div class="filter-panel"
+                style="padding: 16px 20px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-sliders-h me-2 text-success"></i>
+                    <strong style="color: #10b981;">Filtres de recherche</strong>
+                </div>
+                <div class="row g-3">
+                    <!-- Statut -->
+                    <div class="col-md-3 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-tag me-1 text-success"></i>Statut
+                        </label>
+                        <select class="form-select form-select-sm" [(ngModel)]="selectedStatut">
+                            <option value="">— Tous les statuts —</option>
+                            <option value="en_attente">En attente</option>
+                            <option value="en_cours">En cours</option>
+                            <option value="valider">Validée</option>
+                        </select>
+                    </div>
+
+                    <!-- Mois -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-alt me-1 text-success"></i>Mois
+                        </label>
+                        <select class="form-select form-select-sm" [(ngModel)]="selectedMonth">
+                            <option value="">— Tous —</option>
+                            @for (m of months; track m.value) {
+                            <option [value]="m.value">{{ m.label }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Année -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar me-1 text-success"></i>Année
+                        </label>
+                        <select class="form-select form-select-sm" [(ngModel)]="selectedYear">
+                            <option value="">— Toutes —</option>
+                            @for (y of years; track y) {
+                            <option [value]="y">{{ y }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Date exacte -->
+                    <div class="col-md-3 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-day me-1 text-success"></i>Date exacte
+                        </label>
+                        <input type="date" class="form-control form-control-sm" [(ngModel)]="selectedDate">
+                    </div>
+
+                    <!-- Recherche -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-search me-1 text-success"></i>Recherche
+                        </label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="searchTerm"
+                            placeholder="N° ou client...">
+                    </div>
+                </div>
+
+                <!-- Boutons action -->
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                    <button type="button" class="btn btn-sm btn-success px-4" (click)="applyFilters()">
+                        <i class="fas fa-check me-1"></i> Appliquer
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary px-4" (click)="resetFilters()">
+                        <i class="fas fa-redo me-1"></i> Réinitialiser
+                    </button>
+                    @if (hasActiveFilters) {
+                    <span class="ms-auto text-muted d-flex align-items-center" style="font-size: 12px;">
+                        <i class="fas fa-info-circle me-1 text-success"></i>
+                        {{ total }} résultat(s) trouvé(s)
+                    </span>
+                    }
+                </div>
+            </div>
+            }
+
+            <div class="card-body-custom">
+                <div class="table-responsive">
+                    <div class="table-container">
+                        <table class="table table-custom" id="commandesTable">
+                            <thead>
+                                <tr>
+                                    <th>N° Commande</th>
+                                    <th>Client</th>
+                                    <th>Montant</th>
+                                    <th>Date Commande</th>
+                                    <th>Statut</th>
+                                    <th>Boutique</th> <!-- ← Remplacé -->
+                                    <th class="text-center action-column">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (commande of commandes; track commande.id) {
+                                <tr>
+                                    <td><strong>{{ commande.numeroCommande }}</strong></td>
+                                    <td>
+                                        <div><strong>{{ commande.user?.prenom }} {{ commande.user?.nom }}</strong></div>
+                                        <small class="text-muted d-block">{{ commande.user?.telephone ?? 'N/A'
+                                            }}</small>
+                                    </td>
+                                    <td><strong>{{ commande.montantTotal | number:'':'fr' }} FCFA</strong></td>
+                                    <td><small>{{ formatDate(commande.created_at) }}</small></td>
+                                    <td>
+                                        <span class="badge {{ getStatusClass(commande.statut) }}">
+                                            {{ getStatusLabel(commande.statut) }}
+                                        </span>
+                                    </td>
+                                    <td> <!-- ← Nouvelle cellule -->
+                                        @if (commande.boutique) {
+                                        <span class="badge bg-primary">{{ commande.boutique.nom }}</span>
+                                        } @else {
+                                        <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                    <td class="text-center action-column">
+                                        <button type="button" class="btn btn-sm btn-light me-1"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openViewModal(commande)" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-light me-1"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openEditModal(commande)" title="Modifier le statut">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            (click)="openDeleteModal(commande)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                } @empty {
+                                <tr>
+                                    <td colspan="7" class="text-center py-5"> <!-- colspan reste 7 -->
+                                        <i class="fas fa-inbox fa-2x text-muted mb-3 d-block"></i>
+                                        <p class="text-muted mb-1">Aucune commande trouvée</p>
+                                        @if (hasActiveFilters) {
+                                        <small class="text-muted">
+                                            Essayez de modifier ou
+                                            <a href="javascript:void(0)" (click)="resetFilters()" class="text-success">
+                                                réinitialiser les filtres
+                                            </a>
+                                        </small>
+                                        } @else {
+                                        <small class="text-muted">Les commandes apparaîtront ici</small>
+                                        }
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage <span class="fw-medium">{{ firstItem }}</span> à
+                        <span class="fw-medium">{{ lastItem }}</span> sur
+                        <span class="fw-medium">{{ total }}</span> commandes
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
+                                    aria-label="Précédent">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
+                                    aria-label="Suivant">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Modal Détails ===== -->
+@if (showViewModal && selectedCommande) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Détails Commande {{ selectedCommande.numeroCommande }}
+                </h5>
+                <button type="button" class="btn-close" (click)="closeViewModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">Informations Client</h6>
+                        @if (selectedCommande.user) {
+                        <p class="mb-2"><strong>Nom:</strong> {{ selectedCommande.user.prenom }} {{
+                            selectedCommande.user.nom }}</p>
+                        <p class="mb-2"><strong>Email:</strong> {{ selectedCommande.user.email }}</p>
+                        <p class="mb-2"><strong>Téléphone:</strong> {{ selectedCommande.user.telephone }}</p>
+                        <p class="mb-0"><strong>Adresse:</strong> {{ selectedCommande.user.adresse }}</p>
+                        } @else {
+                        <p class="text-muted">Client supprimé</p>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">Informations Commande</h6>
+                        <p class="mb-2"><strong>N° Commande:</strong> {{ selectedCommande.numeroCommande }}</p>
+                        <p class="mb-2"><strong>Date:</strong> {{ formatDate(selectedCommande.created_at) }}</p>
+                        <p class="mb-0"><strong>Statut:</strong>
+                            <span class="badge {{ getStatusClass(selectedCommande.statut) }}">
+                                {{ getStatusLabel(selectedCommande.statut) }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="fw-bold mb-3">Produits Commandés</h6>
+                @if (selectedCommande.panier?.lignesPanier?.length) {
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Quantité</th>
+                                <th>Prix Unitaire</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (ligne of selectedCommande.panier!.lignesPanier; track $index) {
+                            <tr>
+                                <td>{{ ligne.gamme?.nom ?? 'Produit supprimé' }}</td>
+                                <td>{{ ligne.quantite }}</td>
+                                <td>{{ ligne.prixUnitaire | number:'':'fr' }} FCFA</td>
+                                <td><strong>{{ ligne.quantite * ligne.prixUnitaire | number:'':'fr' }} FCFA</strong>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                } @else {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Aucun produit dans cette commande
+                </div>
+                }
+                <hr>
+                <div class="row">
+                    <div class="col-md-6 offset-md-6">
+                        <div class="bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>Montant Total:</strong>
+                                <strong class="text-success">
+                                    {{ selectedCommande.montantTotal | number:'':'fr' }} FCFA
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (selectedCommande.noteCommande) {
+                <hr>
+                <h6 class="fw-bold mb-2">Note</h6>
+                <p class="text-muted">{{ selectedCommande.noteCommande }}</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeViewModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ===== Modal Édition Statut ===== -->
+@if (showEditModal && selectedCommande) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form (ngSubmit)="updateCommande()">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Modifier Statut - #{{ selectedCommande.numeroCommande }}
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+                </div>
+                <div class="modal-body">
+                    @if (validationErrors.length > 0) {
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @for (err of validationErrors; track err) {
+                            <li>{{ err }}</li>
+                            }
+                        </ul>
+                    </div>
+                    }
+                    <div class="mb-3">
+                        <label for="statut_edit" class="form-label">Nouveau Statut *</label>
+                        <select class="form-select" id="statut_edit" [(ngModel)]="editForm.statut" name="statut"
+                            required>
+                            <option value="en_attente">En attente</option>
+                            <option value="en_cours">En cours</option>
+                            <option value="valider">Validée</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="note_edit" class="form-label">Note (optionnel)</label>
+                        <textarea class="form-control" id="note_edit" [(ngModel)]="editForm.noteCommande"
+                            name="noteCommande" rows="4"></textarea>
+                        <small class="text-muted">Ajouter une note interne sur la commande</small>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Montant Total:</strong> {{ selectedCommande.montantTotal | number:'':'fr' }} FCFA
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ===== Modal Suppression ===== -->
+@if (showDeleteModal && commandeToDelete) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center w-100">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style="width: 48px; height: 48px;">
+                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title mb-0 fw-bold">Confirmer la suppression</h5>
+                    </div>
+                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                </div>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer cette commande ?</h6>
+                    <p class="mb-3">
+                        La commande <span class="fw-bold text-danger">#{{ commandeToDelete.numeroCommande }}</span>
+                        sera définitivement supprimée.
+                    </p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <small>Le montant de <strong>{{ commandeToDelete.montantTotal | number:'':'fr' }} FCFA</strong>
+                            sera perdu.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                <div class="w-100 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-success px-4" (click)="closeDeleteModal()">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="button" class="btn btn-danger px-4" (click)="deleteCommande()">
+                        <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}

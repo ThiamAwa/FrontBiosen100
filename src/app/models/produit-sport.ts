@@ -24,7 +24,8 @@ export interface ProduitSport {
   prixPromo?: number;
   stock: number;
   enPromotion: boolean;
-  image?: string;  // Image principale (legacy)
+  image?: string;
+  categorie_id?: number;
   categorie?: Categorie;
   medias: ProduitMedia[];
   created_at: string;

@@ -51,6 +51,34 @@ export const routes: Routes = [
             {
                 path: 'produits',
                 loadComponent: () => import('./components/admin/produit/produit.component').then(m => m.ProduitComponent)
+            },
+            {
+                path: 'produits-sport',
+                loadComponent: () => import('./components/admin/produit-sport/produit-sport.component').then(m => m.ProduitSportComponent)
+            },
+            {
+                path: 'vendeurs',
+                loadComponent: () => import('./components/admin/vendeur/vendeur.component').then(m => m.VendeurComponent)
+            },
+            {
+                path: 'livreurs',
+                loadComponent: () => import('./components/admin/livreur/livreur.component').then(m => m.LivreurComponent)
+            },
+            {
+                path: 'boutiques',
+                loadComponent: () => import('./components/admin/boutique/boutique.component').then(m => m.BoutiqueComponent)
+            },
+            {
+                path: 'clients',
+                loadComponent: () => import('./components/admin/client/client.component').then(m => m.ClientComponent)
+            },
+            {
+                path: 'commandes',
+                loadComponent: () => import('./components/admin/commande/commande.component').then(m => m.CommandeComponent)
+            },
+            {
+                path: 'factures',
+                loadComponent: () => import('./components/admin/factures/factures.component').then(m => m.FacturesComponent)
             }
         ]
     },

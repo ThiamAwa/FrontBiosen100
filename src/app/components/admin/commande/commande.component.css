@@ -1,0 +1,447 @@
+/* ========================================
+   BOUTONS D'EXPORT
+======================================== */
+.btn-export {
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.btn-export i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-export-excel {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-color: #059669;
+}
+
+.btn-export-excel:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.btn-export-excel:hover i {
+    transform: scale(1.15) rotate(-5deg);
+}
+
+.btn-export-pdf {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-color: #dc2626;
+}
+
+.btn-export-pdf:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+}
+
+.btn-export-pdf:hover i {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.btn-export-print {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-color: #2563eb;
+}
+
+.btn-export-print:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+.btn-export-print:hover i {
+    transform: scale(1.15) rotate(-5deg);
+}
+
+@media (max-width: 768px) {
+    .btn-export {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-export i {
+        font-size: 1rem;
+    }
+
+    .btn-export span {
+        display: none;
+    }
+
+    .btn-export {
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+        gap: 0;
+    }
+}
+
+/* ========================================
+   BOUTON TOGGLE FILTRES (header)
+======================================== */
+.filter-toggle-btn {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    color: #475569;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.filter-toggle-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+.filter-toggle-dot {
+    width: 7px;
+    height: 7px;
+    background: #64748b;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Badge filtres actifs */
+.filter-active-badge {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-active-dot {
+    width: 7px;
+    height: 7px;
+    background: #64748b;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* ========================================
+   FILTER PANEL WRAPPER
+======================================== */
+.filter-panel-wrapper {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    animation: filterSlideDown 0.2s ease;
+}
+
+@keyframes filterSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* En-tête du panel */
+.filter-panel-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 13px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-panel-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-panel-icon {
+    width: 34px;
+    height: 34px;
+    background: #e2e8f0;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.filter-panel-icon i {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.filter-panel-title {
+    margin: 0;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.filter-panel-subtitle {
+    margin: 0;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* Bouton effacer tout */
+.filter-clear-btn {
+    background: none;
+    border: 1px solid #e2e8f0;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 7px;
+    transition: all 0.15s ease;
+}
+
+.filter-clear-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+/* Corps du panel */
+.filter-panel-body {
+    padding: 22px 24px;
+}
+
+/* ========================================
+   FILTER CARDS (chaque filtre)
+======================================== */
+.filter-card {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+}
+
+.filter-card:focus-within {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15);
+}
+
+.filter-card-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 9px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: default;
+}
+
+.filter-card-label i {
+    font-size: 11px;
+}
+
+.filter-card-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+}
+
+.filter-card-input::placeholder {
+    color: #cbd5e1;
+    font-weight: 400;
+}
+
+.filter-card-tag-wrapper {
+    margin-top: 8px;
+}
+
+.filter-card-tag {
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* ========================================
+   RÉSUMÉ PÉRIODE
+======================================== */
+.filter-period-summary {
+    margin-top: 16px;
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #475569;
+    font-weight: 600;
+}
+
+.filter-period-summary i {
+    color: #94a3b8;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.filter-period-summary strong {
+    color: #1e293b;
+}
+
+/* ========================================
+   PIED DU PANEL
+======================================== */
+.filter-panel-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Bouton Appliquer */
+.filter-apply-btn {
+    background: #1e293b;
+    color: #ffffff;
+    border: none;
+    border-radius: 9px;
+    padding: 9px 26px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: 0.3px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.filter-apply-btn:hover {
+    background: #0f172a;
+    transform: translateY(-1px);
+}
+
+.filter-apply-btn:active {
+    transform: translateY(0);
+}
+
+/* Bouton Réinitialiser */
+.filter-reset-btn {
+    background: transparent;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 9px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s ease;
+}
+
+.filter-reset-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+/* Badge compteur résultats */
+.filter-count-badge {
+    margin-left: auto;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-count-badge i {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+@media (max-width: 768px) {
+    .filter-panel-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter-panel-body {
+        padding: 16px;
+    }
+
+    .filter-panel-footer {
+        flex-wrap: wrap;
+    }
+
+    .filter-count-badge {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .filter-apply-btn,
+    .filter-reset-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}

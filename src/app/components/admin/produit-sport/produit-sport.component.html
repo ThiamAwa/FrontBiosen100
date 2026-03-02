@@ -1,0 +1,220 @@
+<div class="categories-wrapper">
+    <div class="categories-container">
+        <div class="page-header-custom">
+            <h1><i class="fas fa-dumbbell"></i> Gestion des Produits Sport</h1>
+        </div>
+
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-running"></i>
+                    <span>Liste des Produits Sport</span>
+                </div>
+                <button type="button" class="btn btn-add-custom" (click)="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>Nouveau Produit Sport</span>
+                </button>
+            </div>
+
+            <!-- Alertes -->
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+
+            <div class="card-body-custom">
+                <!-- Barre de recherche -->
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Rechercher un produit sport..."
+                                [(ngModel)]="searchTerm" (keyup.enter)="search()">
+                            <button class="btn btn-primary" type="button" (click)="search()">
+                                <i class="fas fa-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th style="width:100px;">Médias</th>
+                                <th>Nom</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Promotion</th>
+                                <th>Stock</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (produit of produits; track produit.id) {
+                            @let mediaPrincipal = getMediaPrincipal(produit);
+                            @let nbMedias = produit.medias?.length ?? 0;
+                            <tr>
+                                <td>
+                                    @if (mediaPrincipal) {
+                                    <div class="position-relative d-inline-block">
+                                        @if (mediaPrincipal.type === 'image') {
+                                        <img [src]="mediaPrincipal.url || '/assets/images/placeholder.jpg'"
+                                            style="width:65px;height:65px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0;display:block;"
+                                            [alt]="produit.nom">
+                                        } @else if (mediaPrincipal.type === 'video_url' &&
+                                        mediaPrincipal.youtube_thumbnail) {
+                                        <div style="position:relative;width:65px;height:65px;">
+                                            <img [src]="mediaPrincipal.youtube_thumbnail"
+                                                style="width:65px;height:65px;object-fit:cover;border-radius:8px;"
+                                                alt="">
+                                            <div
+                                                style="position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                                <i class="fab fa-youtube text-danger"></i>
+                                            </div>
+                                        </div>
+                                        } @else {
+                                        <div
+                                            style="width:65px;height:65px;background:#1a1a2e;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                            <i class="fas fa-video text-white"></i>
+                                        </div>
+                                        }
+
+                                        @if (nbMedias > 1) {
+                                        <span
+                                            style="position:absolute;top:-6px;right:-6px;background:#287747;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;">
+                                            {{ nbMedias }}
+                                        </span>
+                                        }
+                                    </div>
+
+                                    <button type="button" class="btn btn-sm d-block mt-1 w-100"
+                                        style="background:#287747;color:white;font-size:11px;padding:2px 0;border:none;border-radius:5px;"
+                                        (click)="openGalerieModal(produit)">
+                                        <i class="fas fa-eye me-1"></i>Voir
+                                    </button>
+
+                                    } @else if (produit.image) {
+                                    <img [src]="produit.image"
+                                        style="width:65px;height:65px;object-fit:cover;border-radius:8px;cursor:pointer;"
+                                        (click)="openImageModal(produit.image!, produit.nom)" [alt]="produit.nom">
+                                    } @else {
+                                    <div
+                                        style="width:65px;height:65px;background:#f8f9fa;border-radius:8px;border:2px dashed #dee2e6;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                    }
+                                </td>
+
+                                <td>
+                                    <strong>{{ produit.nom }}</strong>
+                                    @if (produit.description) {
+                                    <small class="d-block text-muted mt-1">{{ truncate(produit.description, 35)
+                                        }}</small>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (produit.categorie) {
+                                    {{ produit.categorie.nom }}
+                                    } @else {
+                                    <span class="text-muted fst-italic">Non défini</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (produit.enPromotion && produit.prixPromo) {
+                                    <span class="text-decoration-line-through text-muted d-block small">{{
+                                        formatPrice(produit.prix) }}</span>
+                                    <span class="text-danger fw-bold">{{ formatPrice(produit.prixPromo) }}</span>
+                                    } @else {
+                                    <span class="fw-bold">{{ formatPrice(produit.prix) }}</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (produit.enPromotion) {
+                                    <span class="badge"
+                                        style="background:linear-gradient(135deg,#f56565,#e53e3e);color:white;">
+                                        <i class="fas fa-tag me-1"></i>Promo
+                                    </span>
+                                    } @else {
+                                    <span class="badge bg-secondary">Non</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="badge" [class]="getStockClass(produit.stock)">{{ produit.stock
+                                        }}</span>
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-light me-1"
+                                        style="background:#d4edda;color:#155724;border-color:#c3e6cb;"
+                                        (click)="openEditModal(produit)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        (click)="openDeleteModal(produit)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            } @empty {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-dumbbell fa-2x text-muted mb-3"></i>
+                                        <p class="text-muted mb-0">Aucun produit sport trouvé</p>
+                                        <small class="text-muted">Commencez par créer votre premier produit
+                                            sport</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage <span class="fw-medium">{{ firstItem }}</span> à <span class="fw-medium">{{ lastItem
+                            }}</span> sur <span class="fw-medium">{{ total }}</span> produits
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
+                                    aria-label="Précédent">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
+                                    aria-label="Suivant">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

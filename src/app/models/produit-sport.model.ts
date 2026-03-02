@@ -2,10 +2,10 @@
 export interface ProduitMedia {
   id: number;
   type: 'image' | 'video_url';
-  chemin?: string;        // Pour les images
-  url?: string;           // URL complète de l'image (générée par Laravel)
-  url_externe?: string;   // URL YouTube/Vimeo
-  embed_url?: string;     // URL embed
+  chemin?: string;
+  url?: string;
+  url_externe?: string;
+  embed_url?: string;
   youtube_thumbnail?: string;
   titre?: string;
   est_principal: boolean;
@@ -25,7 +25,8 @@ export interface ProduitSport {
   prixPromo?: number;
   stock: number;
   enPromotion: boolean;
-  image?: string;  // Image principale (legacy)
+  image?: string;
+  categorie_id?: number;
   categorie?: Categorie;
   medias: ProduitMedia[];
   created_at: string;

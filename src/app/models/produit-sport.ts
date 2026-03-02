@@ -1,4 +1,3 @@
-// models/produit-sport.model.ts
 export interface ProduitMedia {
   id: number;
   type: 'image' | 'video_url';

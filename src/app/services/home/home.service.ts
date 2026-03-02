@@ -1,14 +1,17 @@
-// src/app/services/accueil/accueil.service.ts
+// src/app/services/accueil/home.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AccueilData, Produit, Gamme, Categorie } from '../../models/produit.model';
+import {AccueilData} from '../../models/accueilData';
+import { Produit } from '../../models/produit';
+import {Gamme} from '../../models/gamme';
+import {Categorie} from '../../models/categorie';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AccueilService {
+export class HomeService {
   private apiUrl = environment.apiUrl;
   private storageUrl = environment.storageUrl;
 

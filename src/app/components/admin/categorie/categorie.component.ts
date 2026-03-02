@@ -13,6 +13,7 @@ import { Categorie } from '../../../models/categorie';
   templateUrl: './categorie.component.html',
   styleUrls: ['./categorie.component.css']
 })
+
 export class CategorieComponent implements OnInit {
   categories: Categorie[] = [];
   typeCategories: TypeCategorie[] = [];

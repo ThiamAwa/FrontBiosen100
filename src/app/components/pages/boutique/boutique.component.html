@@ -1,1 +1,344 @@
-<div>Boutique</div>
+<!-- Header -->
+<div class="container-fluid page-header py-5 mb-5">
+  <div class="container text-center py-5">
+    <h1 class="display-4 text-white fw-bold">Boutique</h1>
+  </div>
+</div>
+
+<!-- Products Shop Start-->
+<div class="container-fluid py-5">
+  <div class="container py-5">
+
+    <!-- Titre -->
+    <div class="text-center mb-5">
+      <h1 class="display-5 fw-bold" style="color: #287747;">Boutique de produits frais et bio</h1>
+      <p class="text-muted">Découvrez notre sélection de produits 100% naturels et bio du Sénégal</p>
+    </div>
+
+    <!-- Loading -->
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (error) {
+      <div class="alert alert-danger text-center mx-5">
+        <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+      </div>
+    }
+
+    @if (!loading && !error) {
+      <div class="row g-4">
+        <div class="col-lg-12">
+
+          <!-- Barre de recherche et tri -->
+          <div class="row g-4 mb-5">
+            <div class="col-xl-4">
+              <div class="input-group w-100 mx-auto d-flex shadow-sm">
+                <input type="search"
+                       class="form-control p-3 border-0"
+                       placeholder="Rechercher un produit..."
+                       [(ngModel)]="filters.search"
+                       (ngModelChange)="onSearchChange($event)">
+                <span class="input-group-text p-3 border-0 text-white"
+                      style="background-color: #287747; cursor: pointer;"
+                      (click)="applyFilters()">
+                  <i class="fa fa-search"></i>
+                </span>
+              </div>
+            </div>
+
+            <div class="col-xl-4"></div>
+
+            <div class="col-xl-4">
+              <div class="bg-white shadow-sm ps-3 py-3 rounded d-flex justify-content-between align-items-center border">
+                <label class="mb-0 fw-semibold" style="color: #287747;">Trier par:</label>
+                <select class="border-0 form-select-sm bg-white me-3"
+                        style="color: #287747; outline: none;"
+                        [(ngModel)]="filters.tri"
+                        (ngModelChange)="applyFilters()">
+                  <option value="default">Par défaut</option>
+                  <option value="popularity">Popularité</option>
+                  <option value="price-low">Prix croissant</option>
+                  <option value="price-high">Prix décroissant</option>
+                  <option value="new">Nouveautés</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4">
+
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3">
+              <div class="row g-4">
+
+                <!-- Sidebar Filters - Section Catégories  -->
+                <div class="col-lg-12">
+                  <div class="mb-3 bg-white p-4 rounded shadow-custom">
+                    <h4 class="mb-4 fw-bold" style="color: #287747;">Catégories</h4>
+                    <ul class="list-unstyled fruite-categorie">
+
+                      <!-- Option Tous -->
+                      <li class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <a href="javascript:void(0)"
+                             (click)="filterByTypeCategorie('')"
+                             [class.fw-bold]="filters.type_categorie === ''"
+                             class="text-dark text-decoration-none">
+                            <i class="fas fa-th me-2" style="color: #287747;"></i>Tous
+                          </a>
+                          <span class="badge rounded-pill" style="background-color: #287747;"> </span>
+                        </div>
+                      </li>
+
+                      @if (typeCategories && typeCategories.length > 0) {
+                        @for (categorie of typeCategories; track categorie.id) {
+                          <li class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <a href="javascript:void(0)"
+                                 (click)="filterByTypeCategorie(categorie.id.toString())"
+                                 [class.fw-bold]="filters.type_categorie === categorie.id.toString()"
+                                 class="text-dark text-decoration-none">
+                                <i class="fas fa-tag me-2" style="color: #287747;"></i>{{ categorie.nom }}
+                              </a>
+                              <span class="badge rounded-pill" style="background-color: #287747;"> </span>
+                            </div>
+                          </li>
+                        }
+                      }
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Price Filter -->
+                <div class="col-lg-12">
+                  <div class="mb-3 bg-white p-4 rounded shadow-custom">
+                    <h4 class="mb-4 fw-bold" style="color: #287747;">Prix (FCFA)</h4>
+                    <input type="range"
+                           class="form-range w-100"
+                           [min]="0"
+                           [max]="prixMaxValue"
+                           [(ngModel)]="filters.prix_max"
+                           (input)="updatePrixMax($event)">
+
+                    <div class="d-flex justify-content-between mt-3">
+                      <span class="text-muted small">0 FCFA</span>
+                      <span class="fw-bold small" style="color: #287747;">{{ filters.prix_max | number }} FCFA</span>
+                      <span class="text-muted small">{{ prixMaxValue | number }}</span>
+                    </div>
+
+                    <button class="btn btn-sm mt-2 w-100"
+                            style="background-color: #287747; color: white; border: none;"
+                            (click)="applyFilters()">
+                      Filtrer
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Additional Filters -->
+                <div class="col-lg-12">
+                  <div class="mb-3 bg-white p-4 rounded shadow-custom">
+                    <h4 class="mb-4 fw-bold" style="color: #287747;">Filtres</h4>
+
+                    <div class="mb-3">
+                      <input type="checkbox"
+                             class="me-2 form-check-input"
+                             id="filtrePromo"
+                             [(ngModel)]="filters.promo"
+                             (ngModelChange)="applyFilters()">
+                      <label for="filtrePromo" class="form-check-label">En promotion</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Banner -->
+                <div class="col-lg-12">
+                  <div class="position-relative rounded overflow-hidden shadow-custom">
+                    <img src="assets/img/biosen/default-product.jpg"
+                         class="img-fluid w-100 rounded"
+                         alt="Bio Banner"
+                         style="height: 200px; object-fit: cover;"
+                         (error)="onImageError($event)">
+                    <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                         style="top: 0; left: 0; background: linear-gradient(135deg, rgba(40, 119, 71, 0.85) 0%, rgba(26, 82, 48, 0.85) 100%);">
+                      <h3 class="text-white fw-bold text-center mb-0">Produits<br>100%<br>Bio & Naturels</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section produits-->
+            <div class="col-lg-9">
+              <div class="row g-4 justify-content-start">
+
+                <!-- Déterminer quel tableau afficher selon la catégorie sélectionnée -->
+                @let items = filters.type_categorie === '2' ? produitsSport : gammes;
+
+                @if (items.length > 0) {
+                  @for (item of items; track item.id) {
+                    <div class="col-md-6 col-lg-4">
+                      <div class="fruite-item h-100">
+
+                        <!-- Image du produit -->
+                        <div class="fruite-img position-relative">
+                          <img [src]="getImageUrl(item.image)"
+                               class="img-fluid w-100"
+                               [alt]="item.nom"
+                               style="height: 280px; object-fit: cover;"
+                               (error)="onImageError($event)">
+
+                          <!-- Overlay au survol avec lien dynamique -->
+                          <div class="product-overlay">
+                            <a [routerLink]="['/' + (filters.type_categorie === '2' ? 'sport' : 'gamme'), item.id]"
+                               class="btn btn-light rounded-pill px-4 py-2">
+                              <i class="fa fa-eye me-2"></i> Voir détails
+                            </a>
+                          </div>
+                        </div>
+
+                        <!-- Badge catégorie dynamique -->
+                        <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
+                             style="top: 15px; left: 15px; background-color: #287747;">
+                          <i class="fas fa-tag me-1"></i>
+                          {{ filters.type_categorie === '2' ? 'Sport' : (item.type_categorie?.nom ?? 'Bio') }}
+                        </div>
+
+                        <!-- Badge promo ou rupture -->
+                        @if (item.enPromotion && item.prixPromo) {
+                          <div class="badge bg-success position-absolute fw-semibold" style="top: 15px; right: 15px;">
+                            <i class="fas fa-tag me-1"></i>
+                            -{{ calculateDiscount(item.prix, item.prixPromo) }}%
+                          </div>
+                        } @else if (item.stock <= 0) {
+                          <div class="badge bg-danger position-absolute fw-semibold" style="top: 15px; right: 15px;">
+                            <i class="fas fa-ban me-1"></i>Rupture
+                          </div>
+                        }
+
+                        <!-- Contenu du produit -->
+                        <div class="p-4">
+                          <h5 class="text-dark fw-bold mb-2">{{ item.nom }}</h5>
+                          <p class="text-muted small mb-3">
+                            {{ limitText(item.description) }}
+                          </p>
+
+                          <!-- Prix -->
+                          <div class="mb-3">
+                            @if (item.enPromotion && item.prixPromo) {
+                              <p class="text-dark fw-bold mb-0" style="color: #287747; font-size: 1.5rem;">
+                                {{ formatPrice(item.prixPromo) }}
+                              </p>
+                              <small class="text-muted text-decoration-line-through d-block">
+                                {{ formatPrice(item.prix) }}
+                              </small>
+                            } @else {
+                              <p class="text-dark fw-bold mb-0" style="color: #287747; font-size: 1.5rem;">
+                                {{ formatPrice(item.prix) }}
+                              </p>
+                            }
+                          </div>
+
+                          <!-- Bouton Ajouter au panier -->
+                          <div class="d-grid gap-2">
+                            <button type="button"
+                                    class="btn btn-primary-custom w-100 rounded-pill py-2 add-to-cart-btn"
+                                    style="background-color: #287747; color: white; font-weight: 600; border: none;">
+                              <i class="fa fa-shopping-bag me-2"></i>
+                              {{ item.stock > 0 ? 'Ajouter au Panier' : 'Rupture de stock' }}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                } @else {
+                  <!-- Aucun produit trouvé -->
+                  <div class="col-12">
+                    <div class="alert alert-info text-center py-5" role="alert">
+                      <i class="fas fa-info-circle fa-3x mb-3"></i>
+                      <h4>Aucun produit trouvé</h4>
+                      <p class="mb-3">Aucun produit ne correspond à vos critères.</p>
+                      <button class="btn btn-success" (click)="resetFilters()">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser les filtres
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                <!-- Pagination -->
+                @if (pagination.last_page > 1) {
+                  <div class="col-12">
+                    <nav aria-label="Page navigation">
+                      <ul class="pagination d-flex justify-content-center mt-5">
+
+                        <!-- Précédent -->
+                        <li class="page-item" [class.disabled]="pagination.current_page === 1">
+                          <a class="page-link rounded me-2 px-4 py-2"
+                             href="javascript:void(0)"
+                             (click)="changePage(pagination.current_page - 1)">
+                            <i class="fas fa-chevron-left"></i>
+                          </a>
+                        </li>
+
+                        <!-- Pages -->
+                        @for (page of getPages(); track $index) {
+                          @if (page === '...') {
+                            <li class="page-item disabled">
+                              <span class="page-link rounded me-2 px-4 py-2">...</span>
+                            </li>
+                          } @else {
+                            <li class="page-item" [class.active]="page === pagination.current_page">
+                              <a class="page-link rounded me-2 px-4 py-2"
+                                 href="javascript:void(0)"
+                                 (click)="changePage(page)">
+                                {{ page }}
+                              </a>
+                            </li>
+                          }
+                        }
+
+                        <!-- Suivant -->
+                        <li class="page-item" [class.disabled]="pagination.current_page === pagination.last_page">
+                          <a class="page-link rounded px-4 py-2"
+                             href="javascript:void(0)"
+                             (click)="changePage(pagination.current_page + 1)">
+                            <i class="fas fa-chevron-right"></i>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+<!-- Products Shop End-->
+
+<!-- Newsletter Section -->
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <h2 class="text-white fw-bold mb-3">Restez informé de nos nouveautés</h2>
+        <p class="text-white-50 mb-4">Inscrivez-vous à notre newsletter et recevez nos offres exclusives</p>
+        <div class="input-group mx-auto" style="max-width: 500px;">
+          <input type="email" class="form-control p-3 border-0" placeholder="Votre adresse email">
+          <button class="btn btn-light px-4 fw-semibold" type="button" style="color: #287747;">
+            S'inscrire
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

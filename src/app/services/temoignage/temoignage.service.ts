@@ -11,7 +11,7 @@ export class TemoignageService {
   private apiUrl = environment.apiUrl;
   private storageUrl = environment.storageUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Récupérer tous les témoignages publics (pour la page témoignages)
   getTemoignagesPublics(): Observable<Temoignage[]> {
@@ -20,7 +20,7 @@ export class TemoignageService {
     );
   }
 
-  // Pour l'admin (plus tard)
+  // Pour l'admin 
   getTemoignagesAdmin(page: number = 1): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/admin/temoignages?page=${page}`).pipe(
       map(response => ({

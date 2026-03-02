@@ -1,10 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-// import { CartService } from '../../../services/cart/cart.service';
-
 import { AuthService, LoginCredentials } from '../../../services/auth/auth.service';
+import { CartService } from '../../../services/cart/cart.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,8 +12,9 @@ import { AuthService, LoginCredentials } from '../../../services/auth/auth.servi
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
+  cartService = inject(CartService);
   router = inject(Router);
 
   // Propriétés du formulaire de connexion
@@ -26,10 +26,9 @@ export class NavbarComponent {
     remember: false
   };
 
-  // openCartModal() {
-  //   this.cartService.openCart();
-  // }
-
+  ngOnInit(): void {
+    // Le service charge automatiquement le panier
+  }
   openLoginModal() {
     this.authService.openLoginModal();
   }
@@ -55,5 +54,13 @@ export class NavbarComponent {
 
   logout() {
     this.authService.logout();
+  }
+  openCartModal() {
+    const cartModal = document.getElementById('cartModal');
+    if (cartModal) {
+      // @ts-ignore
+      const modal = new bootstrap.Modal(cartModal);
+      modal.show();
+    }
   }
 }

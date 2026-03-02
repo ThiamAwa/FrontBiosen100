@@ -248,7 +248,8 @@
                           <div class="d-grid gap-2">
                             <button type="button"
                                     class="btn btn-primary-custom w-100 rounded-pill py-2 add-to-cart-btn"
-                                    style="background-color: #287747; color: white; font-weight: 600; border: none;">
+                                    style="background-color: #287747; color: white; font-weight: 600; border: none;"
+                                    (click)="addToCart(item)">
                               <i class="fa fa-shopping-bag me-2"></i>
                               {{ item.stock > 0 ? 'Ajouter au Panier' : 'Rupture de stock' }}
                             </button>

@@ -7,6 +7,7 @@ import { Gamme } from '../../../models/gamme';
 import { Categorie } from '../../../models/categorie';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import {ProduitSportService} from '../../../services/produit-sport/produit-sport.service';
+import {CartService} from '../../../services/cart/cart.service';
 
 @Component({
   selector: 'app-boutique',
@@ -55,7 +56,11 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  constructor(private gammeService: GammeService, private produitSportService: ProduitSportService) {
+  constructor(
+    private gammeService: GammeService,
+    private produitSportService: ProduitSportService,
+    private cartService: CartService
+  ) {
     this.searchSubject.pipe(
       debounceTime(500),
       distinctUntilChanged()
@@ -308,33 +313,21 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   // ========== PANIER ==========
 
-  addToCart(gamme: Gamme): void {
-    if (!gamme || gamme.stock <= 0) return;
+  // Dans boutique.component.ts - Remplacer addToCart()
+  addToCart(item: any): void {
+    if (!item || item.stock <= 0) return;
 
-    try {
-      let cart = JSON.parse(localStorage.getItem('biosen_cart') || '[]');
-      const price = gamme.enPromotion && gamme.prixPromo ? gamme.prixPromo : gamme.prix;
-      const existingItem = cart.find((item: any) => item.id === gamme.id);
+    // Utiliser CartService au lieu de localStorage direct
+    this.cartService.addToCart({
+      id: item.id,
+      name: item.nom,
+      price: item.enPromotion && item.prixPromo ? item.prixPromo : item.prix,
+      image: item.image,
+      category: this.filters.type_categorie === '2' ? 'Sport' : (item.type_categorie?.nom ?? 'Bio'),
+      quantity: 1
+    });
 
-      if (existingItem) {
-        existingItem.quantity++;
-      } else {
-        cart.push({
-          id: gamme.id,
-          name: gamme.nom,
-          price: price,
-          image: gamme.image,
-          category: gamme.type_categorie?.nom || 'Produit',
-          quantity: 1
-        });
-      }
-
-      localStorage.setItem('biosen_cart', JSON.stringify(cart));
-      this.showNotification(' Produit ajouté au panier');
-      this.updateCartCounter();
-    } catch (error) {
-      console.error('Erreur ajout panier:', error);
-    }
+    this.showNotification('Produit ajouté au panier');
   }
 
   showNotification(message: string): void {

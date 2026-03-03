@@ -99,3 +99,14 @@
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: #1a5230;
 }
+.input-group input.form-control {
+  color: #287747 !important;
+  background-color: white !important;
+  -webkit-text-fill-color: #287747 !important;
+}
+.input-group input.form-control[readonly] {
+  background-color: #ffffff !important;
+  color: #287747 !important;
+  opacity: 1 !important;
+  font-weight: bold;
+}

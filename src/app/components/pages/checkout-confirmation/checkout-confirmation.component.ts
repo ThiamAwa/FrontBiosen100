@@ -57,19 +57,19 @@ export class CheckoutConfirmationComponent implements OnInit {
     });
   }
 
-  sendWhatsApp(): void {
-    this.checkoutService.getWhatsAppMessage(this.orderNumber).subscribe({
-      next: (data) => {
-        const phone = data.telephone || this.order?.livraison?.telephone;
-        const message = encodeURIComponent(data.message || '');
-        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-      },
-      error: (err) => {
-        console.error('Erreur WhatsApp:', err);
-        alert('Erreur lors de l\'ouverture de WhatsApp');
-      }
-    });
-  }
+  // sendWhatsApp(): void {
+  //   this.checkoutService.getWhatsAppMessage(this.orderNumber).subscribe({
+  //     next: (data) => {
+  //       const phone = data.telephone || this.order?.livraison?.telephone;
+  //       const message = encodeURIComponent(data.message || '');
+  //       window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+  //     },
+  //     error: (err) => {
+  //       console.error('Erreur WhatsApp:', err);
+  //       alert('Erreur lors de l\'ouverture de WhatsApp');
+  //     }
+  //   });
+  // }
 
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';

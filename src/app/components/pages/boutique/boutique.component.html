@@ -342,4 +342,9 @@
       </div>
     </div>
   </div>
+  <!-- Panier flottant -->
+  <div class="floating-cart" (click)="openCartModal()">
+    <i class="fa fa-shopping-bag fa-lg"></i>
+    <span class="floating-cart-badge">{{ cartService.cartCount$ | async }}</span>
+  </div>
 </div>

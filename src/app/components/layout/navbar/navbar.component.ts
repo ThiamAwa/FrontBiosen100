@@ -39,12 +39,15 @@ export class NavbarComponent implements OnInit {
     this.credentials = { email: '', password: '', remember: false };
   }
 
+  // navbar.component.ts
   async login() {
     this.isLoading = true;
     this.errors = [];
+
     try {
       await this.authService.login(this.credentials);
       this.close();
+      // La redirection est gérée dans le service
     } catch (err: any) {
       this.errors = [err?.message ?? 'Une erreur est survenue lors de la connexion.'];
     } finally {

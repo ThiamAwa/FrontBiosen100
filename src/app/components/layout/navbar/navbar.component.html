@@ -68,45 +68,67 @@
                   </button>
 
                     <!-- Dropdown Mon Compte -->
-                    <div class="dropdown">
-                        <a href="#" class="dropdown-toggle text-dark d-flex align-items-center gap-2"
-                            data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle fa-2x"></i>
-                            <span class="d-none d-lg-block">Mon Compte</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li class="px-3 py-2 border-bottom">
-                                <small class="text-muted">Bienvenue sur BioSen100</small>
-                            </li>
-                            <li>
-                                <button class="dropdown-item" (click)="openLoginModal()">
-                                    <i class="fas fa-sign-in-alt me-2 text-primary"></i>
-                                    <strong>Se connecter</strong>
-                                </button>
-                            </li>
-                            <li>
-                                <a routerLink="/register" class="dropdown-item">
-                                    <i class="fas fa-user-plus me-2 text-success"></i>Créer un compte
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a href="#" class="dropdown-item">
-                                    <i class="fas fa-shipping-fast me-2 text-secondary"></i>Suivre ma commande
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a href="#" class="dropdown-item">
-                                    <i class="fas fa-headset me-2 text-muted"></i>Aide & Support
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                  <div class="dropdown">
+                    <a href="#" class="dropdown-toggle text-dark d-flex align-items-center gap-2"
+                       data-bs-toggle="dropdown">
+                      <i class="fas fa-user-circle fa-2x"></i>
+                      <span class="d-none d-lg-block">
+      {{ authService.currentUser()?.prenom || 'Mon Compte' }}
+    </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                      @if (authService.currentUser()) {
+                        <!-- Utilisateur connecté -->
+                        <li class="px-3 py-2 border-bottom">
+                          <small class="text-muted">
+                            Connecté en tant que <strong>{{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom }}</strong>
+                          </small>
+                        </li>
+                        @if (authService.currentUser()?.isAdmin) {
+                          <li>
+                            <a routerLink="/admin/dashboard" class="dropdown-item">
+                              <i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard Admin
+                            </a>
+                          </li>
+                        }
+                        <li>
+                          <a routerLink="/mon-compte" class="dropdown-item">
+                            <i class="fas fa-user me-2 text-primary"></i>Mon Profil
+                          </a>
+                        </li>
+                        <li>
+                          <a routerLink="/mes-commandes" class="dropdown-item">
+                            <i class="fas fa-shopping-bag me-2 text-success"></i>Mes Commandes
+                          </a>
+                        </li>
+                        <li>
+                          <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                          <button class="dropdown-item text-danger" (click)="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                          </button>
+                        </li>
+                      } @else {
+                        <!-- Utilisateur non connecté -->
+                        <li class="px-3 py-2 border-bottom">
+                          <small class="text-muted">Bienvenue sur BioSen100</small>
+                        </li>
+                        <li>
+                          <button class="dropdown-item" (click)="openLoginModal()">
+                            <i class="fas fa-sign-in-alt me-2 text-primary"></i>
+                            <strong>Se connecter</strong>
+                          </button>
+                        </li>
+                        <li>
+                          <a routerLink="/register" class="dropdown-item">
+                            <i class="fas fa-user-plus me-2 text-success"></i>Créer un compte
+                          </a>
+                        </li>
+                        <!-- ... reste du menu -->
+                      }
+                    </ul>
+                  </div>
 
                 </div>
             </div>
@@ -195,3 +217,4 @@
         </div>
     </div>
     }
+</div>

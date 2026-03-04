@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -59,7 +59,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   constructor(
     private gammeService: GammeService,
     private produitSportService: ProduitSportService,
-    private cartService: CartService
+    public cartService: CartService
   ) {
     this.searchSubject.pipe(
       debounceTime(500),
@@ -358,5 +358,13 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   onImageError(event: Event): void {
     const imgElement = event.target as HTMLImageElement;
     imgElement.src = 'assets/img/biosen/default-product.png';
+  }
+  openCartModal(): void {
+    const cartModal = document.getElementById('cartModal');
+    if (cartModal) {
+      // @ts-ignore
+      const modal = new bootstrap.Modal(cartModal);
+      modal.show();
+    }
   }
 }

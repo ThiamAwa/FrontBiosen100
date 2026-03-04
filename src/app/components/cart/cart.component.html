@@ -2,7 +2,6 @@
 <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-
       <!-- En-tête du modal -->
       <div class="modal-header border-0 py-4" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
         <h4 class="modal-title text-white fw-bold d-flex align-items-center mb-0" id="cartModalLabel">
@@ -85,11 +84,10 @@
                             style="border-color: #287747; color: #287747;">
                       <i class="fas fa-minus"></i>
                     </button>
-                    <input type="text"
-                           class="form-control text-center fw-bold"
-                           [value]="item.quantity"
-                           readonly
-                           style="border-color: #287747;">
+                    <div class="form-control text-center fw-bold bg-white"
+                         style="color:#287747;">
+                      {{ item.quantity }}
+                    </div>
                     <button class="btn btn-outline-secondary px-3"
                             type="button"
                             (click)="updateQuantity(item.id, 1)"

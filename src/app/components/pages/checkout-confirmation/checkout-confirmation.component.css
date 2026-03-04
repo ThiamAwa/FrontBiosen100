@@ -1,7 +1,7 @@
-/* src/app/components/pages/checkout-confirmation/checkout-confirmation.component.css */
 .container-fluid {
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   min-height: 100vh;
+  padding-top: 200px !important;
 }
 
 /* Loading spinner */

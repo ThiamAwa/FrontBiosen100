@@ -51,13 +51,13 @@ body {
 .social-links .btn {
     width: 45px;
     height: 45px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: black;
+    border: 2px solid rgb(40, 119, 71);
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(40, 119, 71);
 }
 
 .social-links .btn:hover {

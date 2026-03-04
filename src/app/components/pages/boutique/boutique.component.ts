@@ -313,21 +313,39 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   // ========== PANIER ==========
 
-  // Dans boutique.component.ts - Remplacer addToCart()
   addToCart(item: any): void {
     if (!item || item.stock <= 0) return;
 
-    // Utiliser CartService au lieu de localStorage direct
+    const prix = item.enPromotion && item.prixPromo ? item.prixPromo : item.prix;
+
+    // 1. Ajouter au panier
     this.cartService.addToCart({
       id: item.id,
       name: item.nom,
-      price: item.enPromotion && item.prixPromo ? item.prixPromo : item.prix,
+      price: prix,
+      quantity: 1,
       image: item.image,
-      category: this.filters.type_categorie === '2' ? 'Sport' : (item.type_categorie?.nom ?? 'Bio'),
-      quantity: 1
+      category: this.filters.type_categorie === '2' ? 'Sport' : (item.type_categorie?.nom ?? 'Bio')
     });
 
-    this.showNotification('Produit ajouté au panier');
+    // 2. Animation du bouton
+    const button = event?.target as HTMLElement;
+    if (button) {
+      const originalText = button.innerHTML;
+      button.innerHTML = '<i class="fa fa-check me-2"></i>Ajouté !';
+      button.style.backgroundColor = '#1e5a38';
+
+      setTimeout(() => {
+        button.innerHTML = originalText;
+        button.style.backgroundColor = '#287747';
+      }, 1500);
+    }
+
+    // 3.OUVRIR LE MODAL AUTOMATIQUEMENT
+    this.openCartModal();
+
+    // 4. Notification (optionnel)
+    this.showNotification('✓ Produit ajouté au panier');
   }
 
   showNotification(message: string): void {

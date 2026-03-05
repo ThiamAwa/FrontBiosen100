@@ -12,8 +12,9 @@ export interface User {
   telephone?: string;
   boutique_id?: number;
   boutique?: any;
-  role?: string; // 'admin', 'responsable', 'vendeur', 'commercial', 'client'
-  hasAdminAccess?: boolean; // Nouveau champ pour savoir s'il a accès à l'admin
+  role?: string;
+  isAdmin?: boolean;
+  hasAdminAccess?: boolean;
 }
 
 export interface LoginCredentials {
@@ -58,8 +59,9 @@ export class AuthService {
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
-        // Ajouter le champ hasAdminAccess
+        // Ajouter les champs calculés
         user.hasAdminAccess = this.hasAdminRole(user.role);
+        user.isAdmin = user.hasAdminAccess;
         this.currentUser.set(user);
       } catch (e) {
         this.clearStorage();
@@ -97,6 +99,7 @@ export class AuthService {
   /**
    * Connexion avec email/password
    */
+
   async login(credentials: LoginCredentials): Promise<void> {
     try {
       const response = await firstValueFrom(
@@ -110,10 +113,11 @@ export class AuthService {
         // Vérifier si l'utilisateur a accès à l'admin
         const hasAdminAccess = this.hasAdminRole(response.user.role);
 
-        // Ajouter le champ hasAdminAccess à l'utilisateur
+        // Ajouter les champs à l'utilisateur
         const user = {
           ...response.user,
-          hasAdminAccess
+          hasAdminAccess,
+          isAdmin: hasAdminAccess
         };
 
         // Stocker les données utilisateur
@@ -133,17 +137,9 @@ export class AuthService {
       }
     } catch (error: any) {
       console.error('Erreur login:', error);
-
-      if (error.status === 401) {
-        throw new Error('Email ou mot de passe incorrect');
-      } else if (error.error?.message) {
-        throw new Error(error.error.message);
-      } else {
-        throw new Error('Erreur de connexion au serveur');
-      }
+      throw error;
     }
   }
-
   /**
    * Déconnexion
    */

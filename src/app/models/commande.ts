@@ -1,11 +1,12 @@
 export interface Boutique {
     id: number;
     nom: string;
-    adresse: string;
-    localisation: string;
+    adresse?: string;
+    localisation?: string;
 }
 
 export interface LignePanier {
+    id?: number;
     quantite: number;
     prixUnitaire: number;
     gamme?: { id: number; nom: string };
@@ -19,16 +20,16 @@ export interface Panier {
 export interface User {
     id: number;
     nom: string;
-    prenom: string;
+    prenom?: string;
     email: string;
-    telephone: string;
-    adresse: string;
+    telephone?: string;
+    adresse?: string;
 }
 
 export interface Commande {
     id: number;
-    numeroCommande: string;
-    montantTotal: number;
+    numeroCommande?: string;
+    montantTotal?: number;
     user_id?: number;
     user?: User;
     panier_id?: number;

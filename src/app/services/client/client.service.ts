@@ -10,10 +10,16 @@ export class ClientService {
 
   constructor(private http: HttpClient) { }
 
-  getClients(page: number = 1, search?: string, filter?: string): Observable<ClientResponse> {
+  getClients(
+    page: number = 1,
+    search: string = '',
+    statut: string = '',
+    tri: string = ''
+  ): Observable<ClientResponse> {
     let params = new HttpParams().set('page', page.toString());
     if (search) params = params.set('search', search);
-    if (filter) params = params.set('filter', filter);
+    if (statut) params = params.set('statut', statut);  // ← remplacer filter par statut
+    if (tri) params = params.set('tri', tri);         // ← ajouter tri
     return this.http.get<ClientResponse>(this.apiUrl, { params });
   }
 
@@ -33,11 +39,17 @@ export class ClientService {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
 
-  verifyEmail(id: number): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.apiUrl}/${id}/verify-email`, {});
-  }
+
 
   getStats(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}/stats`);
+  }
+
+
+  updateStatut(id: number, statut: 'actif' | 'suspendu'): Observable<{ message: string; statut: string }> {
+    return this.http.patch<{ message: string; statut: string }>(
+      `${this.apiUrl}/${id}/statut`,
+      { statut }
+    );
   }
 }

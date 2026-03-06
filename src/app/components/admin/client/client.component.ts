@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ClientService } from '../../../services/client/client.service';
-import { Client, ClientResponse } from '../../../models/client';
+import { Client, ClientResponse, ClientStats } from '../../../models/client';
 
 @Component({
   selector: 'app-client',
@@ -25,16 +25,21 @@ export class ClientComponent implements OnInit {
   showEditModal = false;
   showDeleteModal = false;
   showViewModal = false;
+  showCommandeModal = false;
+
   selectedClient: Client | null = null;
   clientToDelete: Client | null = null;
   clientToView: Client | null = null;
+  commandeDetail: Client | null = null;
+  derniereCommande: any = null;
 
   // Filtres et recherche
-  currentFilter: string = 'all';
-  searchTerm: string = '';
+  searchQuery: string = '';
+  filterStatut: string = '';
+  filterTri: string = '';
 
   // Statistiques (pour la vue détail)
-  clientStats: any = null;
+  clientStats: ClientStats | null = null;
 
   // Formulaires
   createForm = {
@@ -45,6 +50,7 @@ export class ClientComponent implements OnInit {
     adresse: '',
     password: ''
   };
+
   editForm = {
     id: 0,
     nom: '',
@@ -62,22 +68,21 @@ export class ClientComponent implements OnInit {
   errorMessage: string | null = null;
   validationErrors: string[] = [];
 
-  // Getters pour les compteurs
-  get verifiedCount(): number {
-    return this.clients.filter(c => !!c.email_verified_at).length;
-  }
-  get unverifiedCount(): number {
-    return this.clients.filter(c => !c.email_verified_at).length;
-  }
-
   constructor(private clientService: ClientService) { }
 
   ngOnInit(): void {
     this.loadClients();
   }
 
+  // ─── Chargement ──────────────────────────────────────────────────────────────
+
   loadClients(page: number = this.currentPage): void {
-    this.clientService.getClients(page, this.searchTerm, this.currentFilter !== 'all' ? this.currentFilter : undefined).subscribe({
+    this.clientService.getClients(
+      page,
+      this.searchQuery,
+      this.filterStatut,
+      this.filterTri
+    ).subscribe({
       next: (res: ClientResponse) => {
         this.clients = res.data;
         this.currentPage = res.current_page;
@@ -86,8 +91,7 @@ export class ClientComponent implements OnInit {
         this.firstItem = res.from || 0;
         this.lastItem = res.to || 0;
       },
-      error: (err) => {
-        console.error('Erreur chargement clients', err);
+      error: () => {
         this.errorMessage = 'Impossible de charger les clients.';
       }
     });
@@ -99,25 +103,33 @@ export class ClientComponent implements OnInit {
     }
   }
 
+  // ─── Recherche & Filtres ─────────────────────────────────────────────────────
+
   onSearch(): void {
     this.currentPage = 1;
     this.loadClients(1);
   }
 
-  onFilter(filter: string): void {
-    this.currentFilter = filter;
+  onFilter(): void {
     this.currentPage = 1;
     this.loadClients(1);
   }
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.onSearch();
+  resetFilters(): void {
+    this.searchQuery = '';
+    this.filterStatut = '';
+    this.filterTri = '';
+    this.currentPage = 1;
+    this.loadClients(1);
   }
 
-  // --- Création ---
+  // ─── Création ────────────────────────────────────────────────────────────────
+
   openCreateModal(): void {
-    this.createForm = { nom: '', prenom: '', email: '', telephone: '', adresse: '', password: '' };
+    this.createForm = {
+      nom: '', prenom: '', email: '',
+      telephone: '', adresse: '', password: ''
+    };
     this.validationErrors = [];
     this.errorMessage = null;
     this.showCreateModal = true;
@@ -144,7 +156,8 @@ export class ClientComponent implements OnInit {
     });
   }
 
-  // --- Édition ---
+  // ─── Édition ─────────────────────────────────────────────────────────────────
+
   openEditModal(client: Client): void {
     this.selectedClient = client;
     this.editForm = {
@@ -175,11 +188,7 @@ export class ClientComponent implements OnInit {
     const data: Partial<Client> = {
       ...rest,
       role_id: rest.role_id ? +rest.role_id : undefined,
-      // email_verified_at: rest.email_verified ? new Date().toISOString() : null
     };
-    // if (password) {
-    //   data.password = password;
-    // }
 
     this.clientService.updateClient(this.editForm.id, data).subscribe({
       next: () => {
@@ -197,7 +206,8 @@ export class ClientComponent implements OnInit {
     });
   }
 
-  // --- Suppression ---
+  // ─── Suppression ─────────────────────────────────────────────────────────────
+
   openDeleteModal(client: Client): void {
     this.clientToDelete = client;
     this.errorMessage = null;
@@ -218,20 +228,35 @@ export class ClientComponent implements OnInit {
         this.loadClients(this.currentPage);
       },
       error: (err) => {
-        if (err.status === 422 && err.error?.message) {
-          this.errorMessage = err.error.message;
-        } else {
-          this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
-        }
+        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
       }
     });
   }
 
-  // --- Vue détails ---
+  // ─── Statut ──────────────────────────────────────────────────────────────────
+
+  toggleStatut(client: Client): void {
+    const nouveauStatut = client.statut === 'actif' ? 'suspendu' : 'actif';
+    this.clientService.updateStatut(client.id, nouveauStatut).subscribe({
+      next: () => {
+        client.statut = nouveauStatut;
+        this.successMessage = nouveauStatut === 'actif'
+          ? 'Client activé avec succès.'
+          : 'Client suspendu avec succès.';
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Erreur lors du changement de statut.';
+      }
+    });
+  }
+
+  // ─── Vue détails ─────────────────────────────────────────────────────────────
+
   openViewModal(client: Client): void {
     this.clientToView = client;
+    this.clientStats = null;
     this.clientService.getStats(client.id).subscribe({
-      next: (stats) => {
+      next: (stats: ClientStats) => {
         this.clientStats = stats;
       },
       error: (err) => console.error('Erreur stats', err)
@@ -245,7 +270,30 @@ export class ClientComponent implements OnInit {
     this.clientStats = null;
   }
 
-  // --- Helpers ---
+  // ─── Dernière commande ───────────────────────────────────────────────────────
+
+  openCommandeModal(client: Client): void {
+    this.commandeDetail = { ...client };
+    this.derniereCommande = null;
+    this.showCommandeModal = true;
+    this.clientService.getStats(client.id).subscribe({
+      next: (stats: ClientStats) => {
+        if (stats.dernieres_commandes?.length > 0) {
+          this.derniereCommande = stats.dernieres_commandes[0];
+        }
+      },
+      error: (err) => console.error('Erreur stats commande', err)
+    });
+  }
+
+  closeCommandeModal(): void {
+    this.showCommandeModal = false;
+    this.commandeDetail = null;
+    this.derniereCommande = null;
+  }
+
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
+
   getInitials(client: Client): string {
     return (client.prenom.charAt(0) + client.nom.charAt(0)).toUpperCase();
   }

@@ -10,7 +10,7 @@
                     <i class="fas fa-shopping-bag"></i>
                     <span>Liste des Produits</span>
                 </div>
-                <button type="button" class="btn btn-add-custom" (click)="openCreateModal()">
+                <button type="button" class="btn btn-add-custom " (click)="openCreateModal()">
                     <i class="fas fa-plus"></i>
                     <span>Nouveau Produit</span>
                 </button>
@@ -33,18 +33,7 @@
             }
 
             <div class="card-body-custom">
-                <!-- Barre de recherche -->
-                <div class="row mb-4">
-                    <div class="col-md-6 col-lg-4">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Rechercher un produit..."
-                                [(ngModel)]="searchTerm" (keyup.enter)="search()">
-                            <button class="btn btn-primary" type="button" (click)="search()">
-                                <i class="fas fa-search"></i> Rechercher
-                            </button>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="table-responsive">
                     <div class="table-container">
@@ -55,8 +44,8 @@
                                     <th>Nom</th>
                                     <th>Catégorie</th>
                                     <th>Gammes</th>
-                                    <th>Prix</th>
-                                    <th>Promotion</th>
+                                    <!-- <th>Prix</th>
+                                    <th>Promotion</th> -->
                                     <th>Stock</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
@@ -107,7 +96,7 @@
                                         </span>
                                         }
                                     </td>
-                                    <td>
+                                    <!-- <td>
                                         @if (prod.enPromotion && prod.prixPromo) {
                                         <span class="text-decoration-line-through text-muted d-block">
                                             {{ prod.prix | number }} FCFA
@@ -128,7 +117,7 @@
                                         } @else {
                                         <span class="badge bg-secondary">Non</span>
                                         }
-                                    </td>
+                                    </td> -->
                                     <td>
                                         <span class="badge" [class]="getStockClass(prod.stock)">
                                             {{ prod.stock }}
@@ -209,8 +198,8 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Nouveau Produit</h5>
-                <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+                <h5 class="modal-title" style="color:#ffffff;"><i class="fas fa-plus me-2"></i>Nouveau Produit</h5>
+                <button type="button" class="btn-close" style="color:#ffffff;" (click)="closeCreateModal()"></button>
             </div>
             <div class="modal-body">
                 @if (validationErrors.length > 0) {
@@ -275,8 +264,12 @@
                     <input type="text" class="form-control" id="modeUtilisation_create"
                         [(ngModel)]="createForm.modeUtilisation">
                 </div>
+                <div class="mb-3">
+                    <label for="stock_create" class="form-label">Stock *</label>
+                    <input type="number" class="form-control" id="stock_create" [(ngModel)]="createForm.stock" required>
+                </div>
 
-                <div class="row">
+                <!-- <div class="row">
                     <div class="col-md-3 mb-3">
                         <label for="prix_create" class="form-label">Prix (FCFA) *</label>
                         <input type="number" class="form-control" id="prix_create" [(ngModel)]="createForm.prix"
@@ -286,21 +279,17 @@
                         <label for="prixPromo_create" class="form-label">Prix Promo</label>
                         <input type="number" class="form-control" id="prixPromo_create"
                             [(ngModel)]="createForm.prixPromo" step="0.01">
-                    </div>
-                    <div class="col-md-3 mb-3 offset-1">
-                        <label for="stock_create" class="form-label">Stock *</label>
-                        <input type="number" class="form-control" id="stock_create" [(ngModel)]="createForm.stock"
-                            required>
-                    </div>
-                </div>
+                    </div> -->
 
-                <div class="mb-3">
+                <!-- </div> -->
+
+                <!-- <div class="mb-3">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="enPromotion_create"
                             [(ngModel)]="createForm.enPromotion">
                         <label class="form-check-label" for="enPromotion_create">En promotion</label>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="mb-3">
                     <label for="image_create" class="form-label">Image</label>
@@ -329,7 +318,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier Produit</h5>
+                <h5 class="modal-title" style="color:#ffffff;"><i class="fas fa-edit me-2"></i>Modifier Produit</h5>
                 <button type="button" class="btn-close" (click)="closeEditModal()"></button>
             </div>
             <div class="modal-body">
@@ -395,8 +384,12 @@
                     <input type="text" class="form-control" id="modeUtilisation_edit"
                         [(ngModel)]="editForm.modeUtilisation">
                 </div>
+                <div class=" mb-3">
+                    <label for="stock_edit" class="form-label">Stock *</label>
+                    <input type="number" class="form-control" id="stock_edit" [(ngModel)]="editForm.stock" required>
+                </div>
 
-                <div class="row">
+                <!-- <div class="row">
                     <div class="col-md-3 mb-3">
                         <label for="prix_edit" class="form-label">Prix (FCFA) *</label>
                         <input type="number" class="form-control" id="prix_edit" [(ngModel)]="editForm.prix" step="0.01"
@@ -407,19 +400,16 @@
                         <input type="number" class="form-control" id="prixPromo_edit" [(ngModel)]="editForm.prixPromo"
                             step="0.01">
                     </div>
-                    <div class="col-md-3 mb-3 offset-1">
-                        <label for="stock_edit" class="form-label">Stock *</label>
-                        <input type="number" class="form-control" id="stock_edit" [(ngModel)]="editForm.stock" required>
-                    </div>
-                </div>
+                   
+                </div> -->
 
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="enPromotion_edit"
                             [(ngModel)]="editForm.enPromotion">
                         <label class="form-check-label" for="enPromotion_edit">En promotion</label>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="mb-3">
                     <label for="image_edit" class="form-label">Image</label>

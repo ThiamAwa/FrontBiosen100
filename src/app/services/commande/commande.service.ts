@@ -11,18 +11,8 @@ export class CommandeService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Récupère la liste paginée des commandes avec filtres optionnels.
-   * @param page Numéro de page
-   * @param statut Filtre par statut
-   * @param search Recherche texte
-   * @param month Filtre par mois (format MM)
-   * @param year Filtre par année (format YYYY)
-   * @param date Filtre par date exacte (format YYYY-MM-DD)
-   * @param dateDebut Date de début de plage
-   * @param dateFin Date de fin de plage
-   * @param boutique_id Filtre par ID de boutique
-   */
+  // ─── Liste paginée avec filtres ───────────────────────────────────────────
+
   getCommandes(
     page: number = 1,
     statut?: string,
@@ -34,7 +24,9 @@ export class CommandeService {
     dateFin?: string,
     boutique_id?: string
   ): Observable<CommandeResponse> {
-    let params = new HttpParams().set('page', page);
+
+    let params = new HttpParams().set('page', page.toString());
+
     if (statut) params = params.set('statut', statut);
     if (search) params = params.set('search', search);
     if (month) params = params.set('month', month);
@@ -43,58 +35,64 @@ export class CommandeService {
     if (dateDebut) params = params.set('date_debut', dateDebut);
     if (dateFin) params = params.set('date_fin', dateFin);
     if (boutique_id) params = params.set('boutique_id', boutique_id);
+
     return this.http.get<CommandeResponse>(this.apiUrl, { params });
   }
 
-  /**
-   * Récupère la liste des boutiques pour le sélecteur de filtre.
-   */
+  // ─── Boutiques (pour le sélecteur de filtre) ──────────────────────────────
+
   getBoutiques(): Observable<{ id: number; nom: string }[]> {
     return this.http.get<{ id: number; nom: string }[]>(this.boutiquesUrl);
   }
 
-  /**
-   * Récupère une commande par son ID.
-   */
+  // ─── Détail d'une commande ────────────────────────────────────────────────
+
   getCommande(id: number): Observable<Commande> {
     return this.http.get<Commande>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Met à jour le statut et/ou la note d'une commande.
-   */
-  updateCommande(id: number, data: { statut: string; noteCommande?: string }): Observable<Commande> {
+  // ─── Mise à jour statut / note ────────────────────────────────────────────
+
+  updateCommande(
+    id: number,
+    data: { statut: string; noteCommande?: string }
+  ): Observable<Commande> {
     return this.http.put<Commande>(`${this.apiUrl}/${id}`, data);
   }
 
-  /**
-   * Supprime une commande.
-   */
+  // ─── Suppression ──────────────────────────────────────────────────────────
+
   deleteCommande(id: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Récupère les statistiques des commandes.
-   */
+  // ─── Statistiques ─────────────────────────────────────────────────────────
+
   getStatistics(): Observable<any> {
     return this.http.get(`${this.apiUrl}/statistics`);
   }
 
-  /**
-   * Exporte les commandes au format CSV.
-   */
+  // ─── Export CSV ───────────────────────────────────────────────────────────
+
   exportCSV(
     statut?: string,
     month?: string,
     year?: string,
-    date?: string
+    date?: string,
+    search?: string
   ): Observable<Blob> {
+
     let params = new HttpParams();
+
     if (statut) params = params.set('statut', statut);
     if (month) params = params.set('month', month);
     if (year) params = params.set('year', year);
     if (date) params = params.set('date', date);
-    return this.http.get(`${this.apiUrl}/export`, { params, responseType: 'blob' });
+    if (search) params = params.set('search', search);
+
+    return this.http.get(
+      `${this.apiUrl}/export/csv`,
+      { params, responseType: 'blob' }
+    );
   }
 }

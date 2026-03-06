@@ -16,16 +16,17 @@
                 </button>
             </div>
 
-            <!-- Alerts -->
             @if (successMessage) {
             <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
+                <i class="fas fa-check-circle"></i>
+                <span>{{ successMessage }}</span>
                 <button type="button" class="btn-close" (click)="closeAlert()"></button>
             </div>
             }
             @if (errorMessage) {
             <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle"></i> <span>{{ errorMessage }}</span>
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ errorMessage }}</span>
                 <button type="button" class="btn-close" (click)="closeAlert()"></button>
             </div>
             }
@@ -48,64 +49,74 @@
                                 @for (vendeur of vendeurs; track vendeur.id) {
                                 <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-circle me-2"
-                                                style="width: 35px; height: 35px; background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="vendeur-avatar">
                                                 {{ getInitials(vendeur) }}
                                             </div>
-                                            <strong>{{ vendeur.nom }} {{ vendeur.prenom }}</strong>
+                                            <span class="vendeur-name">
+                                                {{ vendeur.nom }} {{ vendeur.prenom }}
+                                            </span>
                                         </div>
                                     </td>
-                                    <td>{{ vendeur.email }}</td>
-                                    <td>{{ vendeur.telephone }}</td>
+                                    <td>
+                                        <div class="contact-cell">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>{{ vendeur.email }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="contact-cell">
+                                            <i class="fas fa-phone"></i>
+                                            <span>{{ vendeur.telephone }}</span>
+                                        </div>
+                                    </td>
                                     <td>
                                         @if (vendeur.boutique) {
-                                        <span class="badge text-dark" style="padding: 8px 12px; font-size: 13px;">
+                                        <span class="badge-boutique">
+                                            <i class="fas fa-store"></i>
                                             {{ vendeur.boutique.nom }}
                                         </span>
                                         } @else {
-                                        <span class="text-muted">
-                                            <i class="fas fa-minus me-1"></i>Non affecté
+                                        <span class="badge-boutique-empty">
+                                            <i class="fas fa-minus"></i> Non affecté
                                         </span>
                                         }
                                     </td>
                                     <td>
-                                        @let badgeClass = getRoleBadgeClass(vendeur.role?.name ?? '');
-                                        <span class="badge {{ badgeClass }}"
-                                            style="padding: 8px 12px; font-size: 13px;">
-                                            {{ vendeur.role?.name }}
+                                        @let rn = vendeur.role?.name ?? '';
+                                        <span class="badge-role-custom" [ngClass]="{
+                                            'role-responsable': rn === 'Responsable Commercial',
+                                            'role-commercial':  rn === 'Commercial',
+                                            'role-vendeur':     rn === 'Vendeur',
+                                            'role-default':     rn !== 'Responsable Commercial' && rn !== 'Commercial' && rn !== 'Vendeur'
+                                        }">
+                                            <i class="fas {{ getRoleIcon(rn) }}"></i>
+                                            {{ rn || 'Aucun rôle' }}
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <div class="d-flex justify-content-center align-items-center gap-2">
-                                            <button type="button"
-                                                style="background-color: #2d7a4f; color: #ffffff; border-color: #2d7a4f;"
-                                                class="btn btn-sm btn" (click)="openRoleSelectionModal(vendeur)"
-                                                title="Changer le rôle">
-                                                <i class="fas fa-exchange-alt me-1"></i>
-                                            </button>
-                                            <button type="button"
-                                                style="background-color: #e8f5e9; color: #2d7a4f; border-color: #c3e6cb;"
-                                                class="btn btn-sm btn" (click)="openEditModal(vendeur)"
-                                                title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-delete-custom"
-                                                (click)="openDeleteModal(vendeur)" title="Supprimer">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </div>
+                                        <button type="button" class="btn btn-sm me-1"
+                                            style="background-color: #e8f4fd; color: #0d6efd; border-color: #b8d8f8;"
+                                            (click)="openRoleSelectionModal(vendeur)" title="Changer le rôle">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm me-1"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openEditModal(vendeur)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            (click)="openDeleteModal(vendeur)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="7">
-                                        <div class="text-center py-5">
-                                            <div class="mb-3">
-                                                <i class="fas fa-users fa-3x" style="color: #2d7a4f; opacity: 0.3;"></i>
-                                            </div>
-                                            <p class="text-muted fw-semibold mb-1">Aucun utilisateur commercial trouvé
-                                            </p>
+                                    <td colspan="6">
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-users fa-2x text-muted mb-3"></i>
+                                            <p class="text-muted">Aucun utilisateur commercial trouvé</p>
                                             <small class="text-muted">Commencez par créer votre premier
                                                 utilisateur</small>
                                         </div>
@@ -118,10 +129,11 @@
                 </div>
 
                 @if (lastPage > 1) {
-                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
-                    <div class="text-muted">
-                        Affichage <span class="fw-medium">{{ firstItem }}</span> à <span class="fw-medium">{{ lastItem
-                            }}</span> sur <span class="fw-medium">{{ total }}</span> utilisateurs
+                <div class="d-flex justify-content-between align-items-center mt-4 px-1">
+                    <div class="text-muted" style="font-size:0.85rem;">
+                        Affichage <span class="fw-medium">{{ firstItem }}</span>
+                        à <span class="fw-medium">{{ lastItem }}</span>
+                        sur <span class="fw-medium">{{ total }}</span> utilisateurs
                     </div>
                     <nav aria-label="Page navigation">
                         <ul class="pagination mb-0">
@@ -152,184 +164,165 @@
     </div>
 </div>
 
-<!-- Modal Création -->
+<!-- ========== MODAL CRÉATION ========== -->
 @if (showCreateModal) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"
-                style="background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%); color: white;">
-                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Nouvel Utilisateur Commercial</h5>
-                <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-plus me-2"></i>Nouvel Utilisateur Commercial
+                </h5>
+                <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
             </div>
             <div class="modal-body">
                 @if (validationErrors.length > 0) {
                 <div class="alert alert-danger">
                     <ul class="mb-0">
-                        @for (err of validationErrors; track err) {
-                        <li>{{ err }}</li>
-                        }
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
                     </ul>
                 </div>
                 }
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="nom_create" class="form-label">Nom *</label>
-                        <input type="text" class="form-control" id="nom_create" [(ngModel)]="createForm.nom" required>
+                        <label class="form-label">Nom <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.nom"
+                            placeholder="Nom de famille">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="prenom_create" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="prenom_create" [(ngModel)]="createForm.prenom">
+                        <label class="form-label">Prénom</label>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.prenom" placeholder="Prénom">
                     </div>
                 </div>
-
                 <div class="mb-3">
-                    <label for="email_create" class="form-label">Email *</label>
-                    <input type="email" class="form-control" id="email_create" [(ngModel)]="createForm.email" required>
-                    <small class="text-muted">L'email doit être unique</small>
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" [(ngModel)]="createForm.email"
+                        placeholder="exemple@email.com">
+                    <small class="text-muted"><i class="fas fa-info-circle me-1"></i>L'email doit être unique</small>
                 </div>
-
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="telephone_create" class="form-label">Téléphone *</label>
-                        <input type="text" class="form-control" id="telephone_create" [(ngModel)]="createForm.telephone"
-                            required>
+                        <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.telephone"
+                            placeholder="+221 XX XXX XX XX">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="adresse_create" class="form-label">Adresse *</label>
-                        <input type="text" class="form-control" id="adresse_create" [(ngModel)]="createForm.adresse"
-                            required>
+                        <label class="form-label">Adresse <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.adresse"
+                            placeholder="Adresse complète">
                     </div>
                 </div>
-
                 <div class="mb-3">
-                    <label for="role_id_create" class="form-label">
-                        <i class="fas fa-user-cog me-2 text-success"></i>Rôle *
-                    </label>
-                    <select class="form-select" id="role_id_create" [(ngModel)]="createForm.role_id" required>
+                    <label class="form-label">Rôle <span class="text-danger">*</span></label>
+                    <select class="form-select" [(ngModel)]="createForm.role_id">
                         <option value="">-- Sélectionner un rôle --</option>
                         @for (role of roles; track role.id) {
                         <option [value]="role.id">{{ role.name }}</option>
                         }
                     </select>
                 </div>
-
                 <div class="mb-3">
-                    <label for="boutique_id_create" class="form-label">
-                        <i class="fas fa-store me-2 text-success"></i>Boutique
-                    </label>
-                    <select class="form-select" id="boutique_id_create" [(ngModel)]="createForm.boutique_id">
+                    <label class="form-label">Boutique</label>
+                    <select class="form-select" [(ngModel)]="createForm.boutique_id">
                         <option value="">-- Aucune boutique --</option>
                         @for (boutique of boutiques; track boutique.id) {
                         <option [value]="boutique.id">{{ boutique.nom }}</option>
                         }
                     </select>
                 </div>
-
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
-                <button type="button" class="btn btn-success" (click)="createVendeur()">Créer</button>
+                <button type="button" class="btn btn-success" (click)="createVendeur()">
+                    <i class="fas fa-plus me-1"></i> Créer
+                </button>
             </div>
         </div>
     </div>
 </div>
 }
 
-<!-- Modal Édition -->
+<!-- ========== MODAL ÉDITION ========== -->
 @if (showEditModal && selectedVendeur) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"
-                style="background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%); color: white;">
-                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier l'utilisateur</h5>
-                <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()"></button>
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-edit me-2"></i>Modifier — {{ selectedVendeur.nom }} {{ selectedVendeur.prenom }}
+                </h5>
+                <button type="button" class="btn-close" (click)="closeEditModal()"></button>
             </div>
             <div class="modal-body">
                 @if (validationErrors.length > 0) {
                 <div class="alert alert-danger">
                     <ul class="mb-0">
-                        @for (err of validationErrors; track err) {
-                        <li>{{ err }}</li>
-                        }
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
                     </ul>
                 </div>
                 }
-
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="nom_edit" class="form-label">Nom *</label>
-                        <input type="text" class="form-control" id="nom_edit" [(ngModel)]="editForm.nom" required>
+                        <label class="form-label">Nom <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.nom">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="prenom_edit" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="prenom_edit" [(ngModel)]="editForm.prenom">
+                        <label class="form-label">Prénom</label>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.prenom">
                     </div>
                 </div>
-
                 <div class="mb-3">
-                    <label for="email_edit" class="form-label">Email *</label>
-                    <input type="email" class="form-control" id="email_edit" [(ngModel)]="editForm.email" required>
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" [(ngModel)]="editForm.email">
                 </div>
-
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="telephone_edit" class="form-label">Téléphone *</label>
-                        <input type="text" class="form-control" id="telephone_edit" [(ngModel)]="editForm.telephone"
-                            required>
+                        <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.telephone">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="adresse_edit" class="form-label">Adresse *</label>
-                        <input type="text" class="form-control" id="adresse_edit" [(ngModel)]="editForm.adresse"
-                            required>
+                        <label class="form-label">Adresse <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.adresse">
                     </div>
                 </div>
-
                 <div class="mb-3">
-                    <label for="role_id_edit" class="form-label">
-                        <i class="fas fa-user-cog me-2 text-success"></i>Rôle *
-                    </label>
-                    <select class="form-select" id="role_id_edit" [(ngModel)]="editForm.role_id" required>
+                    <label class="form-label">Rôle <span class="text-danger">*</span></label>
+                    <select class="form-select" [(ngModel)]="editForm.role_id">
                         @for (role of roles; track role.id) {
                         <option [value]="role.id">{{ role.name }}</option>
                         }
                     </select>
                 </div>
-
                 <div class="mb-3">
-                    <label for="boutique_id_edit" class="form-label">
-                        <i class="fas fa-store me-2 text-success"></i>Boutique
-                    </label>
-                    <select class="form-select" id="boutique_id_edit" [(ngModel)]="editForm.boutique_id">
+                    <label class="form-label">Boutique</label>
+                    <select class="form-select" [(ngModel)]="editForm.boutique_id">
                         <option value="">-- Aucune boutique --</option>
                         @for (boutique of boutiques; track boutique.id) {
                         <option [value]="boutique.id">{{ boutique.nom }}</option>
                         }
                     </select>
                 </div>
-
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
-                <button type="button" class="btn btn-success" (click)="updateVendeur()">Enregistrer</button>
+                <button type="button" class="btn btn-success" (click)="updateVendeur()">
+                    <i class="fas fa-save me-1"></i> Enregistrer
+                </button>
             </div>
         </div>
     </div>
 </div>
 }
 
-<!-- Modal Suppression -->
+<!-- ========== MODAL SUPPRESSION ========== -->
 @if (showDeleteModal && vendeurToDelete) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0">
                 <div class="d-flex align-items-center w-100">
-                    <div class="warning-icon bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
-                        style="width: 48px; height: 48px;">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style="width: 48px; height: 48px; flex-shrink:0;">
                         <i class="fas fa-exclamation-triangle fa-lg"></i>
                     </div>
                     <div class="flex-grow-1">
@@ -339,26 +332,13 @@
                 </div>
             </div>
             <div class="modal-body p-4">
-                <div class="text-center mb-4">
-                    <h6 class="fw-semibold mb-2">
-                        Êtes-vous sûr de vouloir supprimer cet utilisateur ?
-                    </h6>
+                <div class="text-center mb-3">
+                    <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer cet utilisateur ?</h6>
                     <p class="mb-0">
-                        L'utilisateur <span class="fw-bold text-danger">"{{ vendeurToDelete.nom }} {{
-                            vendeurToDelete.prenom }}"</span> ({{ vendeurToDelete.role?.name }}) sera définitivement
-                        supprimé.
+                        <span class="fw-bold text-danger">"{{ vendeurToDelete.nom }} {{ vendeurToDelete.prenom
+                            }}"</span>
+                        ({{ vendeurToDelete.role?.name }}) sera définitivement supprimé.
                     </p>
-                </div>
-                <div class="alert alert-warning border-warning">
-                    <div class="d-flex align-items-start">
-                        <i class="fas fa-info-circle mt-1 me-3 text-warning"></i>
-                        <div>
-                            <p class="mb-0">
-                                <i class="fas fa-exclamation-circle me-1"></i>
-                                Cette action est <strong>irréversible</strong>.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer border-top-0 bg-light rounded-bottom">
@@ -376,75 +356,43 @@
 </div>
 }
 
-<!-- Modal de Sélection de Rôle -->
+<!-- ========== MODAL SÉLECTION DE RÔLE ========== -->
 @if (showRoleSelectionModal && selectedVendeur) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0" style="background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%);">
-                <div class="d-flex align-items-center w-100">
-                    <div class="icon-wrapper-modal me-3">
-                        <i class="fas fa-exchange-alt fa-lg text-white"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h5 class="modal-title mb-0 fw-bold text-white">
-                            Changer le rôle de {{ selectedVendeur.nom }}
-                        </h5>
-                        <small class="text-white opacity-75">
-                            Rôle actuel : {{ selectedVendeur.role?.name }}
-                        </small>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white"
-                        (click)="closeRoleSelectionModal()"></button>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-exchange-alt me-2"></i>Changer le rôle —
+                    {{ selectedVendeur.nom }} {{ selectedVendeur.prenom }}
+                </h5>
+                <button type="button" class="btn-close" (click)="closeRoleSelectionModal()"></button>
             </div>
-
-            <div class="modal-body p-4">
-                <p class="text-center mb-4 text-muted">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Sélectionnez le nouveau rôle
+            <div class="modal-body">
+                <p class="text-muted mb-3">
+                    <i class="fas fa-info-circle me-1 text-success"></i>
+                    Rôle actuel : <strong>{{ selectedVendeur.role?.name }}</strong>
                 </p>
-
-                <div class="role-selection-container">
+                <div class="list-group">
                     @for (role of roles; track role.id) {
                     @if (role.id !== selectedVendeur.role_id) {
-                    @let roleIcon = getRoleIcon(role.name);
-                    @let roleColor = getRoleColor(role.name);
-                    @let roleGradient = role.name === 'Responsable Commercial' ? 'linear-gradient(135deg, #fff5f5 0%,
-                    #ffe5e5 100%)' :
-                    (role.name === 'Commercial' ? 'linear-gradient(135deg, #fffbf0 0%, #fff8e5 100%)' :
-                    (role.name === 'Vendeur' ? 'linear-gradient(135deg, #f0f9f4 0%, #e8f5e9 100%)' :
-                    'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'));
-                    @let roleBgColor = role.name === 'Responsable Commercial' ? '#fff5f5' :
-                    (role.name === 'Commercial' ? '#fffbf0' :
-                    (role.name === 'Vendeur' ? '#f0f9f4' : '#f8f9fa'));
-
-                    <div class="role-option-card mb-3" style="background: {{ roleGradient }}; cursor: pointer;"
+                    <button type="button"
+                        class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3"
                         (click)="selectRole(role)">
-                        <div class="d-flex align-items-center p-3">
-                            <div class="role-icon-large me-3"
-                                style="background-color: {{ roleBgColor }}; color: {{ roleColor }};">
-                                <i class="fas {{ roleIcon }} fa-2x"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1 fw-bold" style="color: {{ roleColor }};">
-                                    {{ role.name }}
-                                </h6>
-                                <small class="text-muted">Cliquez pour attribuer ce rôle</small>
-                            </div>
-                            <div>
-                                <i class="fas fa-arrow-right fa-lg" style="color: {{ roleColor }};"></i>
-                            </div>
+                        <i class="fas {{ getRoleIcon(role.name) }} text-success fa-lg" style="width:20px;"></i>
+                        <div>
+                            <div class="fw-semibold">{{ role.name }}</div>
+                            <small class="text-muted">Cliquez pour attribuer ce rôle</small>
                         </div>
-                    </div>
+                        <i class="fas fa-chevron-right ms-auto text-muted"></i>
+                    </button>
                     }
                     }
                 </div>
             </div>
-
-            <div class="modal-footer border-0 bg-light">
-                <button type="button" class="btn btn-secondary" (click)="closeRoleSelectionModal()">
-                    <i class="fas fa-times me-2"></i>Annuler
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeRoleSelectionModal()">
+                    <i class="fas fa-times me-1"></i> Annuler
                 </button>
             </div>
         </div>
@@ -452,66 +400,41 @@
 </div>
 }
 
-<!-- Modal de Confirmation de Changement de Rôle -->
+<!-- ========== MODAL CONFIRMATION CHANGEMENT DE RÔLE ========== -->
 @if (showRoleConfirmModal && selectedVendeur && newRole) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0" style="background: linear-gradient(135deg, #2d7a4f 0%, #2d7a4f 100%);">
-                <div class="d-flex align-items-center w-100">
-                    <div class="icon-wrapper-modal me-3">
-                        <i class="fas fa-exchange-alt fa-lg text-white"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h5 class="modal-title mb-0 fw-bold text-white">Confirmer le changement de rôle</h5>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" (click)="closeRoleConfirmModal()"></button>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-exchange-alt me-2"></i>Confirmer le changement de rôle
+                </h5>
+                <button type="button" class="btn-close" (click)="closeRoleConfirmModal()"></button>
             </div>
-
             <div class="modal-body p-4">
                 <div class="text-center mb-4">
-                    <div class="role-change-visual mb-4">
-                        <div class="d-flex align-items-center justify-content-center gap-3">
-                            <div class="current-role-box">
-                                <i class="fas fa-user-tie fa-2x mb-2" style="color: #6c757d;"></i>
-                                <p class="mb-0 small text-muted">Rôle actuel</p>
-                            </div>
-                            <div><i class="fas fa-arrow-right fa-2x" style="color: #2d7a4f;"></i></div>
-                            <div class="new-role-box">
-                                <i class="fas {{ newRole.icon }} fa-2x mb-2" style="color: {{ newRole.color }};"></i>
-                                <p class="mb-0 small text-success">Nouveau rôle</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h6 class="fw-semibold mb-3">Voulez-vous vraiment modifier le rôle ?</h6>
-                    <p class="mb-0">
-                        <span class="fw-bold text-success">{{ selectedVendeur.nom }} {{ selectedVendeur.prenom }}</span>
-                        deviendra
-                        <span class="fw-bold text-success">{{ newRole.name }}</span>
+                    <p class="mb-1">
+                        <strong>{{ selectedVendeur.nom }} {{ selectedVendeur.prenom }}</strong>
                     </p>
-                </div>
-
-                <div class="alert alert-info border-info" style="background-color: #e8f5e9;">
-                    <div class="d-flex align-items-start">
-                        <i class="fas fa-info-circle mt-1 me-3" style="color: #2d7a4f;"></i>
-                        <div>
-                            <p class="mb-0" style="color: #2d7a4f;">Le changement prendra effet immédiatement.</p>
-                        </div>
+                    <div class="d-flex align-items-center justify-content-center gap-3 my-3">
+                        <span class="badge-role-custom role-default px-3 py-2">
+                            {{ selectedVendeur.role?.name }}
+                        </span>
+                        <i class="fas fa-arrow-right text-success"></i>
+                        <span class="badge bg-success px-3 py-2" style="font-size:0.85rem;">
+                            {{ newRole.name }}
+                        </span>
                     </div>
+                    <p class="text-muted mb-0">Le changement prendra effet <strong>immédiatement</strong>.</p>
                 </div>
             </div>
-
-            <div class="modal-footer border-top-0 bg-light rounded-bottom">
-                <div class="w-100 d-flex justify-content-between">
-                    <button type="button" class="btn btn-outline-secondary px-4" (click)="closeRoleConfirmModal()">
-                        <i class="fas fa-times me-2"></i>Annuler
-                    </button>
-                    <button type="button" class="btn btn-success px-4" (click)="confirmRoleChange()">
-                        <i class="fas fa-check me-2"></i>Confirmer
-                    </button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeRoleConfirmModal()">
+                    <i class="fas fa-times me-1"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-success" (click)="confirmRoleChange()">
+                    <i class="fas fa-check me-1"></i> Confirmer
+                </button>
             </div>
         </div>
     </div>

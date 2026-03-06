@@ -16,7 +16,6 @@
                 </button>
             </div>
 
-            <!-- Alerts -->
             @if (successMessage) {
             <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
@@ -46,17 +45,9 @@
                             <tbody>
                                 @for (livreur of livreurs; track livreur.id) {
                                 <tr>
-                                    <td>
-                                        <strong>{{ livreur.prenom }} {{ livreur.nom }}</strong>
-                                    </td>
-                                    <td>
-
-                                        {{ livreur.telephone }}
-                                    </td>
-                                    <td>
-
-                                        {{ truncate(livreur.adresse, 40) }}
-                                    </td>
+                                    <td><strong>{{ livreur.prenom }} {{ livreur.nom }}</strong></td>
+                                    <td>{{ livreur.telephone }}</td>
+                                    <td>{{ truncate(livreur.adresse, 40) }}</td>
                                     <td>
                                         <small class="text-muted">{{ formatDate(livreur.created_at) }}</small>
                                     </td>
@@ -88,7 +79,6 @@
                     </div>
                 </div>
 
-                <!-- Pagination -->
                 @if (lastPage > 1) {
                 <div class="d-flex justify-content-between align-items-center mt-4 px-3">
                     <div class="text-muted">
@@ -129,13 +119,15 @@
     </div>
 </div>
 
-<!-- Modal Création -->
+<!-- ========== MODAL CRÉATION ========== -->
 @if (showCreateModal) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Nouveau Livreur</h5>
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-plus me-2"></i>Nouveau Livreur
+                </h5>
                 <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
             </div>
             <div class="modal-body">
@@ -150,23 +142,25 @@
                 }
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="nom_create" class="form-label">Nom *</label>
+                        <label for="nom_create" class="form-label">Nom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nom_create" [(ngModel)]="createForm.nom" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="prenom_create" class="form-label">Prénom *</label>
+                        <label for="prenom_create" class="form-label">Prénom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="prenom_create" [(ngModel)]="createForm.prenom"
                             required>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="telephone_create" class="form-label">Téléphone *</label>
+                        <label for="telephone_create" class="form-label">Téléphone <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="telephone_create" [(ngModel)]="createForm.telephone"
                             required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="adresse_create" class="form-label">Adresse *</label>
+                        <label for="adresse_create" class="form-label">Adresse <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="adresse_create" [(ngModel)]="createForm.adresse"
                             required>
                     </div>
@@ -174,20 +168,25 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
-                <button type="button" class="btn btn-primary" (click)="createLivreur()">Créer</button>
+                <button type="button" class="btn btn-success" (click)="createLivreur()">
+                    <i class="fas fa-plus me-1"></i> Créer
+                </button>
             </div>
         </div>
     </div>
 </div>
 }
 
-<!-- Modal Édition -->
+<!-- ========== MODAL ÉDITION ========== -->
 @if (showEditModal && selectedLivreur) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier Livreur</h5>
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-edit me-2"></i>Modifier —
+                    {{ selectedLivreur.prenom }} {{ selectedLivreur.nom }}
+                </h5>
                 <button type="button" class="btn-close" (click)="closeEditModal()"></button>
             </div>
             <div class="modal-body">
@@ -202,22 +201,23 @@
                 }
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="nom_edit" class="form-label">Nom *</label>
+                        <label for="nom_edit" class="form-label">Nom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nom_edit" [(ngModel)]="editForm.nom" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="prenom_edit" class="form-label">Prénom *</label>
+                        <label for="prenom_edit" class="form-label">Prénom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="prenom_edit" [(ngModel)]="editForm.prenom" required>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="telephone_edit" class="form-label">Téléphone *</label>
+                        <label for="telephone_edit" class="form-label">Téléphone <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="telephone_edit" [(ngModel)]="editForm.telephone"
                             required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="adresse_edit" class="form-label">Adresse *</label>
+                        <label for="adresse_edit" class="form-label">Adresse <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="adresse_edit" [(ngModel)]="editForm.adresse"
                             required>
                     </div>
@@ -225,22 +225,24 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
-                <button type="button" class="btn btn-primary" (click)="updateLivreur()">Enregistrer</button>
+                <button type="button" class="btn btn-success" (click)="updateLivreur()">
+                    <i class="fas fa-save me-1"></i> Enregistrer
+                </button>
             </div>
         </div>
     </div>
 </div>
 }
 
-<!-- Modal Suppression -->
+<!-- ========== MODAL SUPPRESSION ========== -->
 @if (showDeleteModal && livreurToDelete) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0">
                 <div class="d-flex align-items-center w-100">
-                    <div class="warning-icon bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
-                        style="width: 48px; height: 48px;">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center
+                        justify-content-center me-3" style="width: 48px; height: 48px; flex-shrink: 0;">
                         <i class="fas fa-exclamation-triangle fa-lg"></i>
                     </div>
                     <div class="flex-grow-1">
@@ -250,24 +252,24 @@
                 </div>
             </div>
             <div class="modal-body p-4">
-                <div class="text-center mb-4">
+                <div class="text-center mb-3">
                     <h6 class="fw-semibold mb-2">
                         Êtes-vous sûr de vouloir supprimer ce livreur ?
                     </h6>
                     <p class="mb-0">
-                        Le livreur <span class="fw-bold text-danger">"{{ livreurToDelete.prenom }} {{
-                            livreurToDelete.nom }}"</span> sera définitivement supprimé.
+                        Le livreur
+                        <span class="fw-bold text-danger">
+                            "{{ livreurToDelete.prenom }} {{ livreurToDelete.nom }}"
+                        </span>
+                        sera définitivement supprimé.
                     </p>
                 </div>
-                <div class="alert alert-warning border-warning">
+                <div class="alert alert-warning border-warning mb-0">
                     <div class="d-flex align-items-start">
                         <i class="fas fa-info-circle mt-1 me-3 text-warning"></i>
-                        <div>
-                            <p class="mb-0">
-                                <i class="fas fa-exclamation-circle me-1"></i>
-                                Cette action est <strong>irréversible</strong>.
-                            </p>
-                        </div>
+                        <p class="mb-0">
+                            Cette action est <strong>irréversible</strong>.
+                        </p>
                     </div>
                 </div>
             </div>

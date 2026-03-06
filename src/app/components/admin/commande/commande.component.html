@@ -28,13 +28,14 @@
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     @if (hasActiveFilters) {
-                    <span class="badge bg-success">
-                        <i class="fas fa-filter me-1"></i>Filtres actifs
+                    <span class="filter-active-badge">
+                        <span class="filter-active-dot"></span> Filtres actifs
                     </span>
                     }
-                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleFilterPanel()"
-                        title="Filtrer">
-                        <i class="fas fa-filter"></i> <span>Filtrer</span>
+                    <button type="button" class="filter-toggle-btn" (click)="toggleFilterPanel()">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Filtrer</span>
+                        <span class="filter-toggle-dot"></span>
                     </button>
                 </div>
             </div>
@@ -69,85 +70,158 @@
 
             <!-- Filter Panel -->
             @if (showFilterPanel) {
-            <div class="filter-panel"
-                style="padding: 16px 20px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
-                <div class="d-flex align-items-center mb-3">
-                    <i class="fas fa-sliders-h me-2 text-success"></i>
-                    <strong style="color: #10b981;">Filtres de recherche</strong>
-                </div>
-                <div class="row g-3">
-                    <!-- Statut -->
-                    <div class="col-md-3 col-sm-6">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-tag me-1 text-success"></i>Statut
-                        </label>
-                        <select class="form-select form-select-sm" [(ngModel)]="selectedStatut">
-                            <option value="">— Tous les statuts —</option>
-                            <option value="en_attente">En attente</option>
-                            <option value="en_cours">En cours</option>
-                            <option value="valider">Validée</option>
-                        </select>
-                    </div>
+            <div class="filter-panel-wrapper">
 
-                    <!-- Mois -->
-                    <div class="col-md-2 col-sm-6">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-calendar-alt me-1 text-success"></i>Mois
-                        </label>
-                        <select class="form-select form-select-sm" [(ngModel)]="selectedMonth">
-                            <option value="">— Tous —</option>
-                            @for (m of months; track m.value) {
-                            <option [value]="m.value">{{ m.label }}</option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Année -->
-                    <div class="col-md-2 col-sm-6">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-calendar me-1 text-success"></i>Année
-                        </label>
-                        <select class="form-select form-select-sm" [(ngModel)]="selectedYear">
-                            <option value="">— Toutes —</option>
-                            @for (y of years; track y) {
-                            <option [value]="y">{{ y }}</option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Date exacte -->
-                    <div class="col-md-3 col-sm-6">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-calendar-day me-1 text-success"></i>Date exacte
-                        </label>
-                        <input type="date" class="form-control form-control-sm" [(ngModel)]="selectedDate">
-                    </div>
-
-                    <!-- Recherche -->
-                    <div class="col-md-2 col-sm-6">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-search me-1 text-success"></i>Recherche
-                        </label>
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="searchTerm"
-                            placeholder="N° ou client...">
-                    </div>
-                </div>
-
-                <!-- Boutons action -->
-                <div class="d-flex gap-2 mt-3 pt-3 border-top">
-                    <button type="button" class="btn btn-sm btn-success px-4" (click)="applyFilters()">
-                        <i class="fas fa-check me-1"></i> Appliquer
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary px-4" (click)="resetFilters()">
-                        <i class="fas fa-redo me-1"></i> Réinitialiser
-                    </button>
+                <div class="filter-panel-header">
+                    <!-- <div class="filter-panel-header-left">
+                        <div class="filter-panel-icon">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div>
+                            <p class="filter-panel-title">Filtres avancés</p>
+                            <p class="filter-panel-subtitle">Affinez votre recherche</p>
+                        </div>
+                    </div> -->
                     @if (hasActiveFilters) {
-                    <span class="ms-auto text-muted d-flex align-items-center" style="font-size: 12px;">
-                        <i class="fas fa-info-circle me-1 text-success"></i>
-                        {{ total }} résultat(s) trouvé(s)
-                    </span>
+                    <button class="filter-clear-btn" (click)="resetFilters()">
+                        <i class="fas fa-times"></i> Tout effacer
+                    </button>
                     }
                 </div>
+
+                <div class="filter-panel-body">
+                    <div class="row g-3">
+
+                        <!-- Statut -->
+                        <div class="col-xl-2 col-md-4 col-sm-6">
+                            <div class="filter-card">
+                                <label class="filter-card-label">
+                                    <i class="fas fa-circle-dot"></i> Statut
+                                </label>
+                                <select class="filter-card-input" [(ngModel)]="selectedStatut">
+                                    <option value="">Tous</option>
+                                    <option value="en_attente">⏳ En attente</option>
+                                    <option value="en_cours">🔄 En cours</option>
+                                    <option value="valider">✅ Validée</option>
+                                </select>
+                                @if (selectedStatut) {
+                                <div class="filter-card-tag-wrapper">
+                                    <span class="filter-card-tag">
+                                        {{ getStatusLabel(selectedStatut) }}
+                                    </span>
+                                </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Mois -->
+                        <div class="col-xl-2 col-md-4 col-sm-6">
+                            <div class="filter-card">
+                                <label class="filter-card-label">
+                                    <i class="fas fa-calendar-alt"></i> Mois
+                                </label>
+                                <select class="filter-card-input" [(ngModel)]="selectedMonth">
+                                    <option value="">Tous</option>
+                                    @for (m of months; track m.value) {
+                                    <option [value]="m.value">{{ m.label }}</option>
+                                    }
+                                </select>
+                                @if (selectedMonth) {
+                                <div class="filter-card-tag-wrapper">
+                                    <span class="filter-card-tag">
+                                        {{ months | slice:0 | slice:+selectedMonth - 1 : +selectedMonth }}
+                                        {{ (months[+selectedMonth - 1])?.label }}
+                                    </span>
+                                </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Année -->
+                        <div class="col-xl-2 col-md-4 col-sm-6">
+                            <div class="filter-card">
+                                <label class="filter-card-label">
+                                    <i class="fas fa-calendar"></i> Année
+                                </label>
+                                <select class="filter-card-input" [(ngModel)]="selectedYear">
+                                    <option value="">Toutes</option>
+                                    @for (y of years; track y) {
+                                    <option [value]="y">{{ y }}</option>
+                                    }
+                                </select>
+                                @if (selectedYear) {
+                                <div class="filter-card-tag-wrapper">
+                                    <span class="filter-card-tag">{{ selectedYear }}</span>
+                                </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Date exacte -->
+                        <div class="col-xl-3 col-md-6 col-sm-6">
+                            <div class="filter-card">
+                                <label class="filter-card-label">
+                                    <i class="fas fa-calendar-day"></i> Date exacte
+                                </label>
+                                <input type="date" class="filter-card-input" [(ngModel)]="selectedDate">
+                                @if (selectedDate) {
+                                <div class="filter-card-tag-wrapper">
+                                    <span class="filter-card-tag">{{ selectedDate }}</span>
+                                </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Recherche -->
+                        <div class="col-xl-3 col-md-6 col-sm-12">
+                            <div class="filter-card filter-card-search">
+                                <label class="filter-card-label">
+                                    <i class="fas fa-magnifying-glass"></i> Recherche
+                                </label>
+                                <div class="filter-search-inner">
+                                    <i class="fas fa-search filter-search-icon"></i>
+                                    <input type="text" class="filter-card-input filter-search-input"
+                                        [(ngModel)]="searchTerm" placeholder="N° commande, client...">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Résumé période -->
+                    @if (selectedMonth || selectedYear || selectedDate) {
+                    <div class="filter-period-summary">
+                        <i class="fas fa-clock"></i>
+                        <span>Période sélectionnée :
+                            <strong>
+                                @if (selectedDate) {
+                                {{ selectedDate }}
+                                } @else {
+                                {{ selectedMonth ? (months[+selectedMonth - 1])?.label : '' }}
+                                {{ selectedYear ? selectedYear : '' }}
+                                }
+                            </strong>
+                        </span>
+                    </div>
+                    }
+
+                    <!-- Footer boutons -->
+                    <div class="filter-panel-footer">
+                        <button class="filter-apply-btn" (click)="applyFilters()">
+                            <i class="fas fa-check"></i> Appliquer les filtres
+                        </button>
+                        <button class="filter-reset-btn" (click)="resetFilters()">
+                            <i class="fas fa-rotate-left"></i> Réinitialiser
+                        </button>
+                        @if (hasActiveFilters) {
+                        <span class="filter-count-badge">
+                            <i class="fas fa-list-ul"></i>
+                            {{ total }} résultat(s)
+                        </span>
+                        }
+                    </div>
+                </div>
+
             </div>
             }
 
@@ -162,7 +236,7 @@
                                     <th>Montant</th>
                                     <th>Date Commande</th>
                                     <th>Statut</th>
-                                    <th>Boutique</th> <!-- ← Remplacé -->
+                                    <th>Boutique</th>
                                     <th class="text-center action-column">Actions</th>
                                 </tr>
                             </thead>
@@ -171,18 +245,25 @@
                                 <tr>
                                     <td><strong>{{ commande.numeroCommande }}</strong></td>
                                     <td>
-                                        <div><strong>{{ commande.user?.prenom }} {{ commande.user?.nom }}</strong></div>
-                                        <small class="text-muted d-block">{{ commande.user?.telephone ?? 'N/A'
-                                            }}</small>
+                                        <div>
+                                            <strong>
+                                                {{ commande.user?.prenom }} {{ commande.user?.nom }}
+                                            </strong>
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            {{ commande.user?.telephone ?? 'N/A' }}
+                                        </small>
                                     </td>
-                                    <td><strong>{{ commande.montantTotal | number:'':'fr' }} FCFA</strong></td>
+                                    <td>
+                                        <strong>{{ commande.montantTotal | number:'':'fr' }} FCFA</strong>
+                                    </td>
                                     <td><small>{{ formatDate(commande.created_at) }}</small></td>
                                     <td>
                                         <span class="badge {{ getStatusClass(commande.statut) }}">
                                             {{ getStatusLabel(commande.statut) }}
                                         </span>
                                     </td>
-                                    <td> <!-- ← Nouvelle cellule -->
+                                    <td>
                                         @if (commande.boutique) {
                                         <span class="badge bg-primary">{{ commande.boutique.nom }}</span>
                                         } @else {
@@ -191,12 +272,12 @@
                                     </td>
                                     <td class="text-center action-column">
                                         <button type="button" class="btn btn-sm btn-light me-1"
-                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            style="background-color:#d4edda;color:#155724;border-color:#c3e6cb;"
                                             (click)="openViewModal(commande)" title="Voir détails">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-light me-1"
-                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            style="background-color:#d4edda;color:#155724;border-color:#c3e6cb;"
                                             (click)="openEditModal(commande)" title="Modifier le statut">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -208,7 +289,7 @@
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="7" class="text-center py-5"> <!-- colspan reste 7 -->
+                                    <td colspan="7" class="text-center py-5">
                                         <i class="fas fa-inbox fa-2x text-muted mb-3 d-block"></i>
                                         <p class="text-muted mb-1">Aucune commande trouvée</p>
                                         @if (hasActiveFilters) {
@@ -219,7 +300,9 @@
                                             </a>
                                         </small>
                                         } @else {
-                                        <small class="text-muted">Les commandes apparaîtront ici</small>
+                                        <small class="text-muted">
+                                            Les commandes apparaîtront ici
+                                        </small>
                                         }
                                     </td>
                                 </tr>
@@ -273,7 +356,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-eye me-2"></i>Détails Commande {{ selectedCommande.numeroCommande }}
+                    <i class="fas fa-eye me-2"></i>
+                    Détails Commande {{ selectedCommande.numeroCommande }}
                 </h5>
                 <button type="button" class="btn-close" (click)="closeViewModal()"></button>
             </div>
@@ -282,10 +366,14 @@
                     <div class="col-md-6">
                         <h6 class="fw-bold mb-3">Informations Client</h6>
                         @if (selectedCommande.user) {
-                        <p class="mb-2"><strong>Nom:</strong> {{ selectedCommande.user.prenom }} {{
-                            selectedCommande.user.nom }}</p>
+                        <p class="mb-2">
+                            <strong>Nom:</strong>
+                            {{ selectedCommande.user.prenom }} {{ selectedCommande.user.nom }}
+                        </p>
                         <p class="mb-2"><strong>Email:</strong> {{ selectedCommande.user.email }}</p>
-                        <p class="mb-2"><strong>Téléphone:</strong> {{ selectedCommande.user.telephone }}</p>
+                        <p class="mb-2">
+                            <strong>Téléphone:</strong> {{ selectedCommande.user.telephone }}
+                        </p>
                         <p class="mb-0"><strong>Adresse:</strong> {{ selectedCommande.user.adresse }}</p>
                         } @else {
                         <p class="text-muted">Client supprimé</p>
@@ -293,8 +381,12 @@
                     </div>
                     <div class="col-md-6">
                         <h6 class="fw-bold mb-3">Informations Commande</h6>
-                        <p class="mb-2"><strong>N° Commande:</strong> {{ selectedCommande.numeroCommande }}</p>
-                        <p class="mb-2"><strong>Date:</strong> {{ formatDate(selectedCommande.created_at) }}</p>
+                        <p class="mb-2">
+                            <strong>N° Commande:</strong> {{ selectedCommande.numeroCommande }}
+                        </p>
+                        <p class="mb-2">
+                            <strong>Date:</strong> {{ formatDate(selectedCommande.created_at) }}
+                        </p>
                         <p class="mb-0"><strong>Statut:</strong>
                             <span class="badge {{ getStatusClass(selectedCommande.statut) }}">
                                 {{ getStatusLabel(selectedCommande.statut) }}
@@ -321,7 +413,10 @@
                                 <td>{{ ligne.gamme?.nom ?? 'Produit supprimé' }}</td>
                                 <td>{{ ligne.quantite }}</td>
                                 <td>{{ ligne.prixUnitaire | number:'':'fr' }} FCFA</td>
-                                <td><strong>{{ ligne.quantite * ligne.prixUnitaire | number:'':'fr' }} FCFA</strong>
+                                <td>
+                                    <strong>
+                                        {{ ligne.quantite * ligne.prixUnitaire | number:'':'fr' }} FCFA
+                                    </strong>
                                 </td>
                             </tr>
                             }
@@ -368,7 +463,8 @@
             <form (ngSubmit)="updateCommande()">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Modifier Statut - #{{ selectedCommande.numeroCommande }}
+                        <i class="fas fa-edit me-2"></i>
+                        Modifier Statut - #{{ selectedCommande.numeroCommande }}
                     </h5>
                     <button type="button" class="btn-close" (click)="closeEditModal()"></button>
                 </div>
@@ -394,12 +490,14 @@
                     <div class="mb-3">
                         <label for="note_edit" class="form-label">Note (optionnel)</label>
                         <textarea class="form-control" id="note_edit" [(ngModel)]="editForm.noteCommande"
-                            name="noteCommande" rows="4"></textarea>
+                            name="noteCommande" rows="4">
+                        </textarea>
                         <small class="text-muted">Ajouter une note interne sur la commande</small>
                     </div>
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Montant Total:</strong> {{ selectedCommande.montantTotal | number:'':'fr' }} FCFA
+                        <strong>Montant Total:</strong>
+                        {{ selectedCommande.montantTotal | number:'':'fr' }} FCFA
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -419,8 +517,8 @@
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0">
                 <div class="d-flex align-items-center w-100">
-                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
-                        style="width: 48px; height: 48px;">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle
+                        d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;">
                         <i class="fas fa-exclamation-triangle fa-lg"></i>
                     </div>
                     <div class="flex-grow-1">
@@ -431,15 +529,24 @@
             </div>
             <div class="modal-body p-4">
                 <div class="text-center mb-4">
-                    <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer cette commande ?</h6>
+                    <h6 class="fw-semibold mb-2">
+                        Êtes-vous sûr de vouloir supprimer cette commande ?
+                    </h6>
                     <p class="mb-3">
-                        La commande <span class="fw-bold text-danger">#{{ commandeToDelete.numeroCommande }}</span>
+                        La commande
+                        <span class="fw-bold text-danger">
+                            #{{ commandeToDelete.numeroCommande }}
+                        </span>
                         sera définitivement supprimée.
                     </p>
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-circle me-2"></i>
-                        <small>Le montant de <strong>{{ commandeToDelete.montantTotal | number:'':'fr' }} FCFA</strong>
-                            sera perdu.</small>
+                        <small>Le montant de
+                            <strong>
+                                {{ commandeToDelete.montantTotal | number:'':'fr' }} FCFA
+                            </strong>
+                            sera perdu.
+                        </small>
                     </div>
                 </div>
             </div>

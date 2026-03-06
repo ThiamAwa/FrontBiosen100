@@ -7,6 +7,8 @@ import { Commande, CommandeResponse } from '../../../models/commande';
 import * as XLSX from 'xlsx';
 import html2pdf from 'html2pdf.js';
 
+const LOGO_PATH = 'assets/img/logo-senbio.png';
+
 @Component({
   selector: 'app-commande',
   standalone: true,
@@ -26,12 +28,13 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   searchTerm: string = '';
   showFilterPanel = false;
 
-  // Filtres date
   selectedMonth: string = '';
   selectedYear: string = '';
   selectedDate: string = '';
 
-  // Listes pour les selects
+  // ── Logo en base64 (chargé au démarrage) ──────────────────────────────────
+  logoBase64: string = '';
+
   months = [
     { value: '01', label: 'Janvier' },
     { value: '02', label: 'Février' },
@@ -52,6 +55,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   showViewModal = false;
   showEditModal = false;
   showDeleteModal = false;
+
   selectedCommande: Commande | null = null;
   commandeToDelete: Commande | null = null;
 
@@ -72,9 +76,46 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.generateYears();
     this.loadCommandes();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadLogoAsBase64();
+    }
   }
 
   ngAfterViewInit(): void { }
+
+  // ─── Chargement logo en Base64 ────────────────────────────────────────────
+
+  private loadLogoAsBase64(): void {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        this.logoBase64 = canvas.toDataURL('image/png');
+      }
+    };
+    img.onerror = () => {
+      console.warn('Logo non chargé — export sans image.');
+      this.logoBase64 = '';
+    };
+    img.src = LOGO_PATH + '?v=' + Date.now();
+  }
+
+  // ─── Helper : retourne le HTML du logo (base64 ou fallback texte) ─────────
+
+  private getLogoHtml(height: string = '54px'): string {
+    if (this.logoBase64) {
+      return `<img src="${this.logoBase64}" alt="Logo SenBio"
+        style="height:${height};width:auto;object-fit:contain;" />`;
+    }
+    return `<div style="color:white;font-size:20px;font-weight:800;letter-spacing:-0.5px;">SenBio</div>`;
+  }
+
+  // ─── Années ───────────────────────────────────────────────────────────────
 
   generateYears(): void {
     const currentYear = new Date().getFullYear();
@@ -83,14 +124,16 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // ─── Chargement commandes ─────────────────────────────────────────────────
+
   loadCommandes(page: number = this.currentPage): void {
     this.commandeService.getCommandes(
       page,
-      this.selectedStatut,
-      this.searchTerm,
-      this.selectedMonth,
-      this.selectedYear,
-      this.selectedDate
+      this.selectedStatut || undefined,
+      this.searchTerm || undefined,
+      this.selectedMonth || undefined,
+      this.selectedYear || undefined,
+      this.selectedDate || undefined
     ).subscribe({
       next: (res: CommandeResponse) => {
         this.commandes = res.data;
@@ -112,6 +155,8 @@ export class CommandeComponent implements OnInit, AfterViewInit {
       this.loadCommandes(page);
     }
   }
+
+  // ─── Filtres ──────────────────────────────────────────────────────────────
 
   toggleFilterPanel(): void {
     this.showFilterPanel = !this.showFilterPanel;
@@ -141,6 +186,8 @@ export class CommandeComponent implements OnInit, AfterViewInit {
       this.selectedDate
     );
   }
+
+  // ─── Modales ──────────────────────────────────────────────────────────────
 
   openViewModal(commande: Commande): void {
     this.selectedCommande = commande;
@@ -215,7 +262,8 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // --- Export Excel ---
+  // ─── Export Excel ─────────────────────────────────────────────────────────
+
   exportExcel(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
@@ -239,179 +287,347 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // --- Export PDF ---
+  // ─── Préparation tableau PDF/impression ───────────────────────────────────
+
+  private prepareTableForPdf(source: HTMLTableElement): HTMLTableElement {
+    const cloned = source.cloneNode(true) as HTMLTableElement;
+
+    this.removeColumn(cloned, 6);
+
+    cloned.querySelectorAll('tbody tr').forEach(tr => {
+      if (tr.querySelector('td[colspan]')) tr.remove();
+    });
+
+    cloned.querySelectorAll('td').forEach(td => {
+      const badge = td.querySelector('.badge');
+      if (badge) td.innerHTML = badge.textContent?.trim() || '';
+    });
+
+    cloned.querySelectorAll('button, .btn, i.fas, i.fa, i.far').forEach(el => el.remove());
+
+    cloned.querySelectorAll('td small').forEach(el => {
+      (el as HTMLElement).setAttribute('style', 'font-size:10px;color:#6b7280;display:block;');
+    });
+
+    cloned.setAttribute('style',
+      'width:100%;border-collapse:collapse;font-size:11px;font-family:Arial,sans-serif;');
+
+    cloned.querySelectorAll('th').forEach(th => {
+      (th as HTMLElement).setAttribute('style',
+        'background-color:#198754;color:#fff;padding:10px;text-align:left;' +
+        'border:1px solid #157347;font-weight:bold;font-size:10.5px;letter-spacing:0.3px;');
+    });
+
+    cloned.querySelectorAll('tbody tr').forEach((tr, i) => {
+      const bg = i % 2 === 0 ? '#f0fdf4' : '#ffffff';
+      (tr as HTMLElement).setAttribute('style', `background-color:${bg};`);
+      tr.querySelectorAll('td').forEach(td => {
+        (td as HTMLElement).setAttribute('style',
+          'padding:9px 10px;border:1px solid #d1fae5;font-size:11px;color:#111827;vertical-align:middle;');
+      });
+    });
+
+    return cloned;
+  }
+
+  // ─── Construction élément PDF ─────────────────────────────────────────────
+
+  private buildPdfElement(clonedTable: HTMLTableElement): HTMLElement {
+    const date = new Date().toLocaleString('fr-FR');
+    const filterSummary = this.buildFilterSummary();
+
+    const element = document.createElement('div');
+    element.setAttribute('style', 'font-family:Arial,sans-serif;padding:20px;background:#fff;');
+    element.innerHTML = `
+
+      <!-- Header -->
+      <div style="
+        display:flex;justify-content:space-between;align-items:center;
+        padding:16px 22px;
+        background:linear-gradient(135deg,#198754 0%,#0d5c38 100%);
+        border-radius:10px;margin-bottom:0;
+      ">
+        <div style="display:flex;align-items:center;gap:14px;">
+          ${this.getLogoHtml('54px')}
+          <div>
+            <div style="color:white;font-size:17px;font-weight:800;letter-spacing:-0.3px;">
+              Liste des Commandes
+            </div>
+            <div style="color:rgba(255,255,255,0.65);font-size:9.5px;margin-top:2px;">
+              Export automatique — Document confidentiel
+            </div>
+            ${filterSummary ? `
+            <div style="
+              margin-top:7px;background:rgba(255,255,255,0.15);
+              border-radius:5px;padding:4px 9px;
+              font-size:9px;color:rgba(255,255,255,0.9);
+            ">🔍 Filtres : ${filterSummary}</div>` : ''}
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="
+            background:rgba(255,255,255,0.15);
+            border:1px solid rgba(255,255,255,0.2);
+            border-radius:8px;padding:10px 16px;
+          ">
+            <div style="color:rgba(255,255,255,0.7);font-size:9px;margin-bottom:4px;">
+              📅 ${date}
+            </div>
+            <div style="color:#bbf7d0;font-size:18px;font-weight:800;">${this.total}</div>
+            <div style="color:rgba(255,255,255,0.65);font-size:9px;">commandes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stripe -->
+      <div style="
+        height:4px;
+        background:linear-gradient(to right,#198754,#34d399,#6ee7b7);
+        margin-bottom:18px;
+      "></div>
+
+      <!-- Tableau -->
+      ${clonedTable.outerHTML}
+
+      <!-- Footer -->
+      <div style="
+        margin-top:16px;padding-top:10px;
+        border-top:1.5px solid #d1e7dd;
+        display:flex;justify-content:space-between;align-items:center;
+        font-size:9px;color:#9ca3af;
+      ">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="
+            background:#198754;color:white;
+            padding:2px 9px;border-radius:20px;
+            font-size:8.5px;font-weight:700;letter-spacing:0.5px;
+          ">CONFIDENTIEL</span>
+          <span>© ${new Date().getFullYear()} SenBio — Tous droits réservés</span>
+        </div>
+        <span>biosens100.com</span>
+      </div>
+    `;
+
+    return element;
+  }
+
+  // ─── Export PDF ───────────────────────────────────────────────────────────
+
   exportPDF(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
       const table = document.getElementById('commandesTable') as HTMLTableElement;
       if (!table) { alert('Erreur: Tableau non trouvé'); return; }
+      if (this.commandes.length === 0) { alert('Aucune commande à exporter.'); return; }
 
-      const clonedTable = table.cloneNode(true) as HTMLTableElement;
-      this.removeColumn(clonedTable, 6);
-
-      clonedTable.querySelectorAll('td').forEach(td => {
-        const badge = td.querySelector('.badge');
-        if (badge) td.innerHTML = badge.textContent?.trim() || '';
-      });
-
-      clonedTable.setAttribute('style', `
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 11px;
-        font-family: Arial, sans-serif;
-      `);
-
-      clonedTable.querySelectorAll('th').forEach(th => {
-        (th as HTMLElement).setAttribute('style', `
-          background-color: #10b981;
-          color: #ffffff;
-          padding: 10px 8px;
-          text-align: left;
-          border: 1px solid #059669;
-          font-weight: bold;
-          font-size: 11px;
-        `);
-      });
-
-      clonedTable.querySelectorAll('tbody tr').forEach((tr, i) => {
-        const bg = i % 2 === 0 ? '#ecfdf5' : '#ffffff';
-        (tr as HTMLElement).setAttribute('style', `background-color: ${bg};`);
-        tr.querySelectorAll('td').forEach(td => {
-          (td as HTMLElement).setAttribute('style', `
-            padding: 8px;
-            border: 1px solid #d1fae5;
-            font-size: 11px;
-            color: #111827;
-          `);
-        });
-      });
-
-      const date = new Date().toLocaleString('fr-FR');
-      const totalCommandes = this.total;
-
-      // Résumé des filtres actifs pour le PDF
-      const filterSummary = this.buildFilterSummary();
-
-      const element = document.createElement('div');
-      element.setAttribute('style', 'font-family: Arial, sans-serif; padding: 20px;');
-      element.innerHTML = `
-        <div style="
-          background: linear-gradient(135deg, #10b981, #34d399);
-          color: white;
-          padding: 20px 25px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-        ">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <h2 style="margin: 0; font-size: 20px; font-weight: bold; letter-spacing: 0.5px;">
-                🛒 BioSen100
-              </h2>
-              <p style="margin: 5px 0 0; font-size: 13px; opacity: 0.9;">
-                Liste des Commandes
-              </p>
-              ${filterSummary ? `<p style="margin: 5px 0 0; font-size: 11px; opacity: 0.85;">🔍 Filtres : ${filterSummary}</p>` : ''}
-            </div>
-            <div style="text-align: right; font-size: 11px; opacity: 0.9;">
-              <p style="margin: 0;">📅 Généré le ${date}</p>
-              <p style="margin: 5px 0 0;">
-                📦 Total : <strong>${totalCommandes} commande(s)</strong>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div style="
-          height: 4px;
-          background: linear-gradient(to right, #10b981, #34d399, #6ee7b7);
-          border-radius: 2px;
-          margin-bottom: 18px;
-        "></div>
-
-        ${clonedTable.outerHTML}
-
-        <div style="
-          margin-top: 20px;
-          padding-top: 10px;
-          border-top: 2px solid #d1fae5;
-          display: flex;
-          justify-content: space-between;
-          font-size: 10px;
-          color: #6b7280;
-        ">
-          <span>© ${new Date().getFullYear()} BioSen100 — Document confidentiel</span>
-          <span>Export automatique — biosens100.com</span>
-        </div>
-      `;
-
+      const clonedTable = this.prepareTableForPdf(table);
       const opt = {
         margin: [8, 8, 8, 8] as any,
         filename: `commandes_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true },
         jsPDF: { orientation: 'landscape' as const, unit: 'mm' as const, format: 'a4' }
       };
 
-      html2pdf().set(opt).from(element).save();
+      html2pdf().set(opt).from(this.buildPdfElement(clonedTable)).save();
     } catch (error) {
       console.error('Erreur export PDF', error);
       alert('Erreur lors de l\'export PDF.');
     }
   }
 
-  // --- Imprimer ---
+  // ─── Impression ───────────────────────────────────────────────────────────
+
   print(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
       const table = document.getElementById('commandesTable') as HTMLTableElement;
       if (!table) { alert('Erreur: Tableau non trouvé'); return; }
 
-      const clonedTable = table.cloneNode(true) as HTMLTableElement;
-      this.removeColumn(clonedTable, 6);
-      clonedTable.querySelectorAll('td').forEach(td => {
-        const badge = td.querySelector('.badge');
-        if (badge) td.innerHTML = badge.textContent || '';
-      });
+      const clonedTable = this.prepareTableForPdf(table);
+      const filterSummary = this.buildFilterSummary();
+      const date = new Date().toLocaleString('fr-FR');
+      const logoHtml = this.getLogoHtml('52px');
 
       const printWindow = window.open('', '_blank');
       if (!printWindow) { alert('Veuillez autoriser les popups pour imprimer.'); return; }
 
-      const filterSummary = this.buildFilterSummary();
-
       printWindow.document.write(`
-        <html>
-          <head>
-            <title>Impression - Liste des Commandes</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              h2 { text-align: center; color: #10b981; }
-              p { text-align: center; color: #666; font-size: 12px; }
-              .filter-info { text-align: center; color: #10b981; font-size: 11px; margin-bottom: 10px; }
-              table { width: 100%; border-collapse: collapse; }
-              th { background-color: #10b981; color: white; padding: 10px 8px; border: 1px solid #059669; text-align: left; }
-              td { border: 1px solid #d1fae5; padding: 8px; }
-              tr:nth-child(even) { background-color: #ecfdf5; }
-              .footer { margin-top: 20px; font-size: 10px; color: #999; text-align: center; border-top: 1px solid #d1fae5; padding-top: 8px; }
-            </style>
-          </head>
-          <body>
-            <h2>🛒 Liste des Commandes — BioSen100</h2>
-            <p>Généré le ${new Date().toLocaleString('fr-FR')}</p>
-            ${filterSummary ? `<p class="filter-info">🔍 Filtres appliqués : ${filterSummary}</p>` : ''}
-            ${clonedTable.outerHTML}
-            <div class="footer">© ${new Date().getFullYear()} BioSen100 — Document confidentiel</div>
-          </body>
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+          <meta charset="UTF-8">
+          <title>Commandes — SenBio</title>
+          <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+
+            body {
+              font-family: Arial, sans-serif;
+              background: #fff;
+              padding: 22px;
+              font-size: 11px;
+              color: #1a2e25;
+            }
+
+            .pdf-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: linear-gradient(135deg, #198754 0%, #0d5c38 100%);
+              border-radius: 10px;
+              padding: 16px 22px;
+              margin-bottom: 0;
+            }
+
+            .pdf-header-left {
+              display: flex;
+              align-items: center;
+              gap: 14px;
+            }
+
+            .pdf-logo {
+              height: 52px;
+              width: auto;
+              object-fit: contain;
+            }
+
+            .pdf-title {
+              color: white;
+              font-size: 17px;
+              font-weight: 800;
+              letter-spacing: -0.3px;
+            }
+
+            .pdf-subtitle {
+              color: rgba(255,255,255,0.65);
+              font-size: 9.5px;
+              margin-top: 2px;
+            }
+
+            .pdf-filter-box {
+              margin-top: 7px;
+              background: rgba(255,255,255,0.15);
+              border-radius: 5px;
+              padding: 4px 9px;
+              font-size: 9px;
+              color: rgba(255,255,255,0.9);
+              display: inline-block;
+            }
+
+            .pdf-meta-box {
+              background: rgba(255,255,255,0.15);
+              border: 1px solid rgba(255,255,255,0.2);
+              border-radius: 8px;
+              padding: 10px 16px;
+              text-align: right;
+            }
+
+            .pdf-meta-date  { color: rgba(255,255,255,0.7); font-size: 9px; margin-bottom: 4px; }
+            .pdf-meta-count { color: #bbf7d0; font-size: 18px; font-weight: 800; line-height: 1; }
+            .pdf-meta-label { color: rgba(255,255,255,0.65); font-size: 9px; }
+
+            .pdf-stripe {
+              height: 4px;
+              background: linear-gradient(to right, #198754, #34d399, #6ee7b7);
+              margin-bottom: 18px;
+            }
+
+            table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+
+            thead th {
+              background: #198754;
+              color: white;
+              padding: 10px;
+              text-align: left;
+              border: 1px solid #157347;
+              font-weight: 700;
+              font-size: 10px;
+              letter-spacing: 0.3px;
+            }
+
+            tbody td {
+              padding: 9px 10px;
+              border: 1px solid #d1fae5;
+              color: #1a2e25;
+              vertical-align: middle;
+            }
+
+            tbody tr:nth-child(even) td { background: #f0fdf4; }
+            tbody tr:nth-child(odd)  td { background: #ffffff; }
+
+            .pdf-footer {
+              margin-top: 16px;
+              padding-top: 10px;
+              border-top: 1.5px solid #d1e7dd;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              font-size: 9px;
+              color: #9ca3af;
+            }
+
+            .pdf-footer-left { display: flex; align-items: center; gap: 8px; }
+
+            .pdf-badge {
+              background: #198754;
+              color: white;
+              padding: 2px 9px;
+              border-radius: 20px;
+              font-size: 8.5px;
+              font-weight: 700;
+              letter-spacing: 0.5px;
+            }
+
+            @page { size: A4 landscape; margin: 10mm; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+
+          <div class="pdf-header">
+            <div class="pdf-header-left">
+              ${logoHtml}
+              <div>
+                <div class="pdf-title">Liste des Commandes</div>
+                <div class="pdf-subtitle">Export automatique — Document confidentiel</div>
+                ${filterSummary
+          ? `<div class="pdf-filter-box">🔍 Filtres : ${filterSummary}</div>`
+          : ''}
+              </div>
+            </div>
+            <div class="pdf-meta-box">
+              <div class="pdf-meta-date">📅 ${date}</div>
+              <div class="pdf-meta-count">${this.total}</div>
+              <div class="pdf-meta-label">commandes</div>
+            </div>
+          </div>
+
+          <div class="pdf-stripe"></div>
+
+          ${clonedTable.outerHTML}
+
+          <div class="pdf-footer">
+            <div class="pdf-footer-left">
+              <span class="pdf-badge">CONFIDENTIEL</span>
+              <span>© ${new Date().getFullYear()} SenBio — Tous droits réservés</span>
+            </div>
+            <span>biosens100.com</span>
+          </div>
+
+        </body>
         </html>
       `);
+
       printWindow.document.close();
-      setTimeout(() => printWindow.print(), 250);
+      setTimeout(() => printWindow.print(), 400);
     } catch (error) {
       console.error('Erreur impression', error);
       alert('Erreur lors de l\'impression.');
     }
   }
 
-  // Construire un résumé lisible des filtres actifs
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+
   private buildFilterSummary(): string {
     const parts: string[] = [];
     if (this.selectedStatut) parts.push(`Statut: ${this.getStatusLabel(this.selectedStatut)}`);

@@ -23,15 +23,15 @@
 }
 
 .btn-export-excel {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
     color: white;
-    border-color: #059669;
+    border-color: #064e3b;
 }
 
 .btn-export-excel:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, #064e3b 0%, #043a2c 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 16px rgba(6, 95, 70, 0.35);
 }
 
 .btn-export-excel:hover i {
@@ -70,36 +70,13 @@
     transform: scale(1.15) rotate(-5deg);
 }
 
-@media (max-width: 768px) {
-    .btn-export {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-    }
-
-    .btn-export i {
-        font-size: 1rem;
-    }
-
-    .btn-export span {
-        display: none;
-    }
-
-    .btn-export {
-        border-radius: 50%;
-        width: 44px;
-        height: 44px;
-        justify-content: center;
-        gap: 0;
-    }
-}
-
 /* ========================================
    BOUTON TOGGLE FILTRES (header)
 ======================================== */
 .filter-toggle-btn {
-    background: #f8fafc;
-    border: 1.5px solid #e2e8f0;
-    color: #475569;
+    background: #f0fdf4;
+    border: 1.5px solid #bbf7d0;
+    color: #065f46;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
@@ -109,32 +86,30 @@
     align-items: center;
     gap: 7px;
     transition: all 0.2s ease;
-    position: relative;
 }
 
 .filter-toggle-btn:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #1e293b;
+    background: #dcfce7;
+    border-color: #065f46;
+    color: #043a2c;
 }
 
 .filter-toggle-dot {
     width: 7px;
     height: 7px;
-    background: #64748b;
+    background: #065f46;
     border-radius: 50%;
     display: inline-block;
 }
 
-/* Badge filtres actifs */
 .filter-active-badge {
-    background: #f1f5f9;
-    color: #475569;
+    background: #f0fdf4;
+    color: #065f46;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 4px 12px;
     border-radius: 20px;
-    border: 1px solid #e2e8f0;
+    border: 1.5px solid #bbf7d0;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -143,9 +118,24 @@
 .filter-active-dot {
     width: 7px;
     height: 7px;
-    background: #64748b;
+    background: #065f46;
     border-radius: 50%;
     display: inline-block;
+    animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.7);
+    }
 }
 
 /* ========================================
@@ -153,14 +143,14 @@
 ======================================== */
 .filter-panel-wrapper {
     background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-    animation: filterSlideDown 0.2s ease;
+    border-bottom: 1px solid #bbf7d0;
+    animation: filterSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes filterSlideDown {
     from {
         opacity: 0;
-        transform: translateY(-8px);
+        transform: translateY(-12px);
     }
 
     to {
@@ -169,11 +159,13 @@
     }
 }
 
-/* En-tête du panel */
+/* ========================================
+   HEADER DU PANEL
+======================================== */
 .filter-panel-header {
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 13px 24px;
+    /* background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); */
+    border-bottom: 1px solid #bbf7d0;
+    padding: 14px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -182,90 +174,119 @@
 .filter-panel-header-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .filter-panel-icon {
-    width: 34px;
-    height: 34px;
-    background: #e2e8f0;
-    border-radius: 9px;
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #065f46, #064e3b);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 12px rgba(6, 95, 70, 0.35);
     flex-shrink: 0;
 }
 
 .filter-panel-icon i {
-    color: #64748b;
-    font-size: 13px;
+    color: white;
+    font-size: 14px;
 }
 
 .filter-panel-title {
     margin: 0;
     font-weight: 700;
     font-size: 14px;
-    color: #1e293b;
+    color: #065f46;
     line-height: 1.2;
 }
 
 .filter-panel-subtitle {
     margin: 0;
     font-size: 11px;
-    color: #94a3b8;
+    color: #059669;
+    font-weight: 500;
 }
 
-/* Bouton effacer tout */
 .filter-clear-btn {
-    background: none;
-    border: 1px solid #e2e8f0;
-    color: #94a3b8;
+    background: white;
+    border: 1.5px solid #bbf7d0;
+    color: #6b7280;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 12px;
-    border-radius: 7px;
-    transition: all 0.15s ease;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
 .filter-clear-btn:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #475569;
-}
-
-/* Corps du panel */
-.filter-panel-body {
-    padding: 22px 24px;
+    background: #fff1f1;
+    border-color: #fca5a5;
+    color: #ef4444;
 }
 
 /* ========================================
-   FILTER CARDS (chaque filtre)
+   BODY DU PANEL
+======================================== */
+.filter-panel-body {
+    padding: 20px 24px 22px;
+    background: #fafffe;
+}
+
+/* ========================================
+   FILTER CARDS
 ======================================== */
 .filter-card {
-    background: #f8fafc;
-    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    border: 1.5px solid #d1fae5;
     border-radius: 12px;
-    padding: 14px 16px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    padding: 13px 16px 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
     height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.filter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #065f46, #059669);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border-radius: 12px 12px 0 0;
 }
 
 .filter-card:focus-within {
-    border-color: #94a3b8;
-    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15);
+    border-color: #065f46;
+    box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.12),
+        0 4px 12px rgba(6, 95, 70, 0.08);
+    transform: translateY(-1px);
+}
+
+.filter-card:focus-within::before {
+    opacity: 1;
+}
+
+.filter-card-search {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
 }
 
 .filter-card-label {
     font-size: 10px;
     font-weight: 700;
-    color: #94a3b8;
+    color: #065f46;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 9px;
+    letter-spacing: 1.2px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -273,7 +294,8 @@
 }
 
 .filter-card-label i {
-    font-size: 11px;
+    font-size: 10px;
+    opacity: 0.8;
 }
 
 .filter-card-input {
@@ -281,105 +303,133 @@
     background: transparent;
     width: 100%;
     font-size: 13px;
-    color: #1e293b;
+    color: #111827;
     outline: none;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .filter-card-input::placeholder {
-    color: #cbd5e1;
+    color: #d1d5db;
     font-weight: 400;
 }
 
+select.filter-card-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23065f46' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 2px center;
+    padding-right: 18px;
+}
+
 .filter-card-tag-wrapper {
-    margin-top: 8px;
+    margin-top: 6px;
 }
 
 .filter-card-tag {
-    background: #e2e8f0;
-    color: #475569;
-    font-size: 11px;
-    padding: 3px 10px;
+    background: #d1fae5;
+    color: #065f46;
+    font-size: 10px;
+    padding: 2px 9px;
     border-radius: 20px;
-    font-weight: 600;
+    font-weight: 700;
     display: inline-block;
+    letter-spacing: 0.3px;
+}
+
+.filter-search-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-search-icon {
+    color: #065f46;
+    font-size: 12px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.filter-search-input {
+    flex: 1;
 }
 
 /* ========================================
    RÉSUMÉ PÉRIODE
 ======================================== */
 .filter-period-summary {
-    margin-top: 16px;
-    background: #f8fafc;
-    border: 1.5px dashed #cbd5e1;
+    margin-top: 14px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1.5px dashed #86efac;
     border-radius: 10px;
     padding: 10px 16px;
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 12px;
-    color: #475569;
-    font-weight: 600;
+    color: #374151;
+    font-weight: 500;
 }
 
 .filter-period-summary i {
-    color: #94a3b8;
+    color: #065f46;
     font-size: 13px;
     flex-shrink: 0;
 }
 
 .filter-period-summary strong {
-    color: #1e293b;
+    color: #065f46;
+    font-weight: 700;
 }
 
 /* ========================================
-   PIED DU PANEL
+   FOOTER BOUTONS
 ======================================== */
 .filter-panel-footer {
-    margin-top: 20px;
+    margin-top: 18px;
     padding-top: 16px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid #d1fae5;
     display: flex;
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-/* Bouton Appliquer */
 .filter-apply-btn {
-    background: #1e293b;
-    color: #ffffff;
+    background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
+    color: white;
     border: none;
-    border-radius: 9px;
-    padding: 9px 26px;
+    border-radius: 10px;
+    padding: 10px 24px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     letter-spacing: 0.3px;
-    transition: background 0.2s ease, transform 0.15s ease;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(6, 95, 70, 0.35);
 }
 
 .filter-apply-btn:hover {
-    background: #0f172a;
+    background: linear-gradient(135deg, #064e3b 0%, #043a2c 100%);
     transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(6, 95, 70, 0.45);
 }
 
 .filter-apply-btn:active {
     transform: translateY(0);
 }
 
-/* Bouton Réinitialiser */
 .filter-reset-btn {
-    background: transparent;
-    color: #64748b;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 9px;
-    padding: 9px 20px;
+    background: white;
+    color: #6b7280;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 20px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -390,21 +440,20 @@
 }
 
 .filter-reset-btn:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    color: #475569;
+    background: #f0fdf4;
+    border-color: #065f46;
+    color: #065f46;
 }
 
-/* Badge compteur résultats */
 .filter-count-badge {
     margin-left: auto;
-    background: #f1f5f9;
-    color: #475569;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    color: #065f46;
     font-size: 12px;
     font-weight: 700;
-    padding: 7px 16px;
+    padding: 8px 16px;
     border-radius: 20px;
-    border: 1px solid #e2e8f0;
+    border: 1.5px solid #bbf7d0;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -412,13 +461,30 @@
 
 .filter-count-badge i {
     font-size: 11px;
-    color: #94a3b8;
+    color: #065f46;
 }
 
 /* ========================================
    RESPONSIVE
 ======================================== */
 @media (max-width: 768px) {
+    .btn-export {
+        padding: 0.5rem;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+        gap: 0;
+    }
+
+    .btn-export span {
+        display: none;
+    }
+
+    .btn-export i {
+        font-size: 1rem;
+    }
+
     .filter-panel-header {
         padding: 12px 16px;
         flex-wrap: wrap;
@@ -426,7 +492,7 @@
     }
 
     .filter-panel-body {
-        padding: 16px;
+        padding: 14px 16px;
     }
 
     .filter-panel-footer {

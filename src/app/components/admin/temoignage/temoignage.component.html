@@ -1,19 +1,10 @@
 <div class="categories-wrapper">
     <div class="categories-container">
-        <!-- Header -->
+
         <div class="page-header-custom">
-            <div class="header-inner">
-                <div class="header-icon-wrap">
-                    <i class="fas fa-quote-left"></i>
-                </div>
-                <div>
-                    <h1>Gestion des Témoignages</h1>
-                    <p class="header-sub">Gérez les avis et retours de vos clients</p>
-                </div>
-            </div>
+            <h1><i class="fas fa-quote-left"></i> Gestion des Témoignages</h1>
         </div>
 
-        <!-- Main Card -->
         <div class="card-custom">
             <div class="card-header-custom">
                 <div class="card-header-title">
@@ -25,7 +16,6 @@
                 </button>
             </div>
 
-            <!-- Alerts -->
             @if (successMessage) {
             <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
@@ -44,9 +34,7 @@
                 <div>
                     <strong>Erreur de validation :</strong>
                     <ul class="mb-0 mt-2">
-                        @for (err of validationErrors; track err) {
-                        <li>{{ err }}</li>
-                        }
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
                     </ul>
                 </div>
                 <button type="button" class="btn-close" (click)="validationErrors = []"></button>
@@ -62,100 +50,93 @@
                                     <th>Client</th>
                                     <th>Gamme</th>
                                     <th>Description</th>
-                                    <th>Médias</th>
-                                    <th>Statut</th>
+                                    <th class="text-center">Médias</th>
+                                    <th class="text-center">Statut</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @for (t of temoignages; track t.id) {
                                 <tr>
-                                    <!-- Client -->
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-circle me-3">
-                                                {{ getInitials(t) }}
-                                            </div>
-                                            <div class="client-info">
-                                                <div class="client-name">{{ getNomComplet(t) }}</div>
+                                            <div class="avatar-circle me-3">{{ getInitials(t) }}</div>
+                                            <div>
+                                                <div class="fw-bold client-name">{{ getNomComplet(t) }}</div>
                                                 @if (isInscrit(t)) {
-                                                <span class="badge badge-inscrit mt-1">
-                                                    <i class="fas fa-user me-1"></i>Client inscrit
+                                                <span class="tc-badge tc-badge-inscrit mt-1">
+                                                    <i class="fas fa-user"></i>Client inscrit
                                                 </span>
                                                 } @else {
-                                                <span class="client-manual-tag mt-1">
-                                                    <i class="fas fa-keyboard me-1"></i>Saisie manuelle
+                                                <span class="tc-badge tc-badge-manuel mt-1">
+                                                    <i class="fas fa-keyboard"></i>Saisie manuelle
                                                 </span>
                                                 }
                                             </div>
                                         </div>
                                     </td>
 
-                                    <!-- Gamme -->
                                     <td>
                                         @if (t.gamme) {
-                                        <span class="badge badge-gamme">
-                                            <i class="fas fa-layer-group me-1"></i>{{ t.gamme.nom }}
+                                        <span class="tc-badge tc-badge-gamme">
+                                            <i class="fas fa-layer-group"></i>{{ t.gamme.nom }}
                                         </span>
                                         } @else {
-                                        <span class="text-muted fst-italic">Non définie</span>
+                                        <span class="text-muted fst-italic small">Non définie</span>
                                         }
                                     </td>
 
-                                    <!-- Description -->
-                                    <td>
+                                    <td class="desc-cell">
                                         @if (t.description) {
-                                        <p class="mb-0 desc-text">{{ t.description | slice:0:80 }}{{
-                                            t.description.length > 80 ? '...' : '' }}</p>
+                                        <p class="mb-0 small text-secondary desc-text">
+                                            {{ t.description | slice:0:80 }}{{ t.description.length > 80 ? '...' : '' }}
+                                        </p>
                                         } @else {
-                                        <span class="text-muted fst-italic">Aucune description</span>
+                                        <span class="text-muted fst-italic small">Aucune description</span>
                                         }
                                     </td>
 
-                                    <!-- Médias -->
-                                    <td>
-                                        <div class="d-flex gap-2 align-items-center">
+                                    <td class="text-center">
+                                        <div class="d-flex gap-1 align-items-center justify-content-center flex-wrap">
                                             @if (t.images && t.images.length > 0) {
-                                            <span class="badge badge-images">
-                                                <i class="fas fa-images me-1"></i>{{ t.images.length }}
+                                            <span class="tc-badge tc-badge-images">
+                                                <i class="fas fa-images"></i>{{ t.images.length }}
                                             </span>
                                             }
                                             @if (t.video_url) {
-                                            <span class="badge badge-video">
-                                                <i class="fab fa-youtube me-1"></i>Vidéo
+                                            <span class="tc-badge tc-badge-video">
+                                                <i class="fab fa-youtube"></i>Vidéo
                                             </span>
                                             }
                                             @if ((!t.images || t.images.length === 0) && !t.video_url) {
-                                            <span class="text-muted fst-italic">Aucun</span>
+                                            <span class="text-muted fst-italic small">Aucun</span>
                                             }
                                         </div>
                                     </td>
 
-                                    <!-- Statut -->
-                                    <td>
+                                    <td class="text-center">
                                         @if (t.afficher) {
-                                        <span class="badge badge-affiche">
-                                            <i class="fas fa-eye me-1"></i>Affiché
+                                        <span class="tc-badge tc-badge-affiche">
+                                            <i class="fas fa-eye"></i>Affiché
                                         </span>
                                         } @else {
-                                        <span class="badge badge-masque">
-                                            <i class="fas fa-eye-slash me-1"></i>Masqué
+                                        <span class="tc-badge tc-badge-masque">
+                                            <i class="fas fa-eye-slash"></i>Masqué
                                         </span>
                                         }
                                     </td>
 
-                                    <!-- Actions -->
                                     <td class="text-center">
-                                        <div class="actions-group">
-                                            <button type="button" class="btn btn-action btn-action-view"
+                                        <div class="actions-wrap">
+                                            <button type="button" class="btn-action btn-action-view"
                                                 (click)="openViewModal(t)" title="Voir">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button type="button" class="btn btn-action btn-action-edit"
+                                            <button type="button" class="btn-action btn-action-edit"
                                                 (click)="openEditModal(t)" title="Modifier">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button type="button" class="btn btn-action btn-action-delete"
+                                            <button type="button" class="btn-action btn-action-delete"
                                                 (click)="openDeleteModal(t)" title="Supprimer">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -180,7 +161,6 @@
                     </div>
                 </div>
 
-                <!-- Pagination -->
                 @if (lastPage > 1) {
                 <div class="d-flex justify-content-between align-items-center mt-4 px-3">
                     <div class="text-muted pagination-info">
@@ -188,13 +168,11 @@
                         à <span class="fw-medium">{{ lastItem }}</span>
                         sur <span class="fw-medium">{{ total }}</span> témoignages
                     </div>
-                    <nav aria-label="Page navigation">
+                    <nav>
                         <ul class="pagination mb-0">
                             <li class="page-item" [class.disabled]="currentPage === 1">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
-                                    aria-label="Précédent">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage - 1)">&laquo;</a>
                             </li>
                             @for (page of getPages(); track $index) {
                             <li class="page-item" [class.active]="page === currentPage">
@@ -202,10 +180,8 @@
                             </li>
                             }
                             <li class="page-item" [class.disabled]="currentPage === lastPage">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
-                                    aria-label="Suivant">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage + 1)">&raquo;</a>
                             </li>
                         </ul>
                     </nav>
@@ -216,378 +192,400 @@
     </div>
 </div>
 
-<!-- ========== MODAL CRÉATION ========== -->
+<!-- ═══════════════ MODAL CRÉATION ═══════════════ -->
 @if (showCreateModal) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content modal-styled">
-            <div class="modal-header modal-header-green">
-                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Nouveau Témoignage</h5>
-                <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+<div class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-box modal-lg-box" (click)="$event.stopPropagation()">
+
+        <div class="modal-box-header">
+            <div class="modal-box-header-icon">
+                <i class="fas fa-plus"></i>
             </div>
-            <div class="modal-body p-4">
-                <!-- Type de client -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Type de client *</label>
-                    <div class="btn-group w-100 btn-group-client" role="group">
-                        <input type="radio" class="btn-check" name="clientType" id="client_manuel_create"
-                            [value]="'manuel'" [(ngModel)]="clientType">
-                        <label class="btn btn-client-option" for="client_manuel_create">
-                            <i class="fas fa-keyboard me-2"></i>Saisie manuelle
-                        </label>
-                        <input type="radio" class="btn-check" name="clientType" id="client_inscrit_create"
-                            [value]="'inscrit'" [(ngModel)]="clientType">
-                        <label class="btn btn-client-option" for="client_inscrit_create">
-                            <i class="fas fa-user me-2"></i>Client inscrit
-                        </label>
-                    </div>
-                </div>
+            <span>Nouveau Témoignage</span>
+            <button class="modal-box-close" (click)="closeCreateModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-                <!-- Saisie manuelle -->
-                @if (clientType === 'manuel') {
-                <div id="client_manuel_fields_create">
-                    <div class="mb-3">
-                        <label for="nom_client_create" class="form-label">Nom du client</label>
-                        <input type="text" class="form-control form-control-styled" id="nom_client_create"
-                            [(ngModel)]="createForm.nom_client" placeholder="Ex : Fatou Diop">
-                    </div>
-                </div>
-                }
+        <div class="modal-box-body">
 
-                <!-- Client inscrit -->
-                @if (clientType === 'inscrit') {
-                <div id="client_inscrit_fields_create">
-                    <div class="mb-3">
-                        <label for="user_id_create" class="form-label">Sélectionner un client</label>
-                        <select class="form-select form-select-styled" id="user_id_create"
-                            [(ngModel)]="createForm.user_id">
-                            <option value="">-- Choisir un client --</option>
-                            @for (c of clients; track c.id) {
-                            <option [value]="c.id">{{ c.prenom }} {{ c.nom }} ({{ c.email }})</option>
-                            }
-                        </select>
-                    </div>
+            <div class="field-group">
+                <label class="field-label">Type de client <span class="required">*</span></label>
+                <div class="radio-toggle">
+                    <input type="radio" class="btn-check" name="clientType" id="cmc" [value]="'manuel'"
+                        [(ngModel)]="clientType">
+                    <label for="cmc" class="radio-option">
+                        <i class="fas fa-keyboard"></i> Saisie manuelle
+                    </label>
+                    <input type="radio" class="btn-check" name="clientType" id="cic" [value]="'inscrit'"
+                        [(ngModel)]="clientType">
+                    <label for="cic" class="radio-option">
+                        <i class="fas fa-user"></i> Client inscrit
+                    </label>
                 </div>
-                }
+            </div>
 
-                <!-- Gamme -->
-                <div class="mb-3">
-                    <label for="gamme_id_create" class="form-label">Gamme (optionnel)</label>
-                    <select class="form-select form-select-styled" id="gamme_id_create"
-                        [(ngModel)]="createForm.gamme_id">
+            @if (clientType === 'manuel') {
+            <div class="field-group">
+                <label class="field-label" for="nom_c">Nom du client</label>
+                <input type="text" class="field-input" id="nom_c" [(ngModel)]="createForm.nom_client"
+                    placeholder="Ex : Fatou Diop">
+            </div>
+            }
+            @if (clientType === 'inscrit') {
+            <div class="field-group">
+                <label class="field-label" for="user_c">Sélectionner un client</label>
+                <select class="field-input" id="user_c" [(ngModel)]="createForm.user_id">
+                    <option value="">-- Choisir un client --</option>
+                    @for (c of clients; track c.id) {
+                    <option [value]="c.id">{{ c.prenom }} {{ c.nom }} ({{ c.email }})</option>
+                    }
+                </select>
+            </div>
+            }
+
+            <div class="field-row">
+                <div class="field-group">
+                    <label class="field-label" for="gamme_c">Gamme</label>
+                    <select class="field-input" id="gamme_c" [(ngModel)]="createForm.gamme_id">
                         <option value="">-- Aucune --</option>
                         @for (g of gammes; track g.id) {
                         <option [value]="g.id">{{ g.nom }}</option>
                         }
                     </select>
                 </div>
-
-                <!-- Description -->
-                <div class="mb-3">
-                    <label for="description_create" class="form-label">Description (optionnel)</label>
-                    <textarea class="form-control form-control-styled" id="description_create"
-                        [(ngModel)]="createForm.description" rows="4"
-                        placeholder="Le témoignage du client..."></textarea>
-                </div>
-
-                <!-- Vidéo YouTube -->
-                <div class="mb-3">
-                    <label for="video_url_create" class="form-label">Lien vidéo YouTube (optionnel)</label>
-                    <input type="url" class="form-control form-control-styled" id="video_url_create"
-                        [(ngModel)]="createForm.video_url" placeholder="https://www.youtube.com/watch?v=...">
-                    <small class="text-muted"><i class="fab fa-youtube me-1"></i>Collez le lien complet de la vidéo
-                        YouTube</small>
-                </div>
-
-                <!-- Images -->
-                <div class="mb-3">
-                    <label for="images_create" class="form-label">Images (optionnel)</label>
-                    <input type="file" class="form-control form-control-styled" id="images_create" accept="image/*"
-                        multiple (change)="onFileSelected($event, 'create')">
-                    <small class="text-muted">Formats : JPG, PNG, GIF, WEBP (max 2MB par image)</small>
-                    <div class="row g-2 mt-2">
-                        @for (preview of createPreviews; track preview.url; let i = $index) {
-                        <div class="col-4 col-md-3">
-                            <div class="position-relative">
-                                <img [src]="preview.url" class="img-fluid rounded img-preview">
-                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                    style="border-radius: 50%; width: 25px; height: 25px; padding: 0;"
-                                    (click)="removePreview(i, 'create')">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Afficher -->
-                <div class="mb-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input form-check-green" type="checkbox" id="afficher_create"
-                            [(ngModel)]="createForm.afficher">
-                        <label class="form-check-label" for="afficher_create">
-                            Afficher sur le site public
-                        </label>
-                    </div>
-                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-cancel" (click)="closeCreateModal()">Annuler</button>
-                <button type="button" class="btn btn-submit-green" (click)="createTemoignage()">
-                    <i class="fas fa-plus me-2"></i>Créer
-                </button>
+
+            <div class="field-group">
+                <label class="field-label" for="desc_c">Description</label>
+                <textarea class="field-input field-textarea" id="desc_c" [(ngModel)]="createForm.description"
+                    placeholder="Le témoignage du client..."></textarea>
             </div>
+
+            <div class="field-group">
+                <label class="field-label" for="video_c">
+                    <i class="fab fa-youtube text-danger me-1"></i>Lien vidéo YouTube
+                </label>
+                <input type="url" class="field-input" id="video_c" [(ngModel)]="createForm.video_url"
+                    placeholder="https://www.youtube.com/watch?v=...">
+                <span class="field-hint">Collez le lien complet de la vidéo YouTube</span>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="img_c">Images</label>
+                <div class="file-drop">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Choisir des images</span>
+                    <input type="file" id="img_c" accept="image/*" multiple (change)="onFileSelected($event, 'create')">
+                </div>
+                <span class="field-hint">JPG, PNG, GIF, WEBP — max 2MB par image</span>
+                @if (createPreviews.length > 0) {
+                <div class="preview-grid">
+                    @for (preview of createPreviews; track preview.url; let i = $index) {
+                    <div class="preview-item">
+                        <img [src]="preview.url" class="preview-img">
+                        <button class="preview-remove" (click)="removePreview(i, 'create')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="toggle-field">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="aff_c" [(ngModel)]="createForm.afficher">
+                    <span class="toggle-track"></span>
+                </label>
+                <label for="aff_c" class="toggle-label">Afficher sur le site public</label>
+            </div>
+        </div>
+
+        <div class="modal-box-footer">
+            <button class="btn-modal-cancel" (click)="closeCreateModal()">Annuler</button>
+            <button class="btn-modal-submit" (click)="createTemoignage()">
+                <i class="fas fa-plus me-2"></i>Créer
+            </button>
         </div>
     </div>
 </div>
 }
 
-<!-- ========== MODAL ÉDITION ========== -->
+<!-- ═══════════════ MODAL ÉDITION ═══════════════ -->
 @if (showEditModal && selectedTemoignage) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content modal-styled">
-            <div class="modal-header modal-header-green">
-                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier Témoignage</h5>
-                <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()"></button>
+<div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-box modal-lg-box" (click)="$event.stopPropagation()">
+
+        <div class="modal-box-header">
+            <div class="modal-box-header-icon">
+                <i class="fas fa-edit"></i>
             </div>
-            <div class="modal-body p-4">
-                <!-- Type de client -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Type de client</label>
-                    <div class="btn-group w-100 btn-group-client" role="group">
-                        <input type="radio" class="btn-check" name="clientTypeEdit" id="client_manuel_edit"
-                            [value]="'manuel'" [(ngModel)]="clientType">
-                        <label class="btn btn-client-option" for="client_manuel_edit">
-                            <i class="fas fa-keyboard me-2"></i>Saisie manuelle
-                        </label>
-                        <input type="radio" class="btn-check" name="clientTypeEdit" id="client_inscrit_edit"
-                            [value]="'inscrit'" [(ngModel)]="clientType">
-                        <label class="btn btn-client-option" for="client_inscrit_edit">
-                            <i class="fas fa-user me-2"></i>Client inscrit
-                        </label>
-                    </div>
-                </div>
+            <span>Modifier Témoignage</span>
+            <button class="modal-box-close" (click)="closeEditModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-                <!-- Saisie manuelle -->
-                @if (clientType === 'manuel') {
-                <div id="client_manuel_fields_edit">
-                    <div class="mb-3">
-                        <label for="nom_client_edit" class="form-label">Nom du client</label>
-                        <input type="text" class="form-control form-control-styled" id="nom_client_edit"
-                            [(ngModel)]="editForm.nom_client" placeholder="Ex : Fatou Diop">
-                    </div>
-                </div>
-                }
+        <div class="modal-box-body">
 
-                <!-- Client inscrit -->
-                @if (clientType === 'inscrit') {
-                <div id="client_inscrit_fields_edit">
-                    <div class="mb-3">
-                        <label for="user_id_edit" class="form-label">Sélectionner un client</label>
-                        <select class="form-select form-select-styled" id="user_id_edit" [(ngModel)]="editForm.user_id">
-                            <option value="">-- Choisir un client --</option>
-                            @for (c of clients; track c.id) {
-                            <option [value]="c.id">{{ c.prenom }} {{ c.nom }} ({{ c.email }})</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                }
-
-                <!-- Gamme -->
-                <div class="mb-3">
-                    <label for="gamme_id_edit" class="form-label">Gamme</label>
-                    <select class="form-select form-select-styled" id="gamme_id_edit" [(ngModel)]="editForm.gamme_id">
-                        <option value="">-- Aucune --</option>
-                        @for (g of gammes; track g.id) {
-                        <option [value]="g.id">{{ g.nom }}</option>
-                        }
-                    </select>
-                </div>
-
-                <!-- Description -->
-                <div class="mb-3">
-                    <label for="description_edit" class="form-label">Description</label>
-                    <textarea class="form-control form-control-styled" id="description_edit"
-                        [(ngModel)]="editForm.description" rows="4" placeholder="Le témoignage du client..."></textarea>
-                </div>
-
-                <!-- Vidéo -->
-                <div class="mb-3">
-                    <label for="video_url_edit" class="form-label">Lien vidéo YouTube</label>
-                    <input type="url" class="form-control form-control-styled" id="video_url_edit"
-                        [(ngModel)]="editForm.video_url" placeholder="https://www.youtube.com/watch?v=...">
-                </div>
-
-                <!-- Images actuelles -->
-                @if (editForm.existingImages.length > 0) {
-                <div class="mb-3">
-                    <label class="form-label">Images actuelles ({{ editForm.existingImages.length }})</label>
-                    <div class="row g-2 mb-2">
-                        @for (img of editForm.existingImages; track img) {
-                        <div class="col-md-3">
-                            <img [src]="img" class="img-fluid rounded img-preview">
-                        </div>
-                        }
-                    </div>
-                    <div class="form-check mt-2">
-                        <input class="form-check-input form-check-green" type="checkbox" id="supprimer_images_edit"
-                            [(ngModel)]="editForm.supprimer_images">
-                        <label class="form-check-label text-danger fw-semibold" for="supprimer_images_edit">
-                            <i class="fas fa-trash me-1"></i>Supprimer toutes les images actuelles
-                        </label>
-                    </div>
-                </div>
-                }
-
-                <!-- Nouvelles images -->
-                <div class="mb-3">
-                    <label for="images_edit" class="form-label">Nouvelles images (optionnel)</label>
-                    <input type="file" class="form-control form-control-styled" id="images_edit" accept="image/*"
-                        multiple (change)="onFileSelected($event, 'edit')">
-                    <small class="text-muted">Formats : JPG, PNG, GIF, WEBP (max 2MB par image)</small>
-                    <div class="row g-2 mt-2">
-                        @for (preview of editPreviews; track preview.url; let i = $index) {
-                        <div class="col-4 col-md-3">
-                            <div class="position-relative">
-                                <img [src]="preview.url" class="img-fluid rounded img-preview">
-                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                    style="border-radius: 50%; width: 25px; height: 25px; padding: 0;"
-                                    (click)="removePreview(i, 'edit')">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Afficher -->
-                <div class="mb-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input form-check-green" type="checkbox" id="afficher_edit"
-                            [(ngModel)]="editForm.afficher">
-                        <label class="form-check-label" for="afficher_edit">
-                            Afficher sur le site public
-                        </label>
-                    </div>
+            <div class="field-group">
+                <label class="field-label">Type de client</label>
+                <div class="radio-toggle">
+                    <input type="radio" class="btn-check" name="clientTypeEdit" id="cme" [value]="'manuel'"
+                        [(ngModel)]="clientType">
+                    <label for="cme" class="radio-option">
+                        <i class="fas fa-keyboard"></i> Saisie manuelle
+                    </label>
+                    <input type="radio" class="btn-check" name="clientTypeEdit" id="cie" [value]="'inscrit'"
+                        [(ngModel)]="clientType">
+                    <label for="cie" class="radio-option">
+                        <i class="fas fa-user"></i> Client inscrit
+                    </label>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-cancel" (click)="closeEditModal()">Annuler</button>
-                <button type="button" class="btn btn-submit-green" (click)="updateTemoignage()">
-                    <i class="fas fa-save me-2"></i>Enregistrer
-                </button>
+
+            @if (clientType === 'manuel') {
+            <div class="field-group">
+                <label class="field-label" for="nom_e">Nom du client</label>
+                <input type="text" class="field-input" id="nom_e" [(ngModel)]="editForm.nom_client"
+                    placeholder="Ex : Fatou Diop">
             </div>
+            }
+            @if (clientType === 'inscrit') {
+            <div class="field-group">
+                <label class="field-label" for="user_e">Sélectionner un client</label>
+                <select class="field-input" id="user_e" [(ngModel)]="editForm.user_id">
+                    <option value="">-- Choisir un client --</option>
+                    @for (c of clients; track c.id) {
+                    <option [value]="c.id">{{ c.prenom }} {{ c.nom }} ({{ c.email }})</option>
+                    }
+                </select>
+            </div>
+            }
+
+            <div class="field-group">
+                <label class="field-label" for="gamme_e">Gamme</label>
+                <select class="field-input" id="gamme_e" [(ngModel)]="editForm.gamme_id">
+                    <option value="">-- Aucune --</option>
+                    @for (g of gammes; track g.id) {
+                    <option [value]="g.id">{{ g.nom }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="desc_e">Description</label>
+                <textarea class="field-input field-textarea" id="desc_e" [(ngModel)]="editForm.description"
+                    placeholder="Le témoignage du client..."></textarea>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="video_e">
+                    <i class="fab fa-youtube text-danger me-1"></i>Lien vidéo YouTube
+                </label>
+                <input type="url" class="field-input" id="video_e" [(ngModel)]="editForm.video_url"
+                    placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+
+            @if (editForm.existingImages.length > 0) {
+            <div class="field-group">
+                <label class="field-label">
+                    Images actuelles
+                    <span class="count-badge">{{ editForm.existingImages.length }}</span>
+                </label>
+                <div class="preview-grid">
+                    @for (img of editForm.existingImages; track img) {
+                    <div class="preview-item">
+                        <img [src]="img" class="preview-img">
+                    </div>
+                    }
+                </div>
+                <label class="delete-check">
+                    <input type="checkbox" [(ngModel)]="editForm.supprimer_images">
+                    <i class="fas fa-trash me-1"></i>Supprimer toutes les images actuelles
+                </label>
+            </div>
+            }
+
+            <div class="field-group">
+                <label class="field-label" for="img_e">Nouvelles images</label>
+                <div class="file-drop">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Choisir des images</span>
+                    <input type="file" id="img_e" accept="image/*" multiple (change)="onFileSelected($event, 'edit')">
+                </div>
+                <span class="field-hint">JPG, PNG, GIF, WEBP — max 2MB par image</span>
+                @if (editPreviews.length > 0) {
+                <div class="preview-grid">
+                    @for (preview of editPreviews; track preview.url; let i = $index) {
+                    <div class="preview-item">
+                        <img [src]="preview.url" class="preview-img">
+                        <button class="preview-remove" (click)="removePreview(i, 'edit')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="toggle-field">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="aff_e" [(ngModel)]="editForm.afficher">
+                    <span class="toggle-track"></span>
+                </label>
+                <label for="aff_e" class="toggle-label">Afficher sur le site public</label>
+            </div>
+        </div>
+
+        <div class="modal-box-footer">
+            <button class="btn-modal-cancel" (click)="closeEditModal()">Annuler</button>
+            <button class="btn-modal-submit" (click)="updateTemoignage()">
+                <i class="fas fa-save me-2"></i>Enregistrer
+            </button>
         </div>
     </div>
 </div>
 }
 
-<!-- ========== MODAL DÉTAIL ========== -->
+<!-- ═══════════════ MODAL DÉTAIL ═══════════════ -->
 @if (showViewModal && selectedTemoignage) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content modal-styled">
-            <div class="modal-header modal-header-green">
-                <h5 class="modal-title"><i class="fas fa-quote-left me-2"></i>Détails du Témoignage</h5>
-                <button type="button" class="btn-close btn-close-white" (click)="closeViewModal()"></button>
+<div class="modal-overlay" (click)="closeViewModal()">
+    <div class="modal-box modal-lg-box" (click)="$event.stopPropagation()">
+
+        <div class="modal-box-header">
+            <div class="modal-box-header-icon">
+                <i class="fas fa-quote-left"></i>
             </div>
-            <div class="modal-body p-4">
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label class="detail-label">Client</label>
-                        <div class="d-flex align-items-center gap-2">
-                            <p class="detail-value mb-0">{{ getNomComplet(selectedTemoignage) }}</p>
-                            @if (isInscrit(selectedTemoignage)) {
-                            <span class="badge badge-inscrit"><i class="fas fa-user me-1"></i>Inscrit</span>
-                            } @else {
-                            <span class="badge badge-masque"><i class="fas fa-keyboard me-1"></i>Manuel</span>
-                            }
-                        </div>
-                    </div>
+            <span>Détails du Témoignage</span>
+            <button class="modal-box-close" (click)="closeViewModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-                    @if (selectedTemoignage.gamme) {
-                    <div class="col-md-6 mb-3">
-                        <label class="detail-label">Gamme</label>
-                        <p class="detail-value">{{ selectedTemoignage.gamme.nom }}</p>
-                    </div>
-                    }
+        <!-- Résumé client -->
+        <div class="detail-client-bar">
+            <div class="avatar-circle avatar-lg">{{ getInitials(selectedTemoignage) }}</div>
+            <div class="detail-client-info">
+                <div class="detail-client-name">{{ getNomComplet(selectedTemoignage) }}</div>
+                @if (isInscrit(selectedTemoignage)) {
+                <span class="tc-badge tc-badge-inscrit">
+                    <i class="fas fa-user"></i>Client inscrit
+                </span>
+                } @else {
+                <span class="tc-badge tc-badge-manuel">
+                    <i class="fas fa-keyboard"></i>Saisie manuelle
+                </span>
+                }
+            </div>
+            <div class="ms-auto">
+                @if (selectedTemoignage.afficher) {
+                <span class="tc-badge tc-badge-affiche"><i class="fas fa-eye"></i>Affiché</span>
+                } @else {
+                <span class="tc-badge tc-badge-masque"><i class="fas fa-eye-slash"></i>Masqué</span>
+                }
+            </div>
+        </div>
 
-                    @if (selectedTemoignage.description) {
-                    <div class="col-md-12 mb-3">
-                        <label class="detail-label">Description</label>
-                        <p class="detail-value">{{ selectedTemoignage.description }}</p>
-                    </div>
-                    }
+        <div class="modal-box-body">
 
-                    @if (selectedTemoignage.images && selectedTemoignage.images.length > 0) {
-                    <div class="col-md-12 mb-3">
-                        <label class="detail-label">Images ({{ selectedTemoignage.images.length }})</label>
-                        <div class="row g-2 mt-1">
-                            @for (img of selectedTemoignage.images; track img) {
-                            <div class="col-md-4">
-                                <img [src]="img" class="img-fluid rounded img-preview" (click)="openImage(img)">
-                            </div>
-                            }
-                        </div>
-                    </div>
-                    }
+            @if (selectedTemoignage.gamme) {
+            <div class="detail-row">
+                <span class="detail-label">Gamme</span>
+                <span class="tc-badge tc-badge-gamme">
+                    <i class="fas fa-layer-group"></i>{{ selectedTemoignage.gamme.nom }}
+                </span>
+            </div>
+            }
 
-                    @if (selectedTemoignage.video_url) {
-                    <div class="col-md-12 mb-3">
-                        <label class="detail-label">Vidéo YouTube</label>
-                        <a [href]="selectedTemoignage.video_url" target="_blank" class="btn btn-youtube">
-                            <i class="fab fa-youtube me-2"></i>Voir la vidéo
-                        </a>
+            @if (selectedTemoignage.description) {
+            <div class="detail-row">
+                <span class="detail-label">Description</span>
+                <p class="detail-text">{{ selectedTemoignage.description }}</p>
+            </div>
+            }
+
+            @if (selectedTemoignage.images && selectedTemoignage.images.length > 0) {
+            <div class="detail-row">
+                <span class="detail-label">
+                    Images
+                    <span class="count-badge">{{ selectedTemoignage.images.length }}</span>
+                </span>
+                <div class="preview-grid mt-2">
+                    @for (img of selectedTemoignage.images; track img) {
+                    <div class="preview-item" (click)="openImage(img)" style="cursor:pointer;">
+                        <img [src]="img" class="preview-img">
+                        <div class="preview-zoom"><i class="fas fa-expand-alt"></i></div>
                     </div>
                     }
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="closeViewModal()">Fermer</button>
+            }
+
+            @if (selectedTemoignage.video_url) {
+            <div class="detail-row">
+                <span class="detail-label">Vidéo YouTube</span>
+                <a [href]="selectedTemoignage.video_url" target="_blank" class="btn-youtube">
+                    <i class="fab fa-youtube me-2"></i>Voir la vidéo
+                </a>
             </div>
+            }
+        </div>
+
+        <div class="modal-box-footer">
+            <button class="btn-modal-cancel" (click)="closeViewModal()">Fermer</button>
+            <button class="btn-modal-submit" (click)="openEditModal(selectedTemoignage); closeViewModal()">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </button>
         </div>
     </div>
 </div>
 }
 
-<!-- ========== MODAL SUPPRESSION ========== -->
+<!-- ═══════════════ MODAL SUPPRESSION ═══════════════ -->
 @if (showDeleteModal && temoignageToDelete) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-styled shadow-lg border-0">
-            <div class="modal-header border-0 pb-0">
-                <div class="d-flex align-items-center w-100">
-                    <div class="delete-icon-wrap">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h5 class="modal-title mb-0 fw-bold">Confirmer la suppression</h5>
-                    </div>
-                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
-                </div>
+<div class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal-box modal-sm-box" (click)="$event.stopPropagation()">
+
+        <div class="modal-box-header modal-box-header-danger">
+            <div class="modal-box-header-icon icon-danger">
+                <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <div class="modal-body px-4 py-3">
-                <p class="mb-0">Êtes-vous sûr de vouloir supprimer le témoignage de <strong>{{
-                        getNomComplet(temoignageToDelete) }}</strong> ?</p>
+            <span>Confirmer la suppression</span>
+            <button class="modal-box-close modal-box-close-dark" (click)="closeDeleteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-box-body">
+            <div class="delete-confirm-body">
+                <div class="delete-avatar">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="delete-title">Supprimer ce témoignage ?</p>
+                <p class="delete-subtitle">
+                    Le témoignage de
+                    <strong class="text-danger">{{ getNomComplet(temoignageToDelete) }}</strong>
+                    sera définitivement supprimé.
+                </p>
                 @if (temoignageToDelete.images && temoignageToDelete.images.length > 0) {
-                <div class="alert alert-warning alert-sm mt-3 mb-0">
+                <div class="delete-warning">
                     <i class="fas fa-images me-2"></i>
-                    Les {{ temoignageToDelete.images.length }} image(s) associée(s) seront également supprimées.
+                    <strong>{{ temoignageToDelete.images.length }}</strong> image(s) associée(s)
+                    seront également supprimées.
                 </div>
                 }
             </div>
-            <div class="modal-footer border-0 bg-light rounded-bottom">
-                <button type="button" class="btn btn-cancel" (click)="closeDeleteModal()">
-                    <i class="fas fa-times me-1"></i>Annuler
-                </button>
-                <button type="button" class="btn btn-danger-custom" (click)="deleteTemoignage()">
-                    <i class="fas fa-trash me-1"></i>Supprimer
-                </button>
-            </div>
+        </div>
+
+        <div class="modal-box-footer modal-box-footer-spaced">
+            <button class="btn-modal-cancel" (click)="closeDeleteModal()">
+                <i class="fas fa-times me-1"></i>Annuler
+            </button>
+            <button class="btn-modal-danger" (click)="deleteTemoignage()">
+                <i class="fas fa-trash me-1"></i>Supprimer
+            </button>
         </div>
     </div>
 </div>

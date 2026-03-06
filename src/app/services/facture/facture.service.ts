@@ -42,14 +42,31 @@ export class FactureService {
 
   // GET /factures/:id/download
   downloadPdf(id: number, numeroFacture: string): void {
-    this.http.get(`${this.apiUrl}/${id}/download`, { responseType: 'blob' })
-      .subscribe(blob => {
+    this.http.get(`${this.apiUrl}/${id}/download`, {
+      responseType: 'blob',
+      observe: 'response'
+    }).subscribe({
+      next: (response) => {
+        const blob = response.body!;
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `facture_${numeroFacture}.pdf`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-      });
+      },
+      error: (err) => {
+        // Si le blob est une erreur JSON, on la lit
+        if (err.error instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = () => console.error('Erreur API:', reader.result);
+          reader.readAsText(err.error);
+        } else {
+          console.error('Erreur téléchargement:', err);
+        }
+      }
+    });
   }
 }

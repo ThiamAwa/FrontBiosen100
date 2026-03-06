@@ -17,6 +17,7 @@ import { Gamme } from '../../../models/gamme';
   styleUrls: ['./produit.component.css']
 })
 export class ProduitComponent implements OnInit {
+
   // Données principales
   produits: Produit[] = [];
   categories: Categorie[] = [];
@@ -98,16 +99,61 @@ export class ProduitComponent implements OnInit {
     this.loadGammes();
   }
 
-  // Chargement des produits avec recherche
+  // ============================================================
+  // CHARGEMENT DES DONNÉES
+  // ============================================================
+
   loadProduits(page: number = 1, search: string = this.searchTerm): void {
     this.produitService.getAll(page, search).subscribe({
-      next: (res: PaginatedResponse<Produit>) => {
-        this.produits = res.data;
-        this.currentPage = res.current_page;
-        this.lastPage = res.last_page;
-        this.total = res.total;
-        this.firstItem = res.from || 0;
-        this.lastItem = res.to || 0;
+      next: (res: any) => {
+
+        // ---- DEBUG : à supprimer une fois le problème résolu ----
+        console.log('=== Réponse brute API produits ===', res);
+        // ---------------------------------------------------------
+
+        // Gestion défensive des différentes structures possibles
+        // Cas 1 : { data: [...], current_page, last_page, total }  ← Laravel pagination standard
+        // Cas 2 : { produits: { data: [...], ... } }               ← enveloppé dans une clé
+        // Cas 3 : [ {...}, {...} ]                                  ← tableau direct
+
+        let paginatedData: any = null;
+
+        if (res && Array.isArray(res)) {
+          // Cas 3 : tableau direct sans pagination
+          this.produits = res;
+          this.currentPage = 1;
+          this.lastPage = 1;
+          this.total = res.length;
+          this.firstItem = res.length > 0 ? 1 : 0;
+          this.lastItem = res.length;
+          return;
+        }
+
+        // Cherche la clé qui contient { data: [...] }
+        if (res && res.data && Array.isArray(res.data)) {
+          paginatedData = res; // Cas 1 direct
+        } else if (res) {
+          // Cas 2 : cherche une clé imbriquée contenant { data: [] }
+          for (const key of Object.keys(res)) {
+            if (res[key] && res[key].data && Array.isArray(res[key].data)) {
+              paginatedData = res[key];
+              console.log(`Données trouvées dans la clé "${key}"`);
+              break;
+            }
+          }
+        }
+
+        if (paginatedData) {
+          this.produits = paginatedData.data;
+          this.currentPage = paginatedData.current_page ?? 1;
+          this.lastPage = paginatedData.last_page ?? 1;
+          this.total = paginatedData.total ?? paginatedData.data.length;
+          this.firstItem = paginatedData.from ?? (paginatedData.data.length > 0 ? 1 : 0);
+          this.lastItem = paginatedData.to ?? paginatedData.data.length;
+        } else {
+          console.warn('Structure de réponse inconnue :', res);
+          this.produits = [];
+        }
       },
       error: (err) => {
         console.error('Erreur chargement produits', err);
@@ -115,18 +161,50 @@ export class ProduitComponent implements OnInit {
       }
     });
   }
+
   loadCategories(): void {
-    this.categorieService.getCategories(1).pipe(
-      map((res: PaginatedResponse<Categorie>) => res.data)
-    ).subscribe({
-      next: (data: Categorie[]) => this.categories = data,
+    this.categorieService.getCategories(1).subscribe({
+      next: (res: any) => {
+        console.log('=== Réponse brute API catégories ===', res);
+
+        if (Array.isArray(res)) {
+          this.categories = res;
+        } else if (res?.data && Array.isArray(res.data)) {
+          this.categories = res.data;
+        } else {
+          // Cherche une clé imbriquée
+          for (const key of Object.keys(res || {})) {
+            if (res[key]?.data && Array.isArray(res[key].data)) {
+              this.categories = res[key].data;
+              return;
+            }
+          }
+          this.categories = [];
+        }
+      },
       error: (err: any) => console.error('Erreur chargement catégories', err)
     });
   }
 
   loadGammes(): void {
     this.gammeService.getAll(1).subscribe({
-      next: (res) => this.gammes = res.data,
+      next: (res: any) => {
+        console.log('=== Réponse brute API gammes ===', res);
+
+        if (Array.isArray(res)) {
+          this.gammes = res;
+        } else if (res?.data && Array.isArray(res.data)) {
+          this.gammes = res.data;
+        } else {
+          for (const key of Object.keys(res || {})) {
+            if (res[key]?.data && Array.isArray(res[key].data)) {
+              this.gammes = res[key].data;
+              return;
+            }
+          }
+          this.gammes = [];
+        }
+      },
       error: (err) => console.error('Erreur chargement gammes', err)
     });
   }
@@ -142,7 +220,10 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  // Création
+  // ============================================================
+  // CRÉATION
+  // ============================================================
+
   openCreateModal(): void {
     this.createForm = {
       nom: '',
@@ -198,6 +279,13 @@ export class ProduitComponent implements OnInit {
   }
 
   createProduit(): void {
+    this.validationErrors = [];
+
+    if (!this.createForm.nom?.trim()) {
+      this.validationErrors.push('Le nom est obligatoire.');
+      return;
+    }
+
     const formData = this.produitService.buildFormData(
       {
         nom: this.createForm.nom,
@@ -219,6 +307,7 @@ export class ProduitComponent implements OnInit {
         this.successMessage = 'Produit créé avec succès.';
         this.closeCreateModal();
         this.loadProduits(this.currentPage, this.searchTerm);
+        setTimeout(() => this.successMessage = null, 4000);
       },
       error: (err) => {
         if (err.status === 422 && err.error?.errors) {
@@ -230,7 +319,10 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  // Édition
+  // ============================================================
+  // ÉDITION
+  // ============================================================
+
   openEditModal(produit: Produit): void {
     this.selectedProduit = produit;
     this.editForm = {
@@ -262,6 +354,14 @@ export class ProduitComponent implements OnInit {
 
   updateProduit(): void {
     if (!this.selectedProduit) return;
+
+    this.validationErrors = [];
+
+    if (!this.editForm.nom?.trim()) {
+      this.validationErrors.push('Le nom est obligatoire.');
+      return;
+    }
+
     const formData = this.produitService.buildFormData(
       {
         nom: this.editForm.nom,
@@ -277,6 +377,7 @@ export class ProduitComponent implements OnInit {
       this.editForm.gammesIds,
       this.editForm.imageFile || undefined
     );
+
     if (this.editForm.removeImage) formData.append('remove_image', '1');
 
     this.produitService.update(this.editForm.id, formData).subscribe({
@@ -284,6 +385,7 @@ export class ProduitComponent implements OnInit {
         this.successMessage = 'Produit modifié avec succès.';
         this.closeEditModal();
         this.loadProduits(this.currentPage, this.searchTerm);
+        setTimeout(() => this.successMessage = null, 4000);
       },
       error: (err) => {
         if (err.status === 422 && err.error?.errors) {
@@ -295,10 +397,13 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  // Suppression
+  // ============================================================
+  // SUPPRESSION
+  // ============================================================
+
   openDeleteModal(produit: Produit): void {
     this.selectedProduit = produit;
-    this.hasAvis = (produit as any).avis_count > 0; // si le champ existe
+    this.hasAvis = (produit as any).avis_count > 0;
     this.errorMessage = null;
     this.showDeleteModal = true;
   }
@@ -314,7 +419,12 @@ export class ProduitComponent implements OnInit {
       next: (res) => {
         this.successMessage = res.message || 'Produit supprimé.';
         this.closeDeleteModal();
-        this.loadProduits(this.currentPage, this.searchTerm);
+        // Revenir à la page précédente si la page actuelle est vide
+        const newPage = this.produits.length === 1 && this.currentPage > 1
+          ? this.currentPage - 1
+          : this.currentPage;
+        this.loadProduits(newPage, this.searchTerm);
+        setTimeout(() => this.successMessage = null, 4000);
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
@@ -322,7 +432,10 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  // Modal gammes
+  // ============================================================
+  // MODALS SECONDAIRES
+  // ============================================================
+
   openGammesModal(produit: Produit): void {
     if (produit.gammes && produit.gammes.length > 0) {
       this.gammesModalProduitNom = produit.nom;
@@ -335,7 +448,6 @@ export class ProduitComponent implements OnInit {
     this.showGammesModal = false;
   }
 
-  // Modal image
   openImageModal(src: string, alt: string): void {
     this.imageModalSrc = src;
     this.imageModalAlt = alt;
@@ -346,20 +458,21 @@ export class ProduitComponent implements OnInit {
     this.showImageModal = false;
   }
 
-  // Alertes
+  // ============================================================
+  // UTILITAIRES
+  // ============================================================
+
   closeAlert(): void {
     this.successMessage = null;
     this.errorMessage = null;
   }
 
-  // Classe badge stock
   getStockClass(stock: number): string {
     if (stock > 10) return 'bg-success';
     if (stock > 0) return 'bg-warning text-dark';
     return 'bg-danger';
   }
 
-  // Fallback image
   handleImageError(event: Event): void {
     (event.target as HTMLImageElement).src = 'assets/img/default-produit.png';
   }

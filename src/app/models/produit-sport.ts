@@ -1,3 +1,5 @@
+import {TypeCategorie} from './type-categorie';
+
 export interface ProduitMedia {
   id: number;
   type: 'image' | 'video_url';
@@ -9,6 +11,8 @@ export interface ProduitMedia {
   titre?: string;
   est_principal: boolean;
   ordre: number;
+  type_categorie_id?: number | null;
+  type_categorie?: { id: number; nom: string } | null;
 }
 
 export interface Categorie {
@@ -40,5 +44,5 @@ export interface ProduitSportResponse {
     per_page: number;
     total: number;
   };
-  categories: Categorie[];
+  typeCategories: TypeCategorie[];
 }

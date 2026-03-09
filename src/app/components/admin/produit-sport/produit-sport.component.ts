@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
+import { TypeCategorieService } from '../../../services/type-categorie/type-categorie.service';
+import { TypeCategorie } from '../../../models/type-categorie';
 import { ProduitSportService } from '../../../services/produit-sport/produit-sport.service';
 import { ProduitSport, ProduitMedia, Categorie, ProduitSportResponse } from '../../../models/produit-sport';
 
@@ -16,7 +17,7 @@ import { ProduitSport, ProduitMedia, Categorie, ProduitSportResponse } from '../
 export class ProduitSportComponent implements OnInit {
   // Données
   produits: ProduitSport[] = [];
-  categories: Categorie[] = [];
+  typeCategories: TypeCategorie[] = [];
   currentPage = 1;
   lastPage = 1;
   total = 0;
@@ -57,6 +58,7 @@ export class ProduitSportComponent implements OnInit {
   constructor(
     public produitService: ProduitSportService,
     private fb: FormBuilder,
+    private typeCategorieService: TypeCategorieService,
     private sanitizer: DomSanitizer
   ) {
     this.createForm = this.fb.group({
@@ -65,7 +67,7 @@ export class ProduitSportComponent implements OnInit {
       prix: [0, [Validators.required, Validators.min(0)]],
       prixPromo: [null],
       stock: [0, [Validators.required, Validators.min(0)]],
-      categorie_id: [null],
+      type_categorie_id: [null], // ← renommé
       enPromotion: [false],
       videos_urls: this.fb.array([]),
       videos_titres: this.fb.array([])
@@ -78,7 +80,7 @@ export class ProduitSportComponent implements OnInit {
       prix: [0, [Validators.required, Validators.min(0)]],
       prixPromo: [null],
       stock: [0, [Validators.required, Validators.min(0)]],
-      categorie_id: [null],
+      type_categorie_id: [null], // ← renommé
       enPromotion: [false],
       medias_a_supprimer: [[]],
       media_principal_id: [null],
@@ -88,18 +90,17 @@ export class ProduitSportComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCategories();
+    this.loadTypeCategories();
     this.loadProduits();
   }
 
   // -------------------- Chargement des données --------------------
-  loadCategories(): void {
-    this.produitService.getCategories().subscribe({
-      next: (cats) => this.categories = cats,
-      error: (err) => console.error('Erreur chargement catégories', err)
+  loadTypeCategories(): void {
+    this.typeCategorieService.getTypeCategories(1).subscribe({
+      next: (res) => { this.typeCategories = res.data; },
+      error: (err) => console.error('Erreur chargement types catégories', err)
     });
   }
-
   loadProduits(page: number = this.currentPage): void {
     this.loading = true;
     this.produitService.getProduits(page).subscribe({
@@ -129,12 +130,9 @@ export class ProduitSportComponent implements OnInit {
   // -------------------- Gestion des modales --------------------
   openCreateModal(): void {
     this.createForm.reset({
-      nom: '',
-      description: '',
-      prix: 0,
-      prixPromo: null,
-      stock: 0,
-      categorie_id: null,
+      nom: '', description: '', prix: 0,
+      prixPromo: null, stock: 0,
+      type_categorie_id: null,
       enPromotion: false
     });
     this.clearVideosArray(this.createForm);
@@ -150,6 +148,8 @@ export class ProduitSportComponent implements OnInit {
 
   openEditModal(produit: ProduitSport): void {
     this.selectedProduit = produit;
+    const typeCategorieId = produit.medias?.find(m => m.type_categorie_id)?.type_categorie_id || null;
+
     this.editForm.patchValue({
       id: produit.id,
       nom: produit.nom,
@@ -157,7 +157,7 @@ export class ProduitSportComponent implements OnInit {
       prix: produit.prix,
       prixPromo: produit.prixPromo,
       stock: produit.stock,
-      categorie_id: produit.categorie_id,
+      type_categorie_id: typeCategorieId,
       enPromotion: produit.enPromotion,
       medias_a_supprimer: [],
       media_principal_id: produit.medias?.find(m => m.est_principal)?.id || null
@@ -257,11 +257,27 @@ export class ProduitSportComponent implements OnInit {
   // -------------------- Création d'un produit --------------------
   onCreateSubmit(): void {
     if (this.createForm.invalid) {
+      // Afficher quels champs sont invalides
+      Object.keys(this.createForm.controls).forEach(key => {
+        const control = this.createForm.get(key);
+        if (control?.invalid) {
+          console.log(`Champ invalide: ${key}`, control.errors);
+        }
+      });
+
       this.createForm.markAllAsTouched();
       return;
     }
 
     const formData = this.buildFormData(this.createForm, this.createImagePreviews);
+
+    // Vérification supplémentaire
+    if (!formData.has('type_categorie_id')) {
+      console.error('type_categorie_id toujours absent après buildFormData!');
+      this.errorMessage = 'Erreur: type de catégorie non sélectionné';
+      return;
+    }
+
     this.produitService.createProduit(formData).subscribe({
       next: () => {
         this.successMessage = 'Produit créé avec succès.';
@@ -313,6 +329,7 @@ export class ProduitSportComponent implements OnInit {
   }
 
   // -------------------- Construction FormData --------------------
+
   private buildFormData(form: FormGroup, imagePreviews: { file: File }[]): FormData {
     const formData = new FormData();
     formData.append('nom', form.get('nom')?.value);
@@ -320,12 +337,13 @@ export class ProduitSportComponent implements OnInit {
     formData.append('prix', form.get('prix')?.value);
     if (form.get('prixPromo')?.value) formData.append('prixPromo', form.get('prixPromo')?.value);
     formData.append('stock', form.get('stock')?.value);
-    if (form.get('categorie_id')?.value) formData.append('categorie_id', form.get('categorie_id')?.value);
     formData.append('enPromotion', form.get('enPromotion')?.value ? '1' : '0');
 
-    imagePreviews.forEach(item => {
-      formData.append('images[]', item.file);
-    });
+    if (form.get('type_categorie_id')?.value) {
+      formData.append('type_categorie_id', form.get('type_categorie_id')?.value);
+    }
+
+    imagePreviews.forEach(item => formData.append('images[]', item.file));
 
     const urls = form.get('videos_urls') as FormArray;
     const titres = form.get('videos_titres') as FormArray;
@@ -335,8 +353,11 @@ export class ProduitSportComponent implements OnInit {
         formData.append('videos_titres[]', titres.at(index)?.value || '');
       }
     });
-
     return formData;
+  }
+  getTypeCategorie(produit: ProduitSport): string {
+    const media = produit.medias?.find(m => m.type_categorie_id);
+    return media?.type_categorie?.nom || 'Non défini';
   }
 
   // -------------------- Gestion des erreurs --------------------

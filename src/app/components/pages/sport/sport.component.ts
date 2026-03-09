@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Pour le two-way binding avec [(ngModel)]
+import { FormsModule } from '@angular/forms';
 import { ProduitSportService } from '../../../services/produit-sport/produit-sport.service';
 import { debounceTime, Subject, switchMap } from 'rxjs';
+import { TypeCategorieService } from '../../../services/type-categorie/type-categorie.service';
+import { TypeCategorie } from '../../../models/type-categorie';
 
 @Component({
   selector: 'app-sport',
@@ -18,7 +20,7 @@ import { debounceTime, Subject, switchMap } from 'rxjs';
 })
 export class SportComponent implements OnInit {
   produits: any[] = [];
-  categories: any[] = [];
+  typeCategories: TypeCategorie[] = [];
   pagination: any = {
     current_page: 1,
     last_page: 1,
@@ -49,6 +51,7 @@ export class SportComponent implements OnInit {
 
   constructor(
     private produitService: ProduitSportService,
+    private typeCategorieService: TypeCategorieService,
     private router: Router
   ) {
     // Debounce pour la recherche (évite trop de requêtes)
@@ -62,7 +65,7 @@ export class SportComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProduits();
-    this.loadCategories();
+    this.loadTypeCategories();
   }
 
   // Charger les produits avec les filtres
@@ -108,12 +111,12 @@ export class SportComponent implements OnInit {
   }
 
   // Charger les catégories
-  loadCategories(): void {
-    this.produitService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories;
+  loadTypeCategories(): void {
+    this.typeCategorieService.getTypeCategories(1).subscribe({
+      next: (res) => {
+        this.typeCategories = res.data;
       },
-      error: (err) => console.error('Erreur chargement catégories:', err)
+      error: (err) => console.error('Erreur chargement types catégories', err)
     });
   }
 

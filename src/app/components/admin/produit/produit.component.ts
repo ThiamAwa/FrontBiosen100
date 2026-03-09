@@ -474,6 +474,6 @@ export class ProduitComponent implements OnInit {
   }
 
   handleImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/img/default-produit.png';
+    (event.target as HTMLImageElement).src = 'assets/img/biosen/default-product.jpg';
   }
 }

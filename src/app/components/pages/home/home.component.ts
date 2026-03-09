@@ -10,6 +10,7 @@ import { AccueilData } from '../../../models/accueilData';
 import { Gamme } from '../../../models/gamme';
 import { Vendeur } from '../../../models/vendeur';
 import { Temoignage } from '../../../models/temoignage';
+import {ProduitSport} from '../../../models/produit-sport';
 
 declare var $: any;
 declare var AOS: any;
@@ -30,6 +31,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   produitsPromo: Produit[] = [];
   gammes: Gamme[] = [];
   categories: any[] = [];
+  typeCategories: any[] = [];
+  produitsSport: ProduitSport[]= [];
   vendeurs: Vendeur[] = [];
   temoignages: Temoignage[] = [];
   stats: any = {
@@ -65,6 +68,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private carouselInitialized = false;
   private gammeSwiper: any = null;
   private observer: IntersectionObserver | null = null;
+  private sportSwiper: any = null;
 
   constructor(
     private accueilService: HomeService,
@@ -112,6 +116,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.produitsPromo = response.produitsPromo || [];
         this.gammes = response.gammes || [];
         this.categories = response.categories || [];
+        this.typeCategories = response.typeCategories || [];
+        this.produitsSport = response.produitsSport || [];
         this.vendeurs = response.vendeurs || [];
         this.stats = response.stats || this.stats;
         this.loading = false;
@@ -214,39 +220,69 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       import('swiper/modules').then(({ Autoplay, Pagination, Navigation }) => {
         setTimeout(() => {
           this.destroySwiper();
-          const swiperEl = document.querySelector('.gammes-swiper');
-          if (!swiperEl) { console.warn('Swiper element not found'); return; }
-          try {
-            this.gammeSwiper = new module.default('.gammes-swiper', {
-              modules: [Autoplay, Pagination, Navigation],
-              slidesPerView: 1,
-              spaceBetween: 20,
-              loop: true,
-              speed: 600,
-              autoplay: {
-                delay: 1800,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true,
-              },
-              pagination: {
-                el: '.gammes-swiper .swiper-pagination',
-                clickable: true,
-                dynamicBullets: true,
-              },
-              navigation: {
-                nextEl: '.gammes-swiper .swiper-button-next',
-                prevEl: '.gammes-swiper .swiper-button-prev',
-              },
-              breakpoints: {
-                576: { slidesPerView: 2, spaceBetween: 16 },
-                992: { slidesPerView: 3, spaceBetween: 20 },
-                1200: { slidesPerView: 4, spaceBetween: 20 },
-              },
-              on: { init: () => console.log('✅ Swiper gammes initialisé') }
-            });
-          } catch (e) {
-            console.error('❌ Erreur Swiper:', e);
+
+          const configCommun = {
+            modules: [Autoplay, Pagination, Navigation],
+            slidesPerView: 1,
+            spaceBetween: 24,
+            loop: false,
+            speed: 500,
+            breakpoints: {
+              480:  { slidesPerView: 1, spaceBetween: 20 },
+              640:  { slidesPerView: 2, spaceBetween: 24 },
+              992:  { slidesPerView: 2, spaceBetween: 24 },   // ← 2 cartes sur tablette
+              1200: { slidesPerView: 3, spaceBetween: 28 },   // ← 3 cartes sur desktop
+              1400: { slidesPerView: 3, spaceBetween: 30 },   // ← 3 cartes sur grand écran
+            }
+          };
+
+          // ── Swiper Gammes ──
+          const gammeEl = document.querySelector('.gammes-swiper');
+          if (gammeEl) {
+            try {
+              this.gammeSwiper = new module.default('.gammes-swiper', {
+                ...configCommun,
+                autoplay: {
+                  delay: 3000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                },
+                pagination: {
+                  el: '.gammes-swiper .swiper-pagination',
+                  clickable: true,
+                  dynamicBullets: true,
+                },
+                navigation: {
+                  nextEl: '.gammes-swiper .swiper-button-next',
+                  prevEl: '.gammes-swiper .swiper-button-prev',
+                },
+              });
+            } catch (e) {
+              console.error('❌ Erreur Swiper gammes:', e);
+            }
           }
+
+          // ── Swiper Sport ──
+          const sportEl = document.querySelector('.sport-swiper');
+          if (sportEl) {
+            try {
+              this.sportSwiper = new module.default('.sport-swiper', {
+                ...configCommun,
+                pagination: {
+                  el: '.sport-swiper .swiper-pagination',
+                  clickable: true,
+                  dynamicBullets: true,
+                },
+                navigation: {
+                  nextEl: '.sport-swiper .swiper-button-next',
+                  prevEl: '.sport-swiper .swiper-button-prev',
+                },
+              });
+            } catch (e) {
+              console.error('❌ Erreur Swiper sport:', e);
+            }
+          }
+
         }, 300);
       });
     });
@@ -256,6 +292,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.gammeSwiper && !this.gammeSwiper.destroyed) {
       this.gammeSwiper.destroy(true, true);
       this.gammeSwiper = null;
+    }
+    if (this.sportSwiper && !this.sportSwiper.destroyed) {
+      this.sportSwiper.destroy(true, true);
+      this.sportSwiper = null;
     }
   }
 
@@ -302,15 +342,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   setActiveGammeTab(tab: string): void {
     this.activeGammeTab = tab;
-    setTimeout(() => this.initSwiper(), 150);
+    setTimeout(() => this.initSwiper(), 200);
   }
+  getFilteredContent(): { type: 'gammes' | 'sport' | 'all'; gammes: Gamme[]; produitsSport: any[] } {
+    if (this.activeGammeTab === 'all') {
+      return { type: 'all', gammes: this.gammes, produitsSport: this.produitsSport };
+    }
+    const selectedType = this.typeCategories.find(t => t.id.toString() === this.activeGammeTab);
+    if (!selectedType) return { type: 'all', gammes: this.gammes, produitsSport: this.produitsSport };
 
-  getFilteredGammes(): Gamme[] {
-    if (this.activeGammeTab === 'all') return this.gammes;
-    return this.gammes.filter(gamme =>
-      (gamme as any).categorieId?.toString() === this.activeGammeTab ||
-      (gamme as any).categorie?.id?.toString() === this.activeGammeTab
-    );
+    const nomType = selectedType.nom.toLowerCase();
+    if (nomType === 'sport') {
+      return { type: 'sport', gammes: [], produitsSport: this.produitsSport };
+    } else {
+      const gammesFiltrees = this.gammes.filter(g =>
+        (g as any).type_categorie_id?.toString() === this.activeGammeTab ||
+        (g as any).type_categorie?.id?.toString() === this.activeGammeTab
+      );
+      return { type: 'gammes', gammes: gammesFiltrees, produitsSport: [] };
+    }
   }
 
   // ══════════════════════════════════════════════════════════

@@ -210,10 +210,11 @@
                             <thead>
                                 <tr>
                                     <th>N° Facture</th>
+                                    <th>N° Commande</th>
                                     <th>Client</th>
                                     <th>Montant</th>
                                     <th>Date Émission</th>
-                                    <th>Date Échéance</th>
+                                    <!-- <th>Date Échéance</th> -->
                                     <th>Statut Paiement</th>
                                     <th class="text-center action-column">Actions</th>
                                 </tr>
@@ -221,41 +222,57 @@
                             <tbody>
                                 @for (facture of factures; track facture.id) {
                                 <tr>
+                                    <!-- N° Facture -->
                                     <td><strong>{{ facture.numero_facture }}</strong></td>
 
-                                    <!-- ✅ CORRIGÉ : utilise getClientInfo() au lieu de metadonnees?.client?.nom -->
+                                    <!-- N° Commande -->
+                                    <td>
+                                        @if (facture.commande?.numeroCommande) {
+                                        <span class="badge bg-success" style="font-size:11px;">
+                                            {{ facture.commande?.numeroCommande }}
+                                        </span>
+                                        } @else {
+                                        <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <!-- Client -->
                                     <td>
                                         <div>
                                             <strong>{{ getClientInfo(facture).nomComplet }}</strong>
                                         </div>
-                                        <!-- @if (getClientInfo(facture).email) {
-                                        <small class="text-muted d-block">
-                                            {{ getClientInfo(facture).email }}
-                                        </small>
-                                        } -->
                                         @if (getClientInfo(facture).telephone) {
                                         <small class="text-muted d-block">
-                                            <i class="fas fa-phone fa-xs me-1"></i>{{ getClientInfo(facture).telephone
-                                            }}
+                                            <i class="fas fa-phone fa-xs me-1"></i>
+                                            {{ getClientInfo(facture).telephone }}
                                         </small>
                                         }
                                     </td>
 
+                                    <!-- Montant -->
                                     <td><strong>{{ getMontant(facture) | number:'1.0-0':'fr' }} F</strong></td>
+
+                                    <!-- Date émission -->
                                     <td><small>{{ formatDate(facture.date_emission) }}</small></td>
-                                    <td>
+
+                                    <!-- Date échéance -->
+                                    <!-- <td>
                                         <small [class.text-danger]="isOverdue(facture)">
                                             {{ formatDate(facture.date_echeance) }}
                                         </small>
                                         @if (isOverdue(facture)) {
                                         <span class="badge bg-danger ms-1" style="font-size:10px;">Dépassée</span>
                                         }
-                                    </td>
+                                    </td> -->
+
+                                    <!-- Statut -->
                                     <td>
                                         <span class="badge {{ getStatutClass(facture.statut_paiement) }}">
                                             {{ getStatutLabel(facture.statut_paiement) }}
                                         </span>
                                     </td>
+
+                                    <!-- Actions -->
                                     <td class="text-center action-column">
                                         <button type="button" class="btn btn-sm btn-light me-1"
                                             style="background-color:#d4edda;color:#155724;border-color:#c3e6cb;"
@@ -280,7 +297,7 @@
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="7" class="text-center py-5">
+                                    <td colspan="8" class="text-center py-5">
                                         <i class="fas fa-inbox fa-2x text-muted mb-3 d-block"></i>
                                         <p class="text-muted mb-1">Aucune facture trouvée</p>
                                         @if (hasActiveFilters) {
@@ -353,18 +370,10 @@
                         <h6 class="fw-bold mb-3">
                             <i class="fas fa-user me-2 text-success"></i>Informations Client
                         </h6>
-
-                        <!-- ✅ CORRIGÉ : utilise getClientInfo() -->
                         <p class="mb-2">
                             <strong>Nom complet :</strong>
                             {{ getClientInfo(selectedFacture).nomComplet || '—' }}
                         </p>
-                        <!-- @if (getClientInfo(selectedFacture).email) {
-                        <p class="mb-2">
-                            <strong>Email :</strong>
-                            {{ getClientInfo(selectedFacture).email }}
-                        </p>
-                        } -->
                         @if (getClientInfo(selectedFacture).telephone) {
                         <p class="mb-2">
                             <strong>Téléphone :</strong>
@@ -383,16 +392,29 @@
                             <i class="fas fa-file-invoice me-2 text-success"></i>Informations Facture
                         </h6>
                         <p class="mb-2"><strong>N° Facture :</strong> {{ selectedFacture.numero_facture }}</p>
+
+                        <!-- N° Commande dans le modal -->
+                        <p class="mb-2">
+                            <strong>N° Commande :</strong>
+                            @if (selectedFacture.commande?.numeroCommande) {
+                            <span class="badge bg-success ms-1">
+                                {{ selectedFacture.commande?.numeroCommande }}
+                            </span>
+                            } @else {
+                            <span class="text-muted">—</span>
+                            }
+                        </p>
+
                         <p class="mb-2">
                             <strong>Date d'émission :</strong>
                             {{ formatDate(selectedFacture.date_emission) }}
                         </p>
-                        <p class="mb-2">
+                        <!-- <p class="mb-2">
                             <strong>Date d'échéance :</strong>
                             <span [class.text-danger]="isOverdue(selectedFacture)">
                                 {{ formatDate(selectedFacture.date_echeance) }}
                             </span>
-                        </p>
+                        </p> -->
                         <p class="mb-0">
                             <strong>Statut :</strong>
                             <span class="badge {{ getStatutClass(selectedFacture.statut_paiement) }}">
@@ -480,20 +502,6 @@
                         </ul>
                     </div>
                     }
-
-                    <!-- Info client en lecture seule -->
-                    <!-- <div class="alert alert-light border mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-user-circle text-success fa-lg"></i>
-                            <div>
-                                <div class="fw-bold">{{ getClientInfo(selectedFacture).nomComplet || '—' }}</div>
-                                @if (getClientInfo(selectedFacture).email) {
-                                <small class="text-muted">{{ getClientInfo(selectedFacture).email }}</small>
-                                }
-                            </div>
-                        </div>
-                    </div> -->
-
                     <div class="mb-3">
                         <label for="statut_edit" class="form-label">Statut de paiement *</label>
                         <select class="form-select" id="statut_edit" [(ngModel)]="editForm.statut_paiement"
@@ -503,12 +511,12 @@
                             <option value="impayé">Impayé</option>
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="echeance_edit" class="form-label">Date d'échéance</label>
                         <input type="date" class="form-control" id="echeance_edit" [(ngModel)]="editForm.date_echeance"
                             name="date_echeance">
                         <small class="text-muted">Modifier la date d'échéance si nécessaire</small>
-                    </div>
+                    </div> -->
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-1"></i>
                         <strong>Montant Total :</strong>

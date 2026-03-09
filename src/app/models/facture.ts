@@ -1,7 +1,7 @@
 import { Commande } from './commande';
 
 // ── Metadonnees client ────────────────────────────────────────────
-// Ancienne structure (sous-objet "client") — conservée pour rétrocompat
+
 export interface MetadonneesClient {
     nom?: string;
     prenom?: string;
@@ -16,28 +16,15 @@ export interface MetadonneesProduit {
     nom: string;
     quantite: number;
     prix: number;
-    prix_unitaire?: number;  // alias selon la version du checkout
+    prix_unitaire?: number;
     total?: number;
 }
 
 // ── Metadonnees complètes ─────────────────────────────────────────
-// Structure actuelle du checkout Laravel :
-//   metadonnees.nom_client      = "Prenom Nom" (chaîne complète)
-//   metadonnees.telephone_client
-//   metadonnees.adresse_client
-//   metadonnees.email            (optionnel)
-//   metadonnees.total
-//   metadonnees.sous_total
-//   metadonnees.frais_livraison
-//   metadonnees.methode_paiement
-//   metadonnees.pays
-//   metadonnees.produits[]
-//
-// Ancienne structure (rétrocompat) :
-//   metadonnees.client.nom / .prenom / .email / .telephone / .adresse
+
 export interface Metadonnees {
-    // ── Structure actuelle (checkout courant) ──
-    nom_client?: string;          // "Prenom Nom" — champ principal
+
+    nom_client?: string;
     telephone_client?: string;
     adresse_client?: string;
     email?: string;
@@ -48,7 +35,7 @@ export interface Metadonnees {
     pays?: string;
     produits?: MetadonneesProduit[];
 
-    // ── Ancienne structure (rétrocompat) ──
+
     client?: MetadonneesClient;
 }
 

@@ -1,6 +1,6 @@
 <div class="commandes-wrapper">
     <div class="commandes-container">
-        <!-- Header -->
+
         <div class="page-header-custom">
             <h1><i class="fas fa-shopping-cart"></i> Gestion des Commandes</h1>
         </div>
@@ -19,7 +19,6 @@
             </button>
         </div>
 
-        <!-- Main Card -->
         <div class="card-custom">
             <div class="card-header-custom">
                 <div class="card-header-title">
@@ -71,24 +70,13 @@
             <!-- Filter Panel -->
             @if (showFilterPanel) {
             <div class="filter-panel-wrapper">
-
                 <div class="filter-panel-header">
-                    <!-- <div class="filter-panel-header-left">
-                        <div class="filter-panel-icon">
-                            <i class="fas fa-sliders-h"></i>
-                        </div>
-                        <div>
-                            <p class="filter-panel-title">Filtres avancés</p>
-                            <p class="filter-panel-subtitle">Affinez votre recherche</p>
-                        </div>
-                    </div> -->
                     @if (hasActiveFilters) {
                     <button class="filter-clear-btn" (click)="resetFilters()">
                         <i class="fas fa-times"></i> Tout effacer
                     </button>
                     }
                 </div>
-
                 <div class="filter-panel-body">
                     <div class="row g-3">
 
@@ -106,9 +94,7 @@
                                 </select>
                                 @if (selectedStatut) {
                                 <div class="filter-card-tag-wrapper">
-                                    <span class="filter-card-tag">
-                                        {{ getStatusLabel(selectedStatut) }}
-                                    </span>
+                                    <span class="filter-card-tag">{{ getStatusLabel(selectedStatut) }}</span>
                                 </div>
                                 }
                             </div>
@@ -128,10 +114,8 @@
                                 </select>
                                 @if (selectedMonth) {
                                 <div class="filter-card-tag-wrapper">
-                                    <span class="filter-card-tag">
-                                        {{ months | slice:0 | slice:+selectedMonth - 1 : +selectedMonth }}
-                                        {{ (months[+selectedMonth - 1])?.label }}
-                                    </span>
+                                    <!-- ✅ Fix warning : ?. → . -->
+                                    <span class="filter-card-tag">{{ (months[+selectedMonth - 1]).label }}</span>
                                 </div>
                                 }
                             </div>
@@ -188,7 +172,6 @@
 
                     </div>
 
-                    <!-- Résumé période -->
                     @if (selectedMonth || selectedYear || selectedDate) {
                     <div class="filter-period-summary">
                         <i class="fas fa-clock"></i>
@@ -197,7 +180,8 @@
                                 @if (selectedDate) {
                                 {{ selectedDate }}
                                 } @else {
-                                {{ selectedMonth ? (months[+selectedMonth - 1])?.label : '' }}
+                                <!-- ✅ Fix warning : ?. → . -->
+                                {{ selectedMonth ? (months[+selectedMonth - 1]).label : '' }}
                                 {{ selectedYear ? selectedYear : '' }}
                                 }
                             </strong>
@@ -205,7 +189,6 @@
                     </div>
                     }
 
-                    <!-- Footer boutons -->
                     <div class="filter-panel-footer">
                         <button class="filter-apply-btn" (click)="applyFilters()">
                             <i class="fas fa-check"></i> Appliquer les filtres
@@ -215,13 +198,11 @@
                         </button>
                         @if (hasActiveFilters) {
                         <span class="filter-count-badge">
-                            <i class="fas fa-list-ul"></i>
-                            {{ total }} résultat(s)
+                            <i class="fas fa-list-ul"></i> {{ total }} résultat(s)
                         </span>
                         }
                     </div>
                 </div>
-
             </div>
             }
 
@@ -233,9 +214,10 @@
                                 <tr>
                                     <th>N° Commande</th>
                                     <th>Client</th>
+                                    <th>Produits commandés</th>
                                     <th>Montant</th>
                                     <th>Date Commande</th>
-                                    <th>Statut</th>
+                                    <th>Adresse de livraison</th>
                                     <th>Boutique</th>
                                     <th class="text-center action-column">Actions</th>
                                 </tr>
@@ -244,25 +226,58 @@
                                 @for (commande of commandes; track commande.id) {
                                 <tr>
                                     <td><strong>{{ commande.numeroCommande }}</strong></td>
+
+                                    <!-- Client -->
                                     <td>
                                         <div>
-                                            <strong>
-                                                {{ commande.user?.prenom }} {{ commande.user?.nom }}
-                                            </strong>
+                                            <strong>{{ commande.user?.prenom }} {{ commande.user?.nom }}</strong>
                                         </div>
                                         <small class="text-muted d-block">
                                             {{ commande.user?.telephone ?? 'N/A' }}
                                         </small>
                                     </td>
+
+                                    <!-- Produits commandés -->
+                                    <td>
+                                        @if (getProduits(commande).length > 0) {
+                                        @for (p of getProduits(commande); track $index) {
+                                        <div class="d-flex align-items-center gap-1 mb-1">
+                                            <span class="badge bg-success" style="font-size:10px;">
+                                                {{ p.quantite }}x
+                                            </span>
+                                            <small>{{ p.nom }}</small>
+                                        </div>
+                                        }
+                                        } @else {
+                                        <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <!-- Montant -->
                                     <td>
                                         <strong>{{ commande.montantTotal | number:'':'fr' }} FCFA</strong>
                                     </td>
+
+                                    <!-- Date -->
                                     <td><small>{{ formatDate(commande.created_at) }}</small></td>
+
+                                    <!-- Adresse de livraison -->
                                     <td>
-                                        <span class="badge {{ getStatusClass(commande.statut) }}">
-                                            {{ getStatusLabel(commande.statut) }}
-                                        </span>
+                                        @if (commande.ville_zone) {
+                                        <small class="d-block">
+                                            <!-- <i class="fas fa-map-marker-alt me-1 text-success"></i> -->
+                                            {{ commande.ville_zone }}
+                                        </small>
+                                        }
+                                        @if (commande.pays) {
+                                        <small class="text-muted d-block">{{ commande.pays }}</small>
+                                        }
+                                        <!-- @if (!commande.ville_zone && !commande.pays) {
+                                        <span class="text-muted">—</span>
+                                        } -->
                                     </td>
+
+                                    <!-- Boutique -->
                                     <td>
                                         @if (commande.boutique) {
                                         <span class="badge bg-primary">{{ commande.boutique.nom }}</span>
@@ -270,6 +285,8 @@
                                         <span class="text-muted">—</span>
                                         }
                                     </td>
+
+                                    <!-- Actions -->
                                     <td class="text-center action-column">
                                         <button type="button" class="btn btn-sm btn-light me-1"
                                             style="background-color:#d4edda;color:#155724;border-color:#c3e6cb;"
@@ -289,7 +306,7 @@
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="7" class="text-center py-5">
+                                    <td colspan="8" class="text-center py-5">
                                         <i class="fas fa-inbox fa-2x text-muted mb-3 d-block"></i>
                                         <p class="text-muted mb-1">Aucune commande trouvée</p>
                                         @if (hasActiveFilters) {
@@ -300,9 +317,7 @@
                                             </a>
                                         </small>
                                         } @else {
-                                        <small class="text-muted">
-                                            Les commandes apparaîtront ici
-                                        </small>
+                                        <small class="text-muted">Les commandes apparaîtront ici</small>
                                         }
                                     </td>
                                 </tr>
@@ -323,8 +338,7 @@
                     <nav aria-label="Page navigation">
                         <ul class="pagination mb-0">
                             <li class="page-item" [class.disabled]="currentPage === 1">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
-                                    aria-label="Précédent">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
@@ -335,8 +349,7 @@
                             </li>
                             }
                             <li class="page-item" [class.disabled]="currentPage === lastPage">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
-                                    aria-label="Suivant">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
@@ -363,60 +376,111 @@
             </div>
             <div class="modal-body">
                 <div class="row mb-4">
+
+                    <!-- Infos Client -->
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-3">Informations Client</h6>
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-user me-2 text-success"></i>Informations Client
+                        </h6>
                         @if (selectedCommande.user) {
                         <p class="mb-2">
-                            <strong>Nom:</strong>
+                            <strong>Nom :</strong>
                             {{ selectedCommande.user.prenom }} {{ selectedCommande.user.nom }}
                         </p>
-                        <p class="mb-2"><strong>Email:</strong> {{ selectedCommande.user.email }}</p>
                         <p class="mb-2">
-                            <strong>Téléphone:</strong> {{ selectedCommande.user.telephone }}
+                            <strong>Téléphone :</strong> {{ selectedCommande.user.telephone }}
                         </p>
-                        <p class="mb-0"><strong>Adresse:</strong> {{ selectedCommande.user.adresse }}</p>
+                        <p class="mb-0">
+                            <strong>Adresse :</strong> {{ selectedCommande.user.adresse }}
+                        </p>
                         } @else {
                         <p class="text-muted">Client supprimé</p>
                         }
                     </div>
+
+                    <!-- Infos Commande -->
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-3">Informations Commande</h6>
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-file-alt me-2 text-success"></i>Informations Commande
+                        </h6>
                         <p class="mb-2">
-                            <strong>N° Commande:</strong> {{ selectedCommande.numeroCommande }}
+                            <strong>N° Commande :</strong> {{ selectedCommande.numeroCommande }}
                         </p>
                         <p class="mb-2">
-                            <strong>Date:</strong> {{ formatDate(selectedCommande.created_at) }}
+                            <strong>Date :</strong> {{ formatDate(selectedCommande.created_at) }}
                         </p>
-                        <p class="mb-0"><strong>Statut:</strong>
+                        <p class="mb-2">
+                            <strong>Statut :</strong>
                             <span class="badge {{ getStatusClass(selectedCommande.statut) }}">
                                 {{ getStatusLabel(selectedCommande.statut) }}
                             </span>
                         </p>
+                        <p class="mb-2">
+                            <strong>Méthode paiement :</strong>
+                            {{ selectedCommande.methode_paiement ?? '—' }}
+                        </p>
                     </div>
                 </div>
+
+                <!-- Adresse de livraison -->
                 <hr>
-                <h6 class="fw-bold mb-3">Produits Commandés</h6>
-                @if (selectedCommande.panier?.lignesPanier?.length) {
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-truck me-2 text-success"></i>Adresse de Livraison
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Adresse :</strong>
+                            {{ selectedCommande.adresse_client ?? '—' }}
+                        </p>
+                        <p class="mb-2">
+                            <strong>Pays :</strong>
+                            {{ selectedCommande.pays ?? '—' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        @if (selectedCommande.ville_zone) {
+                        <p class="mb-2">
+                            <strong>Ville / Zone :</strong> {{ selectedCommande.ville_zone }}
+                        </p>
+                        }
+                        @if (selectedCommande.code_postal) {
+                        <p class="mb-2">
+                            <strong>Code postal :</strong> {{ selectedCommande.code_postal }}
+                        </p>
+                        }
+                        @if (selectedCommande.region) {
+                        <p class="mb-2">
+                            <strong>Région :</strong> {{ selectedCommande.region }}
+                        </p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Produits commandés -->
+                <hr>
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-box me-2 text-success"></i>Produits Commandés
+                </h6>
+                @if (getProduits(selectedCommande).length > 0) {
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered">
-                        <thead>
+                        <thead class="table-success">
                             <tr>
                                 <th>Produit</th>
-                                <th>Quantité</th>
-                                <th>Prix Unitaire</th>
-                                <th>Total</th>
+                                <th class="text-center">Quantité</th>
+                                <th class="text-end">Prix Unitaire</th>
+                                <th class="text-end">Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @for (ligne of selectedCommande.panier!.lignesPanier; track $index) {
+                            @for (p of getProduits(selectedCommande); track $index) {
                             <tr>
-                                <td>{{ ligne.gamme?.nom ?? 'Produit supprimé' }}</td>
-                                <td>{{ ligne.quantite }}</td>
-                                <td>{{ ligne.prixUnitaire | number:'':'fr' }} FCFA</td>
-                                <td>
-                                    <strong>
-                                        {{ ligne.quantite * ligne.prixUnitaire | number:'':'fr' }} FCFA
-                                    </strong>
+                                <td>{{ p.nom }}</td>
+                                <td class="text-center">{{ p.quantite }}</td>
+                                <td class="text-end">{{ p.prix | number:'':'fr' }} F</td>
+                                <td class="text-end">
+                                    <strong>{{ p.quantite * p.prix | number:'':'fr' }} F</strong>
                                 </td>
                             </tr>
                             }
@@ -428,12 +492,14 @@
                     <i class="fas fa-info-circle"></i> Aucun produit dans cette commande
                 </div>
                 }
+
+                <!-- Total -->
                 <hr>
                 <div class="row">
                     <div class="col-md-6 offset-md-6">
                         <div class="bg-light p-3 rounded">
-                            <div class="d-flex justify-content-between mb-2">
-                                <strong>Montant Total:</strong>
+                            <div class="d-flex justify-content-between">
+                                <strong>Montant Total :</strong>
                                 <strong class="text-success">
                                     {{ selectedCommande.montantTotal | number:'':'fr' }} FCFA
                                 </strong>
@@ -441,6 +507,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Note -->
                 @if (selectedCommande.noteCommande) {
                 <hr>
                 <h6 class="fw-bold mb-2">Note</h6>
@@ -490,13 +558,12 @@
                     <div class="mb-3">
                         <label for="note_edit" class="form-label">Note (optionnel)</label>
                         <textarea class="form-control" id="note_edit" [(ngModel)]="editForm.noteCommande"
-                            name="noteCommande" rows="4">
-                        </textarea>
+                            name="noteCommande" rows="4"></textarea>
                         <small class="text-muted">Ajouter une note interne sur la commande</small>
                     </div>
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Montant Total:</strong>
+                        <strong>Montant Total :</strong>
                         {{ selectedCommande.montantTotal | number:'':'fr' }} FCFA
                     </div>
                 </div>
@@ -534,17 +601,13 @@
                     </h6>
                     <p class="mb-3">
                         La commande
-                        <span class="fw-bold text-danger">
-                            #{{ commandeToDelete.numeroCommande }}
-                        </span>
+                        <span class="fw-bold text-danger">#{{ commandeToDelete.numeroCommande }}</span>
                         sera définitivement supprimée.
                     </p>
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         <small>Le montant de
-                            <strong>
-                                {{ commandeToDelete.montantTotal | number:'':'fr' }} FCFA
-                            </strong>
+                            <strong>{{ commandeToDelete.montantTotal | number:'':'fr' }} FCFA</strong>
                             sera perdu.
                         </small>
                     </div>

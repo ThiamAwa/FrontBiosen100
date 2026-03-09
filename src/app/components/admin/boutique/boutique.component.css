@@ -1,0 +1,166 @@
+/* ============================================================
+   BADGES — même style que type-categorie
+   ============================================================ */
+.tc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tc-badge-personnel {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    color: white;
+    box-shadow: 0 2px 6px rgba(25, 135, 84, 0.3);
+    transition: all 0.2s;
+}
+
+.tc-badge-personnel:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.4);
+}
+
+.tc-badge-empty {
+    background: rgba(100, 120, 110, 0.07);
+    color: #7a9a85;
+    border: 1px solid rgba(100, 120, 110, 0.15);
+}
+
+/* ============================================================
+   MODAL HEADER
+   ============================================================ */
+.modal-header-custom {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+    padding: 1rem 1.5rem;
+}
+
+/* ============================================================
+   BOUTON SUCCÈS
+   ============================================================ */
+.btn-success-custom {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(25, 135, 84, 0.3);
+}
+
+.btn-success-custom:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.4);
+    color: white;
+}
+
+/* ============================================================
+   AVATAR PERSONNEL
+   ============================================================ */
+.avatar-circle {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+}
+
+/* ============================================================
+   CARTE PERSONNEL
+   ============================================================ */
+.hover-card {
+    transition: all 0.2s;
+    border-color: #d1e7dd !important;
+}
+
+.hover-card:hover {
+    background: #f0f9f4;
+    border-color: #a3cfbb !important;
+    transform: translateX(3px);
+}
+
+/* ============================================================
+   ICON WRAPPER MODAL
+   ============================================================ */
+.icon-wrapper-modal {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.table-custom thead tr th {
+    background: linear-gradient(135deg, #f0f9f4 0%, #e8f5ee 100%);
+    color: #157347;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.9rem 1rem;
+    border-bottom: 2px solid #d1e7dd;
+    white-space: nowrap;
+}
+
+.table-custom tbody tr td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f3f5;
+    font-size: 0.875rem;
+    color: #495057;
+    transition: background 0.15s;
+}
+
+.table-custom tbody tr:hover td {
+    background: #f0f9f4;
+}
+
+/* ============================================================
+   PAGINATION
+   ============================================================ */
+.pagination .page-item .page-link {
+    color: #198754;
+    border: 1px solid #d1e7dd;
+    border-radius: 8px !important;
+    margin: 0 2px;
+    transition: all 0.2s;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #d1e7dd;
+    border-color: #198754;
+    color: #157347;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    border-color: #198754;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #a3cfbb;
+    border-color: #d1e7dd;
+    background-color: #f8f9fa;
+}

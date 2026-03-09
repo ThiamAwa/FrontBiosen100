@@ -1,0 +1,273 @@
+<div class="categories-wrapper">
+    <div class="categories-container">
+        <!-- Header -->
+        <div class="page-header-custom">
+            <h1><i class="fas fa-tags"></i> Gestion des Catégories</h1>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-list"></i>
+                    <span>Liste des Catégories</span>
+                </div>
+                <button type="button" class="btn btn-add-custom" (click)="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>Nouvelle Catégorie</span>
+                </button>
+            </div>
+
+            <!-- Alerts -->
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+
+            <div class="card-body-custom">
+                <div class="table-responsive">
+                    <div class="table-container">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (cat of categories; track cat.id) {
+                                <tr>
+                                    <td><strong>{{ cat.nom }}</strong></td>
+                                    <td>{{ cat.description | slice:0:50 }}{{ cat.description.length > 50 ? '...' : '' }}
+                                    </td>
+                                    <td>
+                                        @if (cat.type_categorie) {
+                                        <span class="tc-badge tc-badge-empty">
+                                            <i class="fas fa-tag"></i> {{ cat.type_categorie.nom }}
+                                        </span>
+                                        } @else {
+                                        <span class="tc-badge tc-badge-empty">
+                                            <i class="fas fa-tag"></i> Non défini
+                                        </span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-light me-2"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openEditModal(cat)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            (click)="openDeleteModal(cat)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                } @empty {
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-folder-open fa-2x text-muted mb-3"></i>
+                                            <p class="text-muted">Aucune catégorie trouvée</p>
+                                            <small class="text-muted">Commencez par créer votre première
+                                                catégorie</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage
+                        <span class="fw-medium">{{ firstItem }}</span>
+                        à
+                        <span class="fw-medium">{{ lastItem }}</span>
+                        sur
+                        <span class="fw-medium">{{ total }}</span>
+                        catégories
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
+                                    aria-label="Précédent">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
+                                    aria-label="Suivant">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Création -->
+@if (showCreateModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:#ffffff;">
+                    <i class="fas fa-plus me-2"></i>Nouvelle Catégorie
+                </h5>
+                <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) {
+                        <li>{{ err }}</li>
+                        }
+                    </ul>
+                </div>
+                }
+                <div class="mb-3">
+                    <input type="text" class="form-control" [(ngModel)]="createForm.nom" name="nom"
+                        placeholder="Nom de la catégorie *" required>
+                </div>
+                <div class="mb-3">
+                    <textarea class="form-control" [(ngModel)]="createForm.description" name="description" rows="2"
+                        placeholder="Description *" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <select class="form-select" [(ngModel)]="createForm.type_categorie_id" name="type_categorie_id">
+                        <option value="">-- Sélectionner un type --</option>
+                        @for (type of typeCategories; track type.id) {
+                        <option [value]="type.id">{{ type.nom }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="createCategorie()">Créer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Édition -->
+@if (showEditModal && selectedCategorie) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:#ffffff;">
+                    <i class="fas fa-edit me-2"></i>Modifier Catégorie
+                </h5>
+                <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) {
+                        <li>{{ err }}</li>
+                        }
+                    </ul>
+                </div>
+                }
+                <div class="mb-3">
+                    <input type="text" class="form-control" [(ngModel)]="editForm.nom" name="edit_nom"
+                        placeholder="Nom de la catégorie *" required>
+                </div>
+                <div class="mb-3">
+                    <textarea class="form-control" [(ngModel)]="editForm.description" name="edit_description" rows="2"
+                        placeholder="Description *" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <select class="form-select" [(ngModel)]="editForm.type_categorie_id" name="edit_type_categorie_id">
+                        <option value="">-- Sélectionner un type --</option>
+                        @for (type of typeCategories; track type.id) {
+                        <option [value]="type.id">{{ type.nom }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="updateCategorie()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Modal Suppression -->
+@if (showDeleteModal && selectedCategorie) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center w-100">
+                    <div class="warning-icon bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style="width: 48px; height: 48px;">
+                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title mb-0 fw-bold">Confirmer la suppression</h5>
+                    </div>
+                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                </div>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h6 class="fw-semibold mb-2">
+                        Êtes-vous sûr de vouloir supprimer cette catégorie ?
+                    </h6>
+                    <p class="mb-0">
+                        La catégorie <span class="fw-bold text-danger">"{{ selectedCategorie.nom }}"</span> sera
+                        définitivement supprimée.
+                    </p>
+                </div>
+
+
+            </div>
+            <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                <div class="w-100 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-success px-4" (click)="closeDeleteModal()">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="button" class="btn btn-danger px-4" (click)="deleteCategorie()">
+                        <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}

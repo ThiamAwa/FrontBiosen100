@@ -1,0 +1,272 @@
+.container-fluid {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  min-height: 100vh;
+  padding-top: 200px !important;
+}
+
+/* Cartes */
+.card {
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.card:hover {
+  box-shadow: 0 15px 35px rgba(40, 119, 71, 0.15) !important;
+}
+
+/* Formulaires */
+.form-control, .form-select {
+  border-radius: 10px;
+  padding: 12px 20px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #287747 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 119, 71, 0.25);
+  outline: none;
+}
+
+.form-control-lg, .form-select-lg {
+  font-size: 1rem;
+}
+
+/* Labels */
+.form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.form-label .text-danger {
+  font-size: 1.1rem;
+  margin-left: 2px;
+}
+
+/* Champs invalides */
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+/* Alertes */
+.alert {
+  border-radius: 12px;
+  padding: 15px 20px;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.alert-info {
+  background-color: #e8f5e9 !important;
+  border-color: #287747 !important;
+  border-left: 4px solid #287747 !important;
+  color: #155724;
+  border-radius: 8px;
+}
+
+/* Boutons */
+.btn {
+  transition: all 0.3s ease;
+  font-weight: 600;
+  border-radius: 50px;
+  padding: 12px 30px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+  border: none;
+  box-shadow: 0 5px 15px rgba(40, 119, 71, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 119, 71, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-outline-secondary {
+  border: 2px solid #287747;
+  color: #287747;
+  background: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #287747;
+  border-color: #287747;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Résumé de commande */
+.sticky-top {
+  top: 20px;
+  z-index: 100;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+/* Produits dans le résumé */
+.fw-semibold.small {
+  color: #287747 !important;
+  font-size: 0.95rem !important;
+  margin-bottom: 4px;
+}
+
+.text-muted small {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+/* Totaux */
+.space-y-3 > * + * {
+  margin-top: 1rem;
+}
+
+.d-flex.justify-content-between {
+  align-items: center;
+}
+
+.d-flex.justify-content-between .text-muted {
+  font-size: 0.95rem;
+}
+
+.d-flex.justify-content-between .fw-semibold {
+  font-size: 1rem;
+}
+
+/* Total final */
+.border-top {
+  border-top: 3px solid #287747 !important;
+}
+
+h5.fw-bold {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+h3.fw-bold {
+  color: #287747 !important;
+  font-size: 1.5rem;
+  margin-bottom: 0;
+}
+
+/* Garanties */
+.rounded-lg {
+  border-radius: 15px;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.text-muted small {
+  line-height: 1.5;
+}
+
+/* Spinner */
+.spinner-border {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 0.2rem;
+  color: #287747;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sticky-top {
+    position: static !important;
+    margin-top: 2rem;
+  }
+
+  .form-control-lg, .form-select-lg {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+
+  .btn-lg {
+    font-size: 1rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  h3.fw-bold {
+    font-size: 1.3rem;
+  }
+
+  .display-5 {
+    font-size: 1.8rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Checkbox personnalisée */
+.form-check-input:checked {
+  background-color: #287747;
+  border-color: #287747;
+}
+
+.form-check-input:focus {
+  border-color: #287747;
+  box-shadow: 0 0 0 0.2rem rgba(40, 119, 71, 0.25);
+}
+
+/* Lien dans les conditions */
+a.fw-bold {
+  color: #287747 !important;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a.fw-bold:hover {
+  color: #1a5230 !important;
+  text-decoration: underline;
+}
+
+/* Message d'erreur général */
+.alert-danger .d-flex {
+  gap: 15px;
+}
+
+.alert-danger i {
+  font-size: 1.5rem;
+}
+
+.alert-heading {
+  color: #721c24;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}

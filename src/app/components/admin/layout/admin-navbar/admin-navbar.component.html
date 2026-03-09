@@ -1,0 +1,94 @@
+<nav class="sb-topnav navbar navbar-expand">
+
+    <!-- ── Brand ── -->
+    <a class="navbar-brand ps-3" routerLink="/admin/dashboard">
+        <img src="/logo-biosen.jpeg" alt="Sen Bio Logo" class="brand-logo-img" />
+        <span class="brand-text">Biosen<span>100</span></span>
+    </a>
+
+    <!-- ── Sidebar Toggle ── -->
+    <button class="btn btn-toggle ms-2" (click)="onToggle()" title="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ── Search ── -->
+    <div class="search-wrapper d-none d-md-flex ms-auto me-3">
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Rechercher..." [(ngModel)]="searchQuery" />
+        </div>
+    </div>
+
+    <!-- ── Notifications (bonus) ── -->
+    <div class="d-none d-md-flex align-items-center me-2">
+        <button class="btn btn-notif" title="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="notif-dot"></span>
+        </button>
+    </div>
+
+    <!-- ── User Dropdown ── -->
+    <div class="user-dropdown me-3" (click)="$event.stopPropagation()">
+
+        <!-- Trigger -->
+        <button class="user-trigger" (click)="toggleDropdown($event)">
+            <div class="user-avatar">
+                {{ getInitiale() }}
+            </div>
+            <div class="user-info d-none d-md-flex flex-column text-start">
+                <span class="user-name">{{ getNomComplet() }}</span>
+                <span class="user-role">Administrateur</span>
+            </div>
+            <i class="fas fa-chevron-down chevron" [class.rotated]="dropdownOpen"></i>
+        </button>
+
+        <!-- Menu -->
+        <div class="user-menu" [class.open]="dropdownOpen">
+
+            <!-- Header carte -->
+            <div class="user-menu-header">
+                <div class="user-menu-avatar">
+                    {{ getInitiale() }}
+                </div>
+                <div class="user-menu-info">
+                    <span class="user-menu-name">{{ getNomComplet() }}</span>
+                    <span class="user-menu-email">{{ getEmail() }}</span>
+                    <span class="user-menu-badge">
+                        <i class="fas fa-shield-alt me-1"></i>Admin
+                    </span>
+                </div>
+            </div>
+
+            <div class="user-menu-divider"></div>
+
+            <!-- Actions -->
+            <div class="user-menu-body">
+                <a routerLink="/admin/dashboard" class="user-menu-item" (click)="dropdownOpen = false">
+                    <span class="menu-item-icon green">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a routerLink="/admin/profile" class="user-menu-item" (click)="dropdownOpen = false">
+                    <span class="menu-item-icon blue">
+                        <i class="fas fa-user-cog"></i>
+                    </span>
+                    <span>Mon profil</span>
+                </a>
+            </div>
+
+            <div class="user-menu-divider"></div>
+
+            <!-- Déconnexion -->
+            <div class="user-menu-footer">
+                <button class="user-menu-logout" (click)="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</nav>

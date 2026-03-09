@@ -1,0 +1,374 @@
+<div class="categories-wrapper">
+    <div class="categories-container">
+        <div class="page-header-custom">
+            <h1><i class="fas fa-store"></i> Gestion des Boutiques</h1>
+        </div>
+
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-store-alt"></i>
+                    <span>Liste des Boutiques</span>
+                </div>
+                <button type="button" class="btn btn-add-custom" (click)="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>Nouvelle Boutique</span>
+                </button>
+            </div>
+
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+
+            <div class="card-body-custom">
+                <div class="table-responsive">
+                    <div class="table-container">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Nom de la Boutique</th>
+                                    <th>Adresse</th>
+                                    <th class="text-center">Personnel</th>
+                                    <th>Date de création</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (boutique of boutiques; track boutique.id) {
+                                <tr>
+                                    <td><strong>{{ boutique.nom }}</strong></td>
+                                    <td>
+                                        <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                                        {{ truncate(boutique.adresse, 40) }}
+                                    </td>
+                                    <td class="text-center">
+                                        @if (boutique.users_count && boutique.users_count > 0) {
+                                        <span class="tc-badge tc-badge-personnel" (click)="openPersonnelModal(boutique)"
+                                            style="cursor: pointer;" title="Cliquez pour voir les détails">
+                                            <i class="fas fa-users"></i> {{ boutique.users_count }} employé(s)
+                                        </span>
+                                        } @else {
+                                        <span class="tc-badge tc-badge-empty">
+                                            <i class="fas fa-user-slash"></i> 0 employé
+                                        </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ boutique.created_at | date:'dd/MM/yyyy à HH:mm' }}
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-light me-2"
+                                            style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;"
+                                            (click)="openEditModal(boutique)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            (click)="openDeleteModal(boutique)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                } @empty {
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-store fa-2x text-muted mb-3"></i>
+                                            <p class="text-muted">Aucune boutique trouvée</p>
+                                            <small class="text-muted">Commencez par créer votre première
+                                                boutique</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage
+                        <span class="fw-medium">{{ firstItem }}</span>
+                        à
+                        <span class="fw-medium">{{ lastItem }}</span>
+                        sur
+                        <span class="fw-medium">{{ total }}</span>
+                        boutiques
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
+                                    aria-label="Précédent">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
+                                    aria-label="Suivant">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL CRÉATION ========== -->
+@if (showCreateModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-plus me-2"></i>Nouvelle Boutique
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                }
+                <div class="mb-3">
+                    <label for="nom_create" class="form-label">Nom de la Boutique *</label>
+                    <input type="text" class="form-control" id="nom_create" [(ngModel)]="createForm.nom" required
+                        placeholder="Ex: Boutique Centre-Ville">
+                    <small class="text-muted">Le nom doit être unique</small>
+                </div>
+                <div class="mb-3">
+                    <label for="adresse_create" class="form-label">Adresse *</label>
+                    <input type="text" class="form-control" id="adresse_create" [(ngModel)]="createForm.adresse"
+                        required placeholder="Ex: 12 Rue du Commerce, Dakar">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
+                <button type="button" class="btn btn-success-custom" (click)="createBoutique()">Créer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ========== MODAL ÉDITION ========== -->
+@if (showEditModal && selectedBoutique) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-edit me-2"></i>Modifier la Boutique
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()"></button>
+            </div>
+            <div class="modal-body">
+                @if (validationErrors.length > 0) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                }
+                <div class="mb-3">
+                    <label for="nom_edit" class="form-label">Nom de la Boutique *</label>
+                    <input type="text" class="form-control" id="nom_edit" [(ngModel)]="editForm.nom" required>
+                    <small class="text-muted">Le nom doit être unique</small>
+                </div>
+                <div class="mb-3">
+                    <label for="adresse_edit" class="form-label">Adresse *</label>
+                    <input type="text" class="form-control" id="adresse_edit" [(ngModel)]="editForm.adresse" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
+                <button type="button" class="btn btn-success-custom" (click)="updateBoutique()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ========== MODAL SUPPRESSION ========== -->
+@if (showDeleteModal && boutiqueToDelete) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center w-100">
+                    <div class="warning-icon bg-danger bg-opacity-10 text-danger rounded-circle
+                                d-flex align-items-center justify-content-center me-3"
+                        style="width: 48px; height: 48px;">
+                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title mb-0 fw-bold">Confirmer la suppression</h5>
+                    </div>
+                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                </div>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h6 class="fw-semibold mb-2">
+                        Êtes-vous sûr de vouloir supprimer cette boutique ?
+                    </h6>
+                    <p class="mb-0">
+                        La boutique
+                        <span class="fw-bold text-danger">"{{ boutiqueToDelete.nom }}"</span>
+                        sera définitivement supprimée.
+                    </p>
+                </div>
+
+                @if (hasPersonnel) {
+                <div class="alert alert-danger border-danger mb-0">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-exclamation-circle mt-1 me-3 text-danger"></i>
+                        <div>
+                            <p class="mb-0">
+                                <strong>Impossible de supprimer !</strong><br>
+                                Cette boutique a
+                                <strong>{{ boutiqueToDelete.users_count }} employé(s)</strong>.
+                                Veuillez d'abord réaffecter ou supprimer le personnel.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                } @else {
+                <div class="alert alert-warning border-warning mb-0">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-info-circle mt-1 me-3 text-warning"></i>
+                        <div>
+                            <p class="mb-0">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Cette action est <strong>irréversible</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                <div class="w-100 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-success px-4" (click)="closeDeleteModal()">
+                        <i class="fas fa-times me-2"></i>Fermer
+                    </button>
+                    @if (!hasPersonnel) {
+                    <button type="button" class="btn btn-danger px-4" (click)="deleteBoutique()">
+                        <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                    </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ========== MODAL PERSONNEL ========== -->
+@if (showPersonnelModal && personnelBoutique) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 modal-header-custom">
+                <div class="d-flex align-items-center w-100">
+                    <div class="icon-wrapper-modal me-3">
+                        <i class="fas fa-users fa-lg text-white"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title mb-0 fw-bold text-white">
+                            Personnel de {{ personnelBoutique.nom }}
+                        </h5>
+                        <small class="text-white" style="opacity: 0.8;">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ personnelBoutique.adresse }}
+                        </small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" (click)="closePersonnelModal()"></button>
+                </div>
+            </div>
+
+            <div class="modal-body p-0">
+                <div class="p-3 bg-light border-bottom">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-users text-success me-2"></i>
+                        <span class="fw-bold">
+                            {{ personnelBoutique.users?.length ?? 0 }} employé(s)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="personnel-list p-3">
+                    @for (user of personnelBoutique.users; track user.id) {
+                    <div class="personnel-card mb-3 p-3 border rounded hover-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        {{ user.nom.charAt(0).toUpperCase() }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ user.nom }} {{ user.prenom }}</div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-envelope me-1"></i>{{ user.email }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="small text-muted mb-1">
+                                    <i class="fas fa-phone me-1"></i>Téléphone
+                                </div>
+                                <div class="fw-semibold">{{ user.telephone }}</div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="small text-muted mb-1">
+                                    <i class="fas fa-user-tag me-1"></i>Rôle
+                                </div>
+                                <span class="badge" [class]="getRoleBadgeClass(user.role?.name)"
+                                    style="padding: 8px 16px; font-size: 13px;">
+                                    <i class="fas {{ getRoleIcon(user.role?.name) }} me-1"></i>
+                                    {{ user.role?.name }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-success" (click)="closePersonnelModal()">
+                    <i class="fas fa-times me-2"></i>Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}

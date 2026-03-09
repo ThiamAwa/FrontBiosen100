@@ -1,0 +1,584 @@
+<div class="factures-wrapper">
+    <div class="factures-container">
+
+        <div class="page-header-custom">
+            <h1><i class="fas fa-file-invoice"></i> Gestion des Factures</h1>
+        </div>
+
+        <!-- Boutons d'export -->
+        <div class="d-flex gap-2 mb-3" style="margin-top: 1rem;">
+            <button type="button" class="btn btn-export btn-export-excel" (click)="exportExcel()"
+                title="Exporter en Excel">
+                <i class="fas fa-file-excel"></i> <span>Excel</span>
+            </button>
+            <button type="button" class="btn btn-export btn-export-pdf" (click)="exportPDF()" title="Exporter en PDF">
+                <i class="fas fa-file-pdf"></i> <span>PDF</span>
+            </button>
+            <button type="button" class="btn btn-export btn-export-print" (click)="print()" title="Imprimer">
+                <i class="fas fa-print"></i> <span>Imprimer</span>
+            </button>
+        </div>
+
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-list"></i>
+                    <span>Liste des Factures</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    @if (hasActiveFilters) {
+                    <span class="badge bg-success">
+                        <i class="fas fa-filter me-1"></i>Filtres actifs
+                    </span>
+                    }
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleFilterPanel()">
+                        <i class="fas fa-filter"></i> <span>Filtrer</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (validationErrors.length > 0) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Erreur de validation :</strong>
+                    <ul class="mb-0 mt-2">
+                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                    </ul>
+                </div>
+                <button type="button" class="btn-close" (click)="validationErrors = []"></button>
+            </div>
+            }
+
+            <!-- ── Filter Panel ── -->
+            @if (showFilterPanel) {
+            <div class="filter-panel"
+                style="padding: 16px 20px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-sliders-h me-2 text-success"></i>
+                    <strong style="color: #10b981;">Filtres de recherche</strong>
+                </div>
+
+                <div class="row g-3">
+
+                    <!-- Statut -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-tag me-1 text-success"></i>Statut
+                        </label>
+                        <select class="form-select form-select-sm" [(ngModel)]="selectedStatut">
+                            <option value="">— Tous —</option>
+                            <option value="payé">Payé</option>
+                            <option value="impayé">Impayé</option>
+                            <option value="en_attente">En attente</option>
+                        </select>
+                    </div>
+
+                    <!-- Période rapide -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-bolt me-1 text-success"></i>Période rapide
+                        </label>
+                        <select class="form-select form-select-sm" [(ngModel)]="selectedPeriode"
+                            (ngModelChange)="onPeriodeChange($event)">
+                            <option value="">— Choisir —</option>
+                            <option value="cette_semaine">Cette semaine</option>
+                            <option value="semaine_derniere">Semaine dernière</option>
+                            <option value="ce_mois">Ce mois</option>
+                            <option value="mois_dernier">Mois dernier</option>
+                            <option value="cette_annee">Cette année</option>
+                            <option value="custom">Personnalisé</option>
+                        </select>
+                    </div>
+
+                    <!-- Mois -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-alt me-1 text-success"></i>Mois
+                        </label>
+                        <select class="form-select form-select-sm" [(ngModel)]="selectedMonth"
+                            [disabled]="selectedPeriode !== '' && selectedPeriode !== 'custom'">
+                            <option value="">— Tous —</option>
+                            @for (m of months; track m.value) {
+                            <option [value]="m.value">{{ m.label }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Année -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar me-1 text-success"></i>Année
+                        </label>
+                        <select class="form-select form-select-sm" [(ngModel)]="selectedYear"
+                            [disabled]="selectedPeriode !== '' && selectedPeriode !== 'custom'">
+                            <option value="">— Toutes —</option>
+                            @for (y of years; track y) {
+                            <option [value]="y">{{ y }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Date début -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-day me-1 text-success"></i>Du
+                        </label>
+                        <input type="date" class="form-control form-control-sm" [(ngModel)]="selectedDateDebut"
+                            [disabled]="selectedPeriode !== '' && selectedPeriode !== 'custom'">
+                    </div>
+
+                    <!-- Date fin -->
+                    <div class="col-md-2 col-sm-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-day me-1 text-success"></i>Au
+                        </label>
+                        <input type="date" class="form-control form-control-sm" [(ngModel)]="selectedDateFin"
+                            [disabled]="selectedPeriode !== '' && selectedPeriode !== 'custom'">
+                    </div>
+
+                    <!-- Recherche -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-search me-1 text-success"></i>Recherche
+                        </label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="searchTerm"
+                            placeholder="N° facture, nom client">
+                    </div>
+
+                </div>
+
+                <!-- Résumé filtres actifs -->
+                @if (hasActiveFilters) {
+                <div class="mt-3 p-2 rounded" style="background:#e8f5ed; border:1px solid #c3e6cb;">
+                    <small class="text-success fw-semibold">
+                        <i class="fas fa-filter me-1"></i>Filtres actifs :
+                        @if (selectedStatut) {
+                        <span class="badge bg-success me-1">{{ getStatutLabel(selectedStatut) }}</span>
+                        }
+                        @if (selectedPeriode && selectedPeriode !== 'custom') {
+                        <span class="badge bg-success me-1">{{ getPeriodeLabel(selectedPeriode) }}</span>
+                        }
+                        @if (selectedMonth && (!selectedPeriode || selectedPeriode === 'custom')) {
+                        <span class="badge bg-success me-1">{{ months[+selectedMonth - 1].label }}</span>
+                        }
+                        @if (selectedYear && (!selectedPeriode || selectedPeriode === 'custom')) {
+                        <span class="badge bg-success me-1">{{ selectedYear }}</span>
+                        }
+                        @if (selectedDateDebut) {
+                        <span class="badge bg-success me-1">Du {{ selectedDateDebut }}</span>
+                        }
+                        @if (selectedDateFin) {
+                        <span class="badge bg-success me-1">Au {{ selectedDateFin }}</span>
+                        }
+                        @if (searchTerm) {
+                        <span class="badge bg-success me-1">"{{ searchTerm }}"</span>
+                        }
+                        — <strong>{{ total }} résultat(s)</strong>
+                    </small>
+                </div>
+                }
+
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                    <button type="button" class="btn btn-sm btn-success px-4" (click)="applyFilters()">
+                        <i class="fas fa-check me-1"></i> Appliquer
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary px-4" (click)="resetFilters()">
+                        <i class="fas fa-redo me-1"></i> Réinitialiser
+                    </button>
+                </div>
+            </div>
+            }
+
+            <div class="card-body-custom">
+                <div class="table-responsive">
+                    <div class="table-container">
+                        <table class="table table-custom" id="facturesTable">
+                            <thead>
+                                <tr>
+                                    <th>N° Facture</th>
+                                    <th>N° Commande</th>
+                                    <th>Client</th>
+                                    <th>Montant</th>
+                                    <th>Date Émission</th>
+                                    <!-- <th>Date Échéance</th> -->
+                                    <th>Statut Paiement</th>
+                                    <th class="text-center action-column">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (facture of factures; track facture.id) {
+                                <tr>
+                                    <!-- N° Facture -->
+                                    <td><strong>{{ facture.numero_facture }}</strong></td>
+
+                                    <!-- N° Commande -->
+                                    <td>
+                                        @if (facture.commande?.numeroCommande) {
+                                        <span class="badge bg-success" style="font-size:11px;">
+                                            {{ facture.commande?.numeroCommande }}
+                                        </span>
+                                        } @else {
+                                        <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <!-- Client -->
+                                    <td>
+                                        <div>
+                                            <strong>{{ getClientInfo(facture).nomComplet }}</strong>
+                                        </div>
+                                        @if (getClientInfo(facture).telephone) {
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-phone fa-xs me-1"></i>
+                                            {{ getClientInfo(facture).telephone }}
+                                        </small>
+                                        }
+                                    </td>
+
+                                    <!-- Montant -->
+                                    <td><strong>{{ getMontant(facture) | number:'1.0-0':'fr' }} F</strong></td>
+
+                                    <!-- Date émission -->
+                                    <td><small>{{ formatDate(facture.date_emission) }}</small></td>
+
+                                    <!-- Date échéance -->
+                                    <!-- <td>
+                                        <small [class.text-danger]="isOverdue(facture)">
+                                            {{ formatDate(facture.date_echeance) }}
+                                        </small>
+                                        @if (isOverdue(facture)) {
+                                        <span class="badge bg-danger ms-1" style="font-size:10px;">Dépassée</span>
+                                        }
+                                    </td> -->
+
+                                    <!-- Statut -->
+                                    <td>
+                                        <span class="badge {{ getStatutClass(facture.statut_paiement) }}">
+                                            {{ getStatutLabel(facture.statut_paiement) }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="text-center action-column">
+                                        <button type="button" class="btn btn-sm btn-light me-1"
+                                            style="background-color:#d4edda;color:#155724;border-color:#c3e6cb;"
+                                            (click)="openViewModal(facture)" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-light me-1"
+                                            style="background-color:#d4edda;color:#155724;border-color:#c3e6cb;"
+                                            (click)="openEditModal(facture)" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-light me-1"
+                                            style="background-color:#cce5ff;color:#004085;border-color:#b8daff;"
+                                            (click)="downloadPdf(facture)" title="Télécharger PDF">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            (click)="openDeleteModal(facture)" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                } @empty {
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <i class="fas fa-inbox fa-2x text-muted mb-3 d-block"></i>
+                                        <p class="text-muted mb-1">Aucune facture trouvée</p>
+                                        @if (hasActiveFilters) {
+                                        <small class="text-muted">
+                                            Essayez de modifier ou
+                                            <a href="javascript:void(0)" (click)="resetFilters()" class="text-success">
+                                                réinitialiser les filtres
+                                            </a>
+                                        </small>
+                                        } @else {
+                                        <small class="text-muted">Les factures apparaîtront ici</small>
+                                        }
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage <span class="fw-medium">{{ firstItem }}</span> à
+                        <span class="fw-medium">{{ lastItem }}</span> sur
+                        <span class="fw-medium">{{ total }}</span> factures
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Modal Détails ===== -->
+@if (showViewModal && selectedFacture) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-eye me-2"></i>Détails Facture {{ selectedFacture.numero_facture }}
+                </h5>
+                <button type="button" class="btn-close" (click)="closeViewModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-user me-2 text-success"></i>Informations Client
+                        </h6>
+                        <p class="mb-2">
+                            <strong>Nom complet :</strong>
+                            {{ getClientInfo(selectedFacture).nomComplet || '—' }}
+                        </p>
+                        @if (getClientInfo(selectedFacture).telephone) {
+                        <p class="mb-2">
+                            <strong>Téléphone :</strong>
+                            {{ getClientInfo(selectedFacture).telephone }}
+                        </p>
+                        }
+                        @if (getClientInfo(selectedFacture).adresse) {
+                        <p class="mb-0">
+                            <strong>Adresse :</strong>
+                            {{ getClientInfo(selectedFacture).adresse }}
+                        </p>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-file-invoice me-2 text-success"></i>Informations Facture
+                        </h6>
+                        <p class="mb-2"><strong>N° Facture :</strong> {{ selectedFacture.numero_facture }}</p>
+
+                        <!-- N° Commande dans le modal -->
+                        <p class="mb-2">
+                            <strong>N° Commande :</strong>
+                            @if (selectedFacture.commande?.numeroCommande) {
+                            <span class="badge bg-success ms-1">
+                                {{ selectedFacture.commande?.numeroCommande }}
+                            </span>
+                            } @else {
+                            <span class="text-muted">—</span>
+                            }
+                        </p>
+
+                        <p class="mb-2">
+                            <strong>Date d'émission :</strong>
+                            {{ formatDate(selectedFacture.date_emission) }}
+                        </p>
+                        <!-- <p class="mb-2">
+                            <strong>Date d'échéance :</strong>
+                            <span [class.text-danger]="isOverdue(selectedFacture)">
+                                {{ formatDate(selectedFacture.date_echeance) }}
+                            </span>
+                        </p> -->
+                        <p class="mb-0">
+                            <strong>Statut :</strong>
+                            <span class="badge {{ getStatutClass(selectedFacture.statut_paiement) }}">
+                                {{ getStatutLabel(selectedFacture.statut_paiement) }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-box me-2 text-success"></i>Produits Facturés
+                </h6>
+                @if (getProduits(selectedFacture).length > 0) {
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Produit</th>
+                                <th class="text-center">Quantité</th>
+                                <th class="text-end">Prix Unitaire</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (produit of getProduits(selectedFacture); track $index) {
+                            <tr>
+                                <td>{{ produit.nom }}</td>
+                                <td class="text-center">{{ produit.quantite }}</td>
+                                <td class="text-end">{{ produit.prix | number:'1.0-0':'fr' }} F</td>
+                                <td class="text-end">
+                                    <strong>{{ produit.quantite * produit.prix | number:'1.0-0':'fr' }} F</strong>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                } @else {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-1"></i> Aucun produit dans cette facture
+                </div>
+                }
+                <hr>
+                <div class="row">
+                    <div class="col-md-6 offset-md-6">
+                        <div class="bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>Montant Total :</strong>
+                                <strong class="text-success fs-5">
+                                    {{ getMontant(selectedFacture) | number:'1.0-0':'fr' }} F
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" (click)="closeViewModal()">Fermer</button>
+                <button type="button" class="btn btn-primary" (click)="downloadPdf(selectedFacture)">
+                    <i class="fas fa-download me-1"></i>Télécharger PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ===== Modal Édition ===== -->
+@if (showEditModal && selectedFacture) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form (ngSubmit)="updateFacture()">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">
+                        <i class="fas fa-edit me-2"></i>Modifier Facture - {{ selectedFacture.numero_facture }}
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+                </div>
+                <div class="modal-body">
+                    @if (validationErrors.length > 0) {
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @for (err of validationErrors; track err) { <li>{{ err }}</li> }
+                        </ul>
+                    </div>
+                    }
+                    <div class="mb-3">
+                        <label for="statut_edit" class="form-label">Statut de paiement *</label>
+                        <select class="form-select" id="statut_edit" [(ngModel)]="editForm.statut_paiement"
+                            name="statut_paiement" required>
+                            <option value="en_attente">En attente</option>
+                            <option value="payé">Payé</option>
+                            <option value="impayé">Impayé</option>
+                        </select>
+                    </div>
+                    <!-- <div class="mb-3">
+                        <label for="echeance_edit" class="form-label">Date d'échéance</label>
+                        <input type="date" class="form-control" id="echeance_edit" [(ngModel)]="editForm.date_echeance"
+                            name="date_echeance">
+                        <small class="text-muted">Modifier la date d'échéance si nécessaire</small>
+                    </div> -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>Montant Total :</strong>
+                        {{ getMontant(selectedFacture) | number:'1.0-0':'fr' }} F
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                        {{ submitting ? 'Enregistrement...' : 'Enregistrer' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ===== Modal Suppression ===== -->
+@if (showDeleteModal && factureToDelete) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center w-100">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center
+                        justify-content-center me-3" style="width:48px;height:48px;">
+                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title mb-0 fw-bold text-white">Confirmer la suppression</h5>
+                    </div>
+                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                </div>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer cette facture ?</h6>
+                    <p class="mb-3">
+                        La facture <span class="fw-bold text-danger">{{ factureToDelete.numero_facture }}</span>
+                        de <span class="fw-bold">{{ getClientInfo(factureToDelete).nomComplet }}</span>
+                        sera définitivement supprimée.
+                    </p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <small>Le montant de
+                            <strong>{{ getMontant(factureToDelete) | number:'1.0-0':'fr' }} F</strong>
+                            sera perdu.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                <div class="w-100 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-success px-4" (click)="closeDeleteModal()">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="button" class="btn btn-danger px-4" (click)="deleteFacture()" [disabled]="submitting">
+                        <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}

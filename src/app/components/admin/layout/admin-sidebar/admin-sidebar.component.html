@@ -1,86 +1,76 @@
-<!-- admin-sidebar.component.html -->
-<nav id="layoutSidenav_nav">
+<nav id="layoutSidenav_nav" [class.collapsed]="collapsed">
     <div class="sb-sidenav-menu">
         <!-- TABLEAU DE BORD -->
         <div class="sb-sidenav-menu-heading">Tableau de bord</div>
         <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-            Dashboard
+            <span class="nav-link-text">Dashboard</span>
         </a>
 
         <!-- CATALOGUE -->
         <div class="sb-sidenav-menu-heading">Catalogue</div>
-
         <a class="nav-link" routerLink="/admin/typecategories" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
-            Type Categories
+            <span class="nav-link-text">Type Catégories</span>
         </a>
         <a class="nav-link" routerLink="/admin/categories" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
-            Catégories
+            <span class="nav-link-text">Catégories</span>
         </a>
-
         <a class="nav-link" routerLink="/admin/gammes" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-layer-group"></i></div>
-            Gammes
+            <span class="nav-link-text">Gammes</span>
         </a>
-
-        <a class="nav-link collapsed" routerLink="/admin/produits" routerLinkActive="active">
+        <a class="nav-link" routerLink="/admin/produits" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
-            Produits Bio
+            <span class="nav-link-text">Produits Bio</span>
         </a>
-
         <a class="nav-link" routerLink="/admin/produits-sport" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-dumbbell"></i></div>
-            Produits Sport
+            <span class="nav-link-text">Produits Sport</span>
         </a>
 
         <!-- UTILISATEURS -->
         <div class="sb-sidenav-menu-heading">Utilisateurs</div>
-
         <a class="nav-link" routerLink="/admin/vendeurs" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-user-tie"></i></div>
-            Vendeurs
+            <span class="nav-link-text">Vendeurs</span>
         </a>
-
         <a class="nav-link" routerLink="/admin/livreurs" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-truck"></i></div>
-            Livreurs
+            <span class="nav-link-text">Livreurs</span>
         </a>
         <a class="nav-link" routerLink="/admin/boutiques" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-store"></i></div>
-            Boutiques
+            <span class="nav-link-text">Boutiques</span>
         </a>
 
         <!-- CLIENTS -->
         <div class="sb-sidenav-menu-heading">Clients</div>
-
         <a class="nav-link" routerLink="/admin/clients" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-            Clients
+            <span class="nav-link-text">Clients</span>
         </a>
 
         <!-- COMMANDES -->
         <div class="sb-sidenav-menu-heading">Commandes</div>
-
         <a class="nav-link" routerLink="/admin/commandes" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
-            Commandes
+            <span class="nav-link-text">Commandes</span>
         </a>
 
         <!-- FACTURES -->
         <div class="sb-sidenav-menu-heading">Factures</div>
         <a class="nav-link" routerLink="/admin/factures" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
-            Factures
+            <span class="nav-link-text">Factures</span>
         </a>
 
         <!-- TÉMOIGNAGES -->
         <div class="sb-sidenav-menu-heading">Témoignages</div>
-
         <a class="nav-link" routerLink="/admin/temoignages" routerLinkActive="active">
             <div class="sb-nav-link-icon"><i class="fas fa-quote-left"></i></div>
-            Témoignages
+            <span class="nav-link-text">Témoignages</span>
         </a>
     </div>
 

@@ -355,7 +355,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-eye me-2"></i>
                     Détails Commande {{ selectedCommande.numeroCommande }}
                 </h5>
@@ -462,9 +462,9 @@
         <div class="modal-content">
             <form (ngSubmit)="updateCommande()">
                 <div class="modal-header">
-                    <h5 class="modal-title">
+                    <h5 class="modal-title text-white">
                         <i class="fas fa-edit me-2"></i>
-                        Modifier Statut - #{{ selectedCommande.numeroCommande }}
+                        Modifier Statut - {{ selectedCommande.numeroCommande }}
                     </h5>
                     <button type="button" class="btn-close" (click)="closeEditModal()"></button>
                 </div>

@@ -31,10 +31,10 @@ export class FooterComponent {
 
 
   paymentMethods = [
-    { src: 'assets/img/payments/expresso.png', alt: 'Expresso' },
-    { src: 'assets/img/payments/fremoney.png', alt: 'Free Money' },
-    { src: 'assets/img/payments/wave.png', alt: 'Wave' },
-    { src: 'assets/img/payments/Orange-Money.png', alt: 'Orange Money' },
+    { src: '/payments/expresso.png', alt: 'Expresso' },
+    { src: '/payments/fremoney.png', alt: 'Free Money' },
+    { src: '/payments/wave.png', alt: 'Wave' },
+    { src: '/payments/Orange-Money.png', alt: 'Orange Money' },
   ];
 
   onImgError(event: Event) {

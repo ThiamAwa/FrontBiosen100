@@ -160,10 +160,9 @@ export class FacturesComponent implements OnInit {
 
     const now = new Date();
     const year = now.getFullYear();
-    const month = now.getMonth(); // 0-based
-    const day = now.getDay();   // 0=dim
+    const month = now.getMonth();
+    const day = now.getDay();
 
-    // Lundi semaine courante
     const diffLundi = (day === 0 ? -6 : 1 - day);
     const lundi = new Date(now);
     lundi.setDate(now.getDate() + diffLundi);
@@ -218,49 +217,87 @@ export class FacturesComponent implements OnInit {
     return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 
+  // ─────────────────────────────────────────────────────────────────
+  // getClientInfo — résolution nom client sur 3 niveaux
+  //
+  // Niveau 1 : commande.user          → utilisateur connecté (eager-loaded)
+  // Niveau 2 : metadonnees.client     → ancienne structure {nom, prenom, ...}
+  // Niveau 3 : metadonnees.nom_client → structure actuelle checkout Laravel
+  //            (nom_client, telephone_client, adresse_client à la racine)
+  // ─────────────────────────────────────────────────────────────────
   getClientInfo(facture: Facture): {
-    nom: string; prenom: string; email: string; telephone: string; adresse: string;
+    nom: string; prenom: string; email: string; telephone: string; adresse: string; nomComplet: string;
   } {
+    // ── Niveau 1 : relation commande->user (utilisateur connecté) ──
     const user = facture.commande?.user;
-    if (user) {
+    if (user?.nom) {
       return {
         nom: user.nom ?? '',
         prenom: user.prenom ?? '',
         email: user.email ?? '',
         telephone: user.telephone ?? '',
         adresse: user.adresse ?? '',
+        nomComplet: [user.prenom, user.nom].filter(Boolean).join(' '),
       };
     }
-    const c = facture.metadonnees?.client ?? {};
+
+    // ── Niveau 2 : metadonnees.client (ancienne structure) ──
+    const c = facture.metadonnees?.client;
+    if (c?.nom) {
+      return {
+        nom: c.nom ?? '',
+        prenom: c.prenom ?? '',
+        email: c.email ?? '',
+        telephone: c.telephone ?? c.tel ?? c.phone ?? '',
+        adresse: c.adresse ?? '',
+        nomComplet: [c.prenom, c.nom].filter(Boolean).join(' '),
+      };
+    }
+
+    // ── Niveau 3 : metadonnees.nom_client (structure actuelle checkout) ──
+    // Laravel stocke : nom_client = "Prenom Nom" (chaîne complète)
+    const nomClient = facture.metadonnees?.nom_client?.trim() ?? '';
+    const parts = nomClient.split(' ');
+    const prenom = parts.length > 1 ? parts[0] : '';
+    const nom = parts.length > 1 ? parts.slice(1).join(' ') : parts[0] ?? '';
+
     return {
-      nom: c.nom ?? '',
-      prenom: c.prenom ?? '',
-      email: c.email ?? '',
-      telephone: c.telephone ?? c.tel ?? c.phone ?? '',
-      adresse: c.adresse ?? '',
+      nom,
+      prenom,
+      email: facture.metadonnees?.email ?? '',
+      telephone: facture.metadonnees?.telephone_client ?? '',
+      adresse: facture.metadonnees?.adresse_client ?? '',
+      nomComplet: nomClient || 'Client',
     };
   }
 
   getMontant(facture: Facture): number {
+    // Priorité 1 : montant total de la commande liée
     if (facture.commande?.montantTotal) return Number(facture.commande.montantTotal);
-    if (!facture?.metadonnees?.produits?.length) return 0;
-    return facture.metadonnees.produits.reduce(
-      (sum, p) => sum + Number(p.prix) * Number(p.quantite), 0
+    // Priorité 2 : total pré-calculé dans les métadonnées
+    if (facture.metadonnees?.total) return Number(facture.metadonnees.total);
+    // Priorité 3 : calcul depuis les lignes produits
+    const produits = facture.metadonnees?.produits;
+    if (!produits?.length) return 0;
+    return produits.reduce(
+      (sum, p) => sum + Number(p.prix_unitaire ?? p.prix) * Number(p.quantite), 0
     );
   }
 
   getProduits(facture: Facture): { nom: string; prix: number; quantite: number }[] {
+    // Priorité 1 : lignes du panier (relation commande->panier)
     const lignes = facture.commande?.panier?.lignesPanier;
     if (lignes?.length) {
-      return lignes.map(l => ({
+      return lignes.map((l: any) => ({
         nom: l.gamme?.nom ?? 'Produit',
         prix: Number(l.prixUnitaire),
         quantite: Number(l.quantite),
       }));
     }
+    // Priorité 2 : produits dans les métadonnées
     return (facture.metadonnees?.produits ?? []).map(p => ({
       nom: p.nom,
-      prix: Number(p.prix),
+      prix: Number(p.prix_unitaire ?? p.prix),
       quantite: Number(p.quantite),
     }));
   }
@@ -373,7 +410,7 @@ export class FacturesComponent implements OnInit {
     const client = this.getClientInfo(facture);
     const produits = this.getProduits(facture);
     const montant = this.getMontant(facture);
-    const clientNomComplet = [client.prenom, client.nom].filter(Boolean).join(' ');
+    const clientNomComplet = client.nomComplet;
     const numCommande = facture.commande?.numeroCommande
       ?? `CMD-${facture.numero_facture.replace('FAC-', '')}`;
 
@@ -426,7 +463,7 @@ export class FacturesComponent implements OnInit {
     let infoY = 72;
     const infoItems: { label: string; value: string }[] = [];
     if (client.telephone) infoItems.push({ label: 'TEL.', value: client.telephone });
-    if (client.email) infoItems.push({ label: 'EMAIL', value: client.email });
+    // if (client.email) infoItems.push({ label: 'EMAIL', value: client.email });
     if (client.adresse) infoItems.push({ label: 'ADRESSE', value: client.adresse });
 
     infoItems.forEach(item => {
@@ -561,18 +598,22 @@ export class FacturesComponent implements OnInit {
     this.factureService.getAll(this.buildExportFilters()).subscribe({
       next: (res) => {
         import('xlsx').then(XLSX => {
-          const data = res.data.map(f => ({
-            'N° Facture': f.numero_facture,
-            'Client': f.metadonnees?.client?.nom ?? f.commande?.user?.nom ?? '',
-            'Email': f.metadonnees?.client?.email ?? f.commande?.user?.email ?? '',
-            'Montant (FCFA)': this.getMontant(f),
-            'Date Emission': this.formatDate(f.date_emission),
-            'Date Echeance': this.formatDate(f.date_echeance),
-            'Statut': this.getStatutLabel(f.statut_paiement),
-          }));
+          const data = res.data.map(f => {
+            const client = this.getClientInfo(f);
+            return {
+              'N° Facture': f.numero_facture,
+              'Client': client.nomComplet,
+              'Email': client.email,
+              'Téléphone': client.telephone,
+              'Montant (FCFA)': this.getMontant(f),
+              'Date Emission': this.formatDate(f.date_emission),
+              'Date Echeance': this.formatDate(f.date_echeance),
+              'Statut': this.getStatutLabel(f.statut_paiement),
+            };
+          });
           const ws = XLSX.utils.json_to_sheet(data);
           ws['!cols'] = [
-            { wch: 18 }, { wch: 25 }, { wch: 30 },
+            { wch: 18 }, { wch: 28 }, { wch: 30 }, { wch: 18 },
             { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 14 },
           ];
           const wb = XLSX.utils.book_new();
@@ -629,7 +670,6 @@ export class FacturesComponent implements OnInit {
       cols.forEach(col => doc.text(col.label, col.x + 2, y + 6.2));
     };
 
-    // Titre page 1
     doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
     doc.setTextColor(NOIR.r, NOIR.g, NOIR.b);
     doc.text('LISTE DES FACTURES', m, 18);
@@ -656,7 +696,9 @@ export class FacturesComponent implements OnInit {
       doc.setFillColor(bg.r, bg.g, bg.b);
       doc.rect(m, rowY, W - m * 2, rowH, 'F');
 
-      const nom = f.metadonnees?.client?.nom ?? f.commande?.user?.nom ?? '-';
+      // ← Correction : utilise getClientInfo pour le nom
+      const client = this.getClientInfo(f);
+      const nom = client.nomComplet || '-';
       const montant = this.formatMontantPdf(this.getMontant(f));
       const statut = this.getStatutLabel(f.statut_paiement);
 
@@ -709,15 +751,21 @@ export class FacturesComponent implements OnInit {
   print(): void {
     this.factureService.getAll(this.buildExportFilters()).subscribe({
       next: (res) => {
-        const rows = res.data.map(f => `
-          <tr>
-            <td>${f.numero_facture}</td>
-            <td>${f.metadonnees?.client?.nom ?? f.commande?.user?.nom ?? '-'}</td>
-            <td style="text-align:right">${this.formatMontantPdf(this.getMontant(f))} FCFA</td>
-            <td>${this.formatDate(f.date_emission)}</td>
-            <td>${this.formatDate(f.date_echeance)}</td>
-            <td>${this.getStatutLabel(f.statut_paiement)}</td>
-          </tr>`).join('');
+        const rows = res.data.map(f => {
+          const client = this.getClientInfo(f);
+          return `
+            <tr>
+              <td>${f.numero_facture}</td>
+              <td>
+                <strong>${client.nomComplet}</strong>
+                
+              </td>
+              <td style="text-align:right">${this.formatMontantPdf(this.getMontant(f))} FCFA</td>
+              <td>${this.formatDate(f.date_emission)}</td>
+              <td>${this.formatDate(f.date_echeance)}</td>
+              <td>${this.getStatutLabel(f.statut_paiement)}</td>
+            </tr>`;
+        }).join('');
 
         const html = `
           <html><head><title>Liste des Factures</title>

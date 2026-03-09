@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ClientService } from '../../../services/client/client.service';
-import { Client, ClientResponse, ClientStats } from '../../../models/client';
+import { Client, ClientCommande, ClientResponse, ClientStats } from '../../../models/client';
 
 @Component({
   selector: 'app-client',
@@ -13,6 +13,8 @@ import { Client, ClientResponse, ClientStats } from '../../../models/client';
   styleUrls: ['./client.component.css']
 })
 export class ClientComponent implements OnInit {
+
+  // ─── Liste & Pagination ───────────────────────────────────────────────────────
   clients: Client[] = [];
   currentPage = 1;
   lastPage = 1;
@@ -20,7 +22,7 @@ export class ClientComponent implements OnInit {
   firstItem = 0;
   lastItem = 0;
 
-  // États des modales
+  // ─── États des modales ───────────────────────────────────────────────────────
   showCreateModal = false;
   showEditModal = false;
   showDeleteModal = false;
@@ -31,24 +33,20 @@ export class ClientComponent implements OnInit {
   clientToDelete: Client | null = null;
   clientToView: Client | null = null;
   commandeDetail: Client | null = null;
-  derniereCommande: any = null;
+  derniereCommande: ClientCommande | null = null;
 
-  // Filtres et recherche
-  searchQuery: string = '';
-  filterStatut: string = '';
-  filterTri: string = '';
+  // ─── Filtres & Recherche ─────────────────────────────────────────────────────
+  searchQuery = '';
+  filterStatut = '';
+  filterTri = '';
 
-  // Statistiques (pour la vue détail)
+  // ─── Statistiques (vue détail) ───────────────────────────────────────────────
   clientStats: ClientStats | null = null;
 
-  // Formulaires
+  // ─── Formulaires ─────────────────────────────────────────────────────────────
   createForm = {
-    nom: '',
-    prenom: '',
-    email: '',
-    telephone: '',
-    adresse: '',
-    password: ''
+    nom: '', prenom: '', email: '',
+    telephone: '', adresse: '', password: ''
   };
 
   editForm = {
@@ -60,10 +58,9 @@ export class ClientComponent implements OnInit {
     adresse: '',
     role_id: '',
     password: '',
-    email_verified: false
   };
 
-  // Messages
+  // ─── Messages ────────────────────────────────────────────────────────────────
   successMessage: string | null = null;
   errorMessage: string | null = null;
   validationErrors: string[] = [];
@@ -74,46 +71,48 @@ export class ClientComponent implements OnInit {
     this.loadClients();
   }
 
-  // ─── Chargement ──────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CHARGEMENT
+  // ═══════════════════════════════════════════════════════════════════════════
 
   loadClients(page: number = this.currentPage): void {
-    this.clientService.getClients(
-      page,
-      this.searchQuery,
-      this.filterStatut,
-      this.filterTri
-    ).subscribe({
-      next: (res: ClientResponse) => {
-        this.clients = res.data;
-        this.currentPage = res.current_page;
-        this.lastPage = res.last_page;
-        this.total = res.total;
-        this.firstItem = res.from || 0;
-        this.lastItem = res.to || 0;
-      },
-      error: () => {
-        this.errorMessage = 'Impossible de charger les clients.';
-      }
-    });
+    this.clientService.getClients(page, this.searchQuery, this.filterStatut, this.filterTri)
+      .subscribe({
+        next: (res: ClientResponse) => {
+          // ✅ Normalisation côté Angular en fallback
+          this.clients = res.data.map(client => ({
+            ...client,
+            // Total dépensé : couvre camelCase et snake_case
+            commandes_sum_montant_total:
+              client.commandes_sum_montant_total
+              ?? (client as any).commandes_sum_montantTotal
+              ?? 0,
+            // Dernière commande : couvre alias et champ brut Laravel
+            derniere_commande:
+              client.derniere_commande
+              ?? client.commandes_max_created_at
+              ?? undefined,
+          }));
+          this.currentPage = res.current_page;
+          this.lastPage = res.last_page;
+          this.total = res.total;
+          this.firstItem = res.from ?? 0;
+          this.lastItem = res.to ?? 0;
+        },
+        error: () => { this.errorMessage = 'Impossible de charger les clients.'; }
+      });
   }
 
   changePage(page: number): void {
-    if (page >= 1 && page <= this.lastPage) {
-      this.loadClients(page);
-    }
+    if (page >= 1 && page <= this.lastPage) this.loadClients(page);
   }
 
-  // ─── Recherche & Filtres ─────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RECHERCHE & FILTRES
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  onSearch(): void {
-    this.currentPage = 1;
-    this.loadClients(1);
-  }
-
-  onFilter(): void {
-    this.currentPage = 1;
-    this.loadClients(1);
-  }
+  onSearch(): void { this.currentPage = 1; this.loadClients(1); }
+  onFilter(): void { this.currentPage = 1; this.loadClients(1); }
 
   resetFilters(): void {
     this.searchQuery = '';
@@ -123,21 +122,18 @@ export class ClientComponent implements OnInit {
     this.loadClients(1);
   }
 
-  // ─── Création ────────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CRÉATION
+  // ═══════════════════════════════════════════════════════════════════════════
 
   openCreateModal(): void {
-    this.createForm = {
-      nom: '', prenom: '', email: '',
-      telephone: '', adresse: '', password: ''
-    };
+    this.createForm = { nom: '', prenom: '', email: '', telephone: '', adresse: '', password: '' };
     this.validationErrors = [];
     this.errorMessage = null;
     this.showCreateModal = true;
   }
 
-  closeCreateModal(): void {
-    this.showCreateModal = false;
-  }
+  closeCreateModal(): void { this.showCreateModal = false; }
 
   createClient(): void {
     this.clientService.createClient(this.createForm).subscribe({
@@ -156,7 +152,9 @@ export class ClientComponent implements OnInit {
     });
   }
 
-  // ─── Édition ─────────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ÉDITION
+  // ═══════════════════════════════════════════════════════════════════════════
 
   openEditModal(client: Client): void {
     this.selectedClient = client;
@@ -169,7 +167,6 @@ export class ClientComponent implements OnInit {
       adresse: client.adresse || '',
       role_id: client.role_id?.toString() || '',
       password: '',
-      email_verified: !!client.email_verified_at
     };
     this.validationErrors = [];
     this.errorMessage = null;
@@ -206,7 +203,9 @@ export class ClientComponent implements OnInit {
     });
   }
 
-  // ─── Suppression ─────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SUPPRESSION
+  // ═══════════════════════════════════════════════════════════════════════════
 
   openDeleteModal(client: Client): void {
     this.clientToDelete = client;
@@ -227,16 +226,16 @@ export class ClientComponent implements OnInit {
         this.closeDeleteModal();
         this.loadClients(this.currentPage);
       },
-      error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
-      }
+      error: (err) => { this.errorMessage = err.error?.message || 'Erreur lors de la suppression.'; }
     });
   }
 
-  // ─── Statut ──────────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STATUT
+  // ═══════════════════════════════════════════════════════════════════════════
 
   toggleStatut(client: Client): void {
-    const nouveauStatut = client.statut === 'actif' ? 'suspendu' : 'actif';
+    const nouveauStatut: 'actif' | 'suspendu' = client.statut === 'actif' ? 'suspendu' : 'actif';
     this.clientService.updateStatut(client.id, nouveauStatut).subscribe({
       next: () => {
         client.statut = nouveauStatut;
@@ -244,21 +243,19 @@ export class ClientComponent implements OnInit {
           ? 'Client activé avec succès.'
           : 'Client suspendu avec succès.';
       },
-      error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors du changement de statut.';
-      }
+      error: (err) => { this.errorMessage = err.error?.message || 'Erreur changement de statut.'; }
     });
   }
 
-  // ─── Vue détails ─────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VUE DÉTAILS
+  // ═══════════════════════════════════════════════════════════════════════════
 
   openViewModal(client: Client): void {
     this.clientToView = client;
     this.clientStats = null;
     this.clientService.getStats(client.id).subscribe({
-      next: (stats: ClientStats) => {
-        this.clientStats = stats;
-      },
+      next: (stats: ClientStats) => { this.clientStats = stats; },
       error: (err) => console.error('Erreur stats', err)
     });
     this.showViewModal = true;
@@ -270,16 +267,29 @@ export class ClientComponent implements OnInit {
     this.clientStats = null;
   }
 
-  // ─── Dernière commande ───────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DERNIÈRE COMMANDE
+  // ═══════════════════════════════════════════════════════════════════════════
 
   openCommandeModal(client: Client): void {
     this.commandeDetail = { ...client };
     this.derniereCommande = null;
     this.showCommandeModal = true;
+
     this.clientService.getStats(client.id).subscribe({
       next: (stats: ClientStats) => {
         if (stats.dernieres_commandes?.length > 0) {
+          // index 0 = la plus récente (triée par latest() côté Laravel)
           this.derniereCommande = stats.dernieres_commandes[0];
+
+          // ✅ Mise à jour locale de derniere_commande si elle était absente
+          const idx = this.clients.findIndex(c => c.id === client.id);
+          if (idx !== -1 && !this.clients[idx].derniere_commande) {
+            this.clients[idx] = {
+              ...this.clients[idx],
+              derniere_commande: this.derniereCommande!.date
+            };
+          }
         }
       },
       error: (err) => console.error('Erreur stats commande', err)
@@ -292,18 +302,27 @@ export class ClientComponent implements OnInit {
     this.derniereCommande = null;
   }
 
-  // ─── Helpers ─────────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════
 
   getInitials(client: Client): string {
     return (client.prenom.charAt(0) + client.nom.charAt(0)).toUpperCase();
   }
 
   formatDate(date?: string): string {
-    return date ? new Date(date).toLocaleDateString('fr-FR') : '';
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
   }
 
   formatDateTime(date?: string): string {
-    return date ? new Date(date).toLocaleString('fr-FR') : '';
+    if (!date) return '';
+    return new Date(date).toLocaleString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   }
 
   closeAlert(): void {

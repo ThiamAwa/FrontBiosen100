@@ -67,7 +67,7 @@ export class ProduitSportComponent implements OnInit {
       prix: [0, [Validators.required, Validators.min(0)]],
       prixPromo: [null],
       stock: [0, [Validators.required, Validators.min(0)]],
-      categorie_id: [null],
+      type_categorie_id: [null], // ← renommé
       enPromotion: [false],
       videos_urls: this.fb.array([]),
       videos_titres: this.fb.array([])
@@ -80,7 +80,7 @@ export class ProduitSportComponent implements OnInit {
       prix: [0, [Validators.required, Validators.min(0)]],
       prixPromo: [null],
       stock: [0, [Validators.required, Validators.min(0)]],
-      categorie_id: [null],
+      type_categorie_id: [null], // ← renommé
       enPromotion: [false],
       medias_a_supprimer: [[]],
       media_principal_id: [null],
@@ -130,12 +130,9 @@ export class ProduitSportComponent implements OnInit {
   // -------------------- Gestion des modales --------------------
   openCreateModal(): void {
     this.createForm.reset({
-      nom: '',
-      description: '',
-      prix: 0,
-      prixPromo: null,
-      stock: 0,
-      categorie_id: null,
+      nom: '', description: '', prix: 0,
+      prixPromo: null, stock: 0,
+      type_categorie_id: null,
       enPromotion: false
     });
     this.clearVideosArray(this.createForm);
@@ -151,6 +148,8 @@ export class ProduitSportComponent implements OnInit {
 
   openEditModal(produit: ProduitSport): void {
     this.selectedProduit = produit;
+    const typeCategorieId = produit.medias?.find(m => m.type_categorie_id)?.type_categorie_id || null;
+
     this.editForm.patchValue({
       id: produit.id,
       nom: produit.nom,
@@ -158,7 +157,7 @@ export class ProduitSportComponent implements OnInit {
       prix: produit.prix,
       prixPromo: produit.prixPromo,
       stock: produit.stock,
-      categorie_id: produit.categorie_id,
+      type_categorie_id: typeCategorieId,
       enPromotion: produit.enPromotion,
       medias_a_supprimer: [],
       media_principal_id: produit.medias?.find(m => m.est_principal)?.id || null
@@ -258,11 +257,27 @@ export class ProduitSportComponent implements OnInit {
   // -------------------- Création d'un produit --------------------
   onCreateSubmit(): void {
     if (this.createForm.invalid) {
+      // Afficher quels champs sont invalides
+      Object.keys(this.createForm.controls).forEach(key => {
+        const control = this.createForm.get(key);
+        if (control?.invalid) {
+          console.log(`Champ invalide: ${key}`, control.errors);
+        }
+      });
+
       this.createForm.markAllAsTouched();
       return;
     }
 
     const formData = this.buildFormData(this.createForm, this.createImagePreviews);
+
+    // Vérification supplémentaire
+    if (!formData.has('type_categorie_id')) {
+      console.error('type_categorie_id toujours absent après buildFormData!');
+      this.errorMessage = 'Erreur: type de catégorie non sélectionné';
+      return;
+    }
+
     this.produitService.createProduit(formData).subscribe({
       next: () => {
         this.successMessage = 'Produit créé avec succès.';
@@ -314,6 +329,7 @@ export class ProduitSportComponent implements OnInit {
   }
 
   // -------------------- Construction FormData --------------------
+
   private buildFormData(form: FormGroup, imagePreviews: { file: File }[]): FormData {
     const formData = new FormData();
     formData.append('nom', form.get('nom')?.value);
@@ -323,9 +339,11 @@ export class ProduitSportComponent implements OnInit {
     formData.append('stock', form.get('stock')?.value);
     formData.append('enPromotion', form.get('enPromotion')?.value ? '1' : '0');
 
-    imagePreviews.forEach(item => {
-      formData.append('images[]', item.file);
-    });
+    if (form.get('type_categorie_id')?.value) {
+      formData.append('type_categorie_id', form.get('type_categorie_id')?.value);
+    }
+
+    imagePreviews.forEach(item => formData.append('images[]', item.file));
 
     const urls = form.get('videos_urls') as FormArray;
     const titres = form.get('videos_titres') as FormArray;
@@ -335,8 +353,11 @@ export class ProduitSportComponent implements OnInit {
         formData.append('videos_titres[]', titres.at(index)?.value || '');
       }
     });
-
     return formData;
+  }
+  getTypeCategorie(produit: ProduitSport): string {
+    const media = produit.medias?.find(m => m.type_categorie_id);
+    return media?.type_categorie?.nom || 'Non défini';
   }
 
   // -------------------- Gestion des erreurs --------------------

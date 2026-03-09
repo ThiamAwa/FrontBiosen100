@@ -11,6 +11,8 @@ export interface ProduitMedia {
   titre?: string;
   est_principal: boolean;
   ordre: number;
+  type_categorie_id?: number | null;
+  type_categorie?: { id: number; nom: string } | null;
 }
 
 export interface Categorie {

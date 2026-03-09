@@ -68,6 +68,9 @@ export class ProduitSportService {
    * @param formData Formulaire contenant les champs du produit, les images et les vidéos.
    */
   createProduit(formData: FormData): Observable<ProduitSport> {
+    if (!formData.has('type_categorie_id')) {
+      console.warn('type_categorie_id manquant dans FormData');
+    }
     return this.http.post<ProduitSport>(this.adminUrl, formData).pipe(
       map(produit => this.normalizeProduit(produit))
     );

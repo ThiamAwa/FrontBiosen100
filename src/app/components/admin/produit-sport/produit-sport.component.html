@@ -51,7 +51,7 @@
                             <tr>
                                 <th style="width:100px;">Médias</th>
                                 <th>Nom</th>
-                                <th>Catégorie</th>
+                                <th>Type Catégorie</th>
                                 <th>Prix</th>
                                 <th>Promotion</th>
                                 <th>Stock</th>
@@ -122,14 +122,17 @@
                                     }
                                 </td>
 
-                                <!-- Catégorie -->
-                                <td>
-                                    @if (produit.categorie) {
-                                    {{ produit.categorie.nom }}
-                                    } @else {
-                                    <span class="text-muted fst-italic">Non défini</span>
-                                    }
-                                </td>
+                                <!-- Type Catégorie -->
+                              <td>
+                                @let typeNom = getTypeCategorie(produit);
+                                @if (typeNom !== 'Non défini') {
+                                  <span class="badge" style="background:linear-gradient(135deg,#287747,#1a5230);color:white;">
+                                    <i class="fas fa-tag me-1"></i>{{ typeNom }}
+                                  </span>
+                                } @else {
+                                  <span class="text-muted fst-italic">Non défini</span>
+                                }
+                              </td>
 
                                 <!-- Prix -->
                                 <td>
@@ -241,15 +244,19 @@
                             <input type="text" class="form-control form-control-sm" formControlName="nom"
                                 placeholder="Nom du produit">
                         </div>
-                        <div class="col-md-6">
-                            <label class="label-sport">Type de Catégorie</label>
-                          <select class="form-select form-select-sm" formControlName="categorie_id">
-                            <option [ngValue]="null">-- Sélectionner --</option>
-                            @for (type of typeCategories; track type.id) {
-                              <option [ngValue]="type.id">{{ type.nom }}</option>
-                            }
-                          </select>
-                        </div>
+
+                      <div class="col-md-6">
+                        <label class="label-sport">Type de Catégorie *</label>
+                        <select class="form-select form-select-sm" formControlName="type_categorie_id">
+                          <option [ngValue]="null">-- Sélectionner --</option>
+                          @for (type of typeCategories; track type.id) {
+                            <option [ngValue]="type.id">{{ type.nom }}</option>
+                          }
+                        </select>
+                        @if (createForm.get('type_categorie_id')?.invalid && createForm.get('type_categorie_id')?.touched) {
+                          <small class="text-danger">Le type de catégorie est requis</small>
+                        }
+                      </div>
                     </div>
                     <div class="mb-2">
                         <label class="label-sport">Description</label>
@@ -373,7 +380,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="label-sport">Type de Catégorie</label>
-                          <select class="form-select form-select-sm" formControlName="categorie_id">
+                          <select class="form-select form-select-sm" formControlName="type_categorie_id">
                             <option [ngValue]="null">-- Sélectionner --</option>
                             @for (type of typeCategories; track type.id) {
                               <option [ngValue]="type.id">{{ type.nom }}</option>

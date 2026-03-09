@@ -6,6 +6,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { ProduitSportService } from '../../../services/produit-sport/produit-sport.service';
 import { environment } from '../../../../environments/environment';
+import {CartService} from '../../../services/cart/cart.service';
 
 @Component({
   selector: 'app-sport-detail',
@@ -30,12 +31,23 @@ export class SportDetailComponent implements OnInit, OnDestroy {
   showLightbox = false;
   currentImageUrl = '';
 
+  // Filtres
+  filters = {
+    search: '',
+    categorie: '',
+    type_categorie: '1',
+    prix_max: 50000,
+    promo: false,
+    tri: 'default',
+    page: 1
+  };
   private subscription?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private produitService: ProduitSportService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    public cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -188,5 +200,65 @@ export class SportDetailComponent implements OnInit, OnDestroy {
 
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-FR').format(price);
+  }
+
+  // ========== PANIER ==========
+
+  addToCart(item: any): void {
+    if (!item || item.stock <= 0) return;
+
+    const prix = item.enPromotion && item.prixPromo ? item.prixPromo : item.prix;
+
+    // 1. Ajouter au panier
+    this.cartService.addToCart({
+      id: item.id,
+      name: item.nom,
+      price: prix,
+      quantity: 1,
+      image: item.image,
+      category: this.filters.type_categorie === '2' ? 'Sport' : (item.type_categorie?.nom ?? 'Bio')
+    });
+
+    // 2. Animation du bouton
+    const button = event?.target as HTMLElement;
+    if (button) {
+      const originalText = button.innerHTML;
+      button.innerHTML = '<i class="fa fa-check me-2"></i>Ajouté !';
+      button.style.backgroundColor = '#1e5a38';
+
+      setTimeout(() => {
+        button.innerHTML = originalText;
+        button.style.backgroundColor = '#287747';
+      }, 1500);
+    }
+
+    // 3.OUVRIR LE MODAL AUTOMATIQUEMENT
+    this.openCartModal();
+
+    // 4. Notification (optionnel)
+    this.showNotification('✓ Produit ajouté au panier');
+  }
+  showNotification(message: string): void {
+    const notification = document.createElement('div');
+    notification.className = 'position-fixed top-0 end-0 m-3 p-3 text-white rounded shadow-lg';
+    notification.style.zIndex = '9999';
+    notification.style.background = '#287747';
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transition = 'opacity 0.5s';
+      setTimeout(() => notification.remove(), 500);
+    }, 3000);
+  }
+
+  openCartModal(): void {
+    const cartModal = document.getElementById('cartModal');
+    if (cartModal) {
+      // @ts-ignore
+      const modal = new bootstrap.Modal(cartModal);
+      modal.show();
+    }
   }
 }

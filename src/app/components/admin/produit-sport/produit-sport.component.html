@@ -242,13 +242,13 @@
                                 placeholder="Nom du produit">
                         </div>
                         <div class="col-md-6">
-                            <label class="label-sport">Catégorie Sport</label>
-                            <select class="form-select form-select-sm" formControlName="categorie_id">
-                                <option [ngValue]="null">-- Sélectionner --</option>
-                                @for (cat of categories; track cat.id) {
-                                <option [ngValue]="cat.id">{{ cat.nom }}</option>
-                                }
-                            </select>
+                            <label class="label-sport">Type de Catégorie</label>
+                          <select class="form-select form-select-sm" formControlName="categorie_id">
+                            <option [ngValue]="null">-- Sélectionner --</option>
+                            @for (type of typeCategories; track type.id) {
+                              <option [ngValue]="type.id">{{ type.nom }}</option>
+                            }
+                          </select>
                         </div>
                     </div>
                     <div class="mb-2">
@@ -372,13 +372,13 @@
                             <input type="text" class="form-control form-control-sm" formControlName="nom">
                         </div>
                         <div class="col-md-6">
-                            <label class="label-sport">Catégorie Sport</label>
-                            <select class="form-select form-select-sm" formControlName="categorie_id">
-                                <option [ngValue]="null">-- Sélectionner --</option>
-                                @for (cat of categories; track cat.id) {
-                                <option [ngValue]="cat.id">{{ cat.nom }}</option>
-                                }
-                            </select>
+                            <label class="label-sport">Type de Catégorie</label>
+                          <select class="form-select form-select-sm" formControlName="categorie_id">
+                            <option [ngValue]="null">-- Sélectionner --</option>
+                            @for (type of typeCategories; track type.id) {
+                              <option [ngValue]="type.id">{{ type.nom }}</option>
+                            }
+                          </select>
                         </div>
                     </div>
                     <div class="mb-2">

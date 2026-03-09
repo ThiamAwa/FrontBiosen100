@@ -26,7 +26,7 @@ export class ProduitSportService {
           per_page: response.produits.per_page,
           total: response.produits.total
         },
-        categories: response.categories
+        typeCategories: response.typeCategories
       }))
     );
   }
@@ -60,9 +60,6 @@ export class ProduitSportService {
     );
   }
 
-  getCategories(): Observable<Categorie[]> {
-    return this.http.get<Categorie[]>(`${this.apiUrl}/categories`);
-  }
 
   // ─── PARTIE ADMIN (CRUD) ─────────────────────────────────────────
 

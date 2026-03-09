@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
+import { TypeCategorieService } from '../../../services/type-categorie/type-categorie.service';
+import { TypeCategorie } from '../../../models/type-categorie';
 import { ProduitSportService } from '../../../services/produit-sport/produit-sport.service';
 import { ProduitSport, ProduitMedia, Categorie, ProduitSportResponse } from '../../../models/produit-sport';
 
@@ -16,7 +17,7 @@ import { ProduitSport, ProduitMedia, Categorie, ProduitSportResponse } from '../
 export class ProduitSportComponent implements OnInit {
   // Données
   produits: ProduitSport[] = [];
-  categories: Categorie[] = [];
+  typeCategories: TypeCategorie[] = [];
   currentPage = 1;
   lastPage = 1;
   total = 0;
@@ -57,6 +58,7 @@ export class ProduitSportComponent implements OnInit {
   constructor(
     public produitService: ProduitSportService,
     private fb: FormBuilder,
+    private typeCategorieService: TypeCategorieService,
     private sanitizer: DomSanitizer
   ) {
     this.createForm = this.fb.group({
@@ -88,18 +90,17 @@ export class ProduitSportComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCategories();
+    this.loadTypeCategories();
     this.loadProduits();
   }
 
   // -------------------- Chargement des données --------------------
-  loadCategories(): void {
-    this.produitService.getCategories().subscribe({
-      next: (cats) => this.categories = cats,
-      error: (err) => console.error('Erreur chargement catégories', err)
+  loadTypeCategories(): void {
+    this.typeCategorieService.getTypeCategories(1).subscribe({
+      next: (res) => { this.typeCategories = res.data; },
+      error: (err) => console.error('Erreur chargement types catégories', err)
     });
   }
-
   loadProduits(page: number = this.currentPage): void {
     this.loading = true;
     this.produitService.getProduits(page).subscribe({
@@ -320,7 +321,6 @@ export class ProduitSportComponent implements OnInit {
     formData.append('prix', form.get('prix')?.value);
     if (form.get('prixPromo')?.value) formData.append('prixPromo', form.get('prixPromo')?.value);
     formData.append('stock', form.get('stock')?.value);
-    if (form.get('categorie_id')?.value) formData.append('categorie_id', form.get('categorie_id')?.value);
     formData.append('enPromotion', form.get('enPromotion')?.value ? '1' : '0');
 
     imagePreviews.forEach(item => {

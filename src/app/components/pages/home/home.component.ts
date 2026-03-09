@@ -1,18 +1,16 @@
-// src/app/components/pages/home/home.component.ts
 import { Component, OnInit, AfterViewInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { isPlatformBrowser } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HomeService } from '../../../services/home/home.service';
+import { TemoignageService } from '../../../services/temoignage/temoignage.service';
 import { Produit } from '../../../models/produit';
-import {AccueilData} from '../../../models/accueilData';
-import {Gamme} from '../../../models/gamme';
-import {Vendeur} from '../../../models/vendeur';
-import Swiper from 'swiper';
-import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import { AccueilData } from '../../../models/accueilData';
+import { Gamme } from '../../../models/gamme';
+import { Vendeur } from '../../../models/vendeur';
+import { Temoignage } from '../../../models/temoignage';
 
-// Déclaration pour les librairies externes
 declare var $: any;
 declare var AOS: any;
 declare var bootstrap: any;
@@ -25,12 +23,15 @@ declare var bootstrap: any;
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  // ─── Données ───────────────────────────────────────────────
   data: AccueilData | null = null;
   produits: Produit[] = [];
   produitsPromo: Produit[] = [];
   gammes: Gamme[] = [];
   categories: any[] = [];
   vendeurs: Vendeur[] = [];
+  temoignages: Temoignage[] = [];
   stats: any = {
     total_produits: 0,
     total_gammes: 0,
@@ -38,51 +39,69 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     produits_promo: 0
   };
 
+  // ─── États UI ──────────────────────────────────────────────
   loading = true;
+  loadingTemoignages = false;
   error = '';
   searchQuery = '';
   newsletterEmail = '';
   currentYear = new Date().getFullYear();
 
-  selectedGamme: Gamme | null = null;
+  // ─── Onglets ───────────────────────────────────────────────
   activeTab = 'all';
+  activeGammeTab = 'all';
+
+  // ─── Modal vidéo ──────────────────────────────────────────
+  showVideoModal = false;
+  currentVideoUrl: SafeResourceUrl | null = null;
+  currentVideoExternalUrl = '';
+
+  // ─── Lightbox photo ───────────────────────────────────────
+  showLightbox = false;
+  currentImageUrl = '';
+
+  // ─── Références internes ───────────────────────────────────
+  selectedGamme: Gamme | null = null;
   private carouselInitialized = false;
-  private owlInitialized = false;
+  private gammeSwiper: any = null;
   private observer: IntersectionObserver | null = null;
 
   constructor(
     private accueilService: HomeService,
+    private temoignageService: TemoignageService,
+    private sanitizer: DomSanitizer,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) { }
+
+  // ══════════════════════════════════════════════════════════
+  // Cycle de vie
+  // ══════════════════════════════════════════════════════════
 
   ngOnInit(): void {
     this.loadData();
-
-    if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => {
-        console.log('jQuery chargé:', typeof $ !== 'undefined');
-        console.log('Owl Carousel chargé:', typeof $ !== 'undefined' && $.fn.owlCarousel ? 'oui' : 'non');
-      }, 2000);
-    }
+    this.loadTemoignages();
   }
+
   ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     setTimeout(() => {
       if (typeof bootstrap !== 'undefined') {
         const carouselElement = document.getElementById('carouselId');
         if (carouselElement) {
-          new bootstrap.Carousel(carouselElement, {
-            interval: 3000,
-            ride: 'carousel'
-          });
+          new bootstrap.Carousel(carouselElement, { interval: 3000, ride: 'carousel' });
         }
       }
     }, 500);
   }
+
   ngOnDestroy(): void {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
+    this.observer?.disconnect();
+    this.destroySwiper();
   }
+
+  // ══════════════════════════════════════════════════════════
+  // Chargement des données
+  // ══════════════════════════════════════════════════════════
 
   loadData(): void {
     this.loading = true;
@@ -96,10 +115,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.vendeurs = response.vendeurs || [];
         this.stats = response.stats || this.stats;
         this.loading = false;
-
-        setTimeout(() => {
-          this.initLibraries();
-        }, 1000);
+        setTimeout(() => this.initLibraries(), 800);
       },
       error: (err) => {
         console.error('Erreur chargement accueil:', err);
@@ -109,108 +125,147 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  loadTemoignages(): void {
+    this.loadingTemoignages = true;
+    this.temoignageService.getTemoignagesPublics().subscribe({
+      next: (data) => {
+        this.temoignages = data.slice(0, 3);
+        this.loadingTemoignages = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement témoignages:', err);
+        this.loadingTemoignages = false;
+      }
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Témoignages — Vidéo & Lightbox
+  // ══════════════════════════════════════════════════════════
+
+  openVideoModal(videoUrl: string): void {
+    const embedUrl = this.temoignageService.getYoutubeEmbedUrl(videoUrl);
+    this.currentVideoUrl = embedUrl
+      ? this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl)
+      : null;
+    this.currentVideoExternalUrl = videoUrl;
+    this.showVideoModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeVideoModal(): void {
+    this.showVideoModal = false;
+    this.currentVideoUrl = null;
+    document.body.style.overflow = '';
+  }
+
+  openLightbox(imageUrl: string): void {
+    this.currentImageUrl = imageUrl;
+    this.showLightbox = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeLightbox(): void {
+    this.showLightbox = false;
+    document.body.style.overflow = '';
+  }
+
+  extractYoutubeId(url: string): string {
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/\s]{11})/);
+    return match ? match[1] : '';
+  }
+
+  getInitials(temoignage: Temoignage): string {
+    if (temoignage.nom_complet) {
+      return temoignage.nom_complet.substring(0, 2).toUpperCase();
+    }
+    if (temoignage.user) {
+      return `${temoignage.user.prenom?.[0] || ''}${temoignage.user.nom?.[0] || ''}`.toUpperCase();
+    }
+    return 'CL';
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Initialisation des librairies
+  // ══════════════════════════════════════════════════════════
+
   initLibraries(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-
-    // Initialiser AOS
     if (typeof AOS !== 'undefined') {
-      AOS.init({
-        duration: 1000,
-        once: true,
-        offset: 100
-      });
+      AOS.init({ duration: 1000, once: true, offset: 100 });
     }
-
-    // Initialiser le carousel Bootstrap
     this.initBootstrapCarousel();
-
-    // Initialiser Swiper au lieu d'Owl Carousel
     this.initSwiper();
-
-    // Initialiser les compteurs
     this.initCounters();
-
-    // Initialiser les modals
     this.initModals();
   }
 
   initBootstrapCarousel(): void {
-    const carouselElement = document.getElementById('carouselId');
-    if (carouselElement && typeof bootstrap !== 'undefined' && !this.carouselInitialized) {
-      new bootstrap.Carousel(carouselElement, {
-        interval: 3000,
-        ride: 'carousel'
-      });
+    const el = document.getElementById('carouselId');
+    if (el && typeof bootstrap !== 'undefined' && !this.carouselInitialized) {
+      new bootstrap.Carousel(el, { interval: 3000, ride: 'carousel' });
       this.carouselInitialized = true;
     }
   }
 
   initSwiper(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-
     import('swiper').then((module) => {
       import('swiper/modules').then(({ Autoplay, Pagination, Navigation }) => {
         setTimeout(() => {
+          this.destroySwiper();
+          const swiperEl = document.querySelector('.gammes-swiper');
+          if (!swiperEl) { console.warn('Swiper element not found'); return; }
           try {
-            const swiperEl = document.querySelector('.gammes-swiper');
-            if (!swiperEl) {
-              console.warn('Swiper element not found');
-              return;
-            }
-
-            new module.default('.gammes-swiper', {
+            this.gammeSwiper = new module.default('.gammes-swiper', {
               modules: [Autoplay, Pagination, Navigation],
               slidesPerView: 1,
               spaceBetween: 20,
               loop: true,
-              speed: 600,              // ✅ Transition plus rapide (600ms au lieu de 800ms)
-
+              speed: 600,
               autoplay: {
-                delay: 1800,           // ✅ Défilement toutes les 1.8s (au lieu de 3s)
+                delay: 1800,
                 disableOnInteraction: false,
                 pauseOnMouseEnter: true,
               },
-
               pagination: {
                 el: '.gammes-swiper .swiper-pagination',
                 clickable: true,
                 dynamicBullets: true,
               },
-
               navigation: {
                 nextEl: '.gammes-swiper .swiper-button-next',
                 prevEl: '.gammes-swiper .swiper-button-prev',
               },
-
               breakpoints: {
                 576: { slidesPerView: 2, spaceBetween: 16 },
                 992: { slidesPerView: 3, spaceBetween: 20 },
                 1200: { slidesPerView: 4, spaceBetween: 20 },
               },
-
-              on: {
-                init: function () {
-                  console.log('✅ Swiper initialisé');
-                }
-              }
+              on: { init: () => console.log('✅ Swiper gammes initialisé') }
             });
-
-          } catch (error) {
-            console.error('❌ Erreur Swiper:', error);
+          } catch (e) {
+            console.error('❌ Erreur Swiper:', e);
           }
-        }, 800);
+        }, 300);
       });
     });
   }
+
+  private destroySwiper(): void {
+    if (this.gammeSwiper && !this.gammeSwiper.destroyed) {
+      this.gammeSwiper.destroy(true, true);
+      this.gammeSwiper = null;
+    }
+  }
+
   initCounters(): void {
     const counters = document.querySelectorAll('.counter');
     const speed = 200;
-
     const animateCounter = (counter: Element) => {
       const target = parseInt(counter.getAttribute('data-target') || '0', 10);
       const count = parseInt(counter.textContent || '0', 10);
       const increment = target / speed;
-
       if (count < target) {
         counter.textContent = Math.ceil(count + increment).toString();
         setTimeout(() => animateCounter(counter), 10);
@@ -218,7 +273,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         counter.textContent = target + (target === 100 ? '' : '+');
       }
     };
-
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -227,7 +281,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     });
-
     counters.forEach(counter => this.observer?.observe(counter));
   }
 
@@ -237,31 +290,63 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         e.preventDefault();
         const target = button.getAttribute('data-bs-target');
         if (target && typeof bootstrap !== 'undefined') {
-          const modal = new bootstrap.Modal(document.querySelector(target));
-          modal.show();
+          new bootstrap.Modal(document.querySelector(target)).show();
         }
       });
     });
   }
+
+  // ══════════════════════════════════════════════════════════
+  // Filtrage — Section Swiper Gammes
+  // ══════════════════════════════════════════════════════════
+
+  setActiveGammeTab(tab: string): void {
+    this.activeGammeTab = tab;
+    setTimeout(() => this.initSwiper(), 150);
+  }
+
+  getFilteredGammes(): Gamme[] {
+    if (this.activeGammeTab === 'all') return this.gammes;
+    return this.gammes.filter(gamme =>
+      (gamme as any).categorieId?.toString() === this.activeGammeTab ||
+      (gamme as any).categorie?.id?.toString() === this.activeGammeTab
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Filtrage — Section Produits
+  // ══════════════════════════════════════════════════════════
+
+  setActiveTab(tabId: string): void {
+    this.activeTab = tabId;
+  }
+
+  getProduitsByCategory(categoryId: number): Produit[] {
+    return this.produits.filter(p => p.categorie?.id === categoryId);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Modale Gamme
+  // ══════════════════════════════════════════════════════════
 
   openGammeModal(gamme: Gamme): void {
     this.selectedGamme = gamme;
     setTimeout(() => {
       if (typeof bootstrap !== 'undefined') {
         const modal = document.getElementById('gammeModal');
-        if (modal) {
-          new bootstrap.Modal(modal).show();
-        }
+        if (modal) new bootstrap.Modal(modal).show();
       }
     }, 100);
   }
 
+  // ══════════════════════════════════════════════════════════
+  // Actions utilisateur
+  // ══════════════════════════════════════════════════════════
+
   onSearch(): void {
     if (this.searchQuery.trim()) {
       this.accueilService.searchProduits(this.searchQuery).subscribe({
-        next: (response) => {
-          this.produits = response.data || [];
-        },
+        next: (response) => { this.produits = response.data || []; },
         error: (err) => console.error('Erreur recherche:', err)
       });
     }
@@ -275,6 +360,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // ══════════════════════════════════════════════════════════
+  // Utilitaires
+  // ══════════════════════════════════════════════════════════
+
   getWhatsAppLink(vendeur: Vendeur): string {
     const message = encodeURIComponent('Bonjour, je suis intéressé(e) par vos produits BioSen.');
     return `https://wa.me/${vendeur.telephone}?text=${message}`;
@@ -282,6 +371,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getImageUrl(imagePath?: string): string {
     return this.accueilService.getImageUrl(imagePath);
+  }
+
+  getGammeImageUrl(gamme: Gamme | null): string {
+    return gamme?.image
+      ? this.getImageUrl(gamme.image)
+      : 'assets/img/biosen/default-product.png';
   }
 
   formatPrice(price?: number): string {
@@ -300,19 +395,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.produits.filter(p => p.categorie?.id === categoryId).length;
   }
 
-  setActiveTab(tabId: string): void {
-    this.activeTab = tabId;
-  }
-
-  getProduitsByCategory(categoryId: number): Produit[] {
-    return this.produits.filter(p => p.categorie?.id === categoryId);
-  }
-// Méthode pour vérifier si un produit appartient à une gamme
   produitAppartientAGamme(produit: any, gammeId: number): boolean {
     return produit.gammes?.some((g: any) => g.id === gammeId) || false;
   }
 
-// Méthode pour obtenir le nombre de produits par gamme
   getProduitsCountByGamme(gammeId: number): number {
     return this.produits.filter(p =>
       p.gammes?.some((g: any) => g.id === gammeId)
@@ -320,10 +406,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isProduitBio(produit: any): boolean {
-    console.log('Produit:', produit.nom, 'Catégorie:', produit.categorie);
     return produit.categorie?.type_categorie_id === 1;
-  }
-  getGammeImageUrl(gamme: Gamme | null): string {
-    return gamme?.image ? this.getImageUrl(gamme.image) : 'assets/img/biosen/default-product.png';
   }
 }

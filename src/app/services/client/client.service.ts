@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Client, ClientResponse } from '../../models/client';
+import { Client, ClientResponse, ClientStats } from '../../models/client';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
@@ -18,8 +18,8 @@ export class ClientService {
   ): Observable<ClientResponse> {
     let params = new HttpParams().set('page', page.toString());
     if (search) params = params.set('search', search);
-    if (statut) params = params.set('statut', statut);  // ← remplacer filter par statut
-    if (tri) params = params.set('tri', tri);         // ← ajouter tri
+    if (statut) params = params.set('statut', statut);
+    if (tri) params = params.set('tri', tri);
     return this.http.get<ClientResponse>(this.apiUrl, { params });
   }
 
@@ -39,12 +39,10 @@ export class ClientService {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
 
-
-
-  getStats(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${id}/stats`);
+  // ✅ Typé strictement avec ClientStats
+  getStats(id: number): Observable<ClientStats> {
+    return this.http.get<ClientStats>(`${this.apiUrl}/${id}/stats`);
   }
-
 
   updateStatut(id: number, statut: 'actif' | 'suspendu'): Observable<{ message: string; statut: string }> {
     return this.http.patch<{ message: string; statut: string }>(

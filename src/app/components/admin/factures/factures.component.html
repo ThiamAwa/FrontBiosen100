@@ -156,7 +156,7 @@
                             <i class="fas fa-search me-1 text-success"></i>Recherche
                         </label>
                         <input type="text" class="form-control form-control-sm" [(ngModel)]="searchTerm"
-                            placeholder="N° facture, nom client, email...">
+                            placeholder="N° facture, nom client">
                     </div>
 
                 </div>
@@ -222,11 +222,25 @@
                                 @for (facture of factures; track facture.id) {
                                 <tr>
                                     <td><strong>{{ facture.numero_facture }}</strong></td>
+
+                                    <!-- ✅ CORRIGÉ : utilise getClientInfo() au lieu de metadonnees?.client?.nom -->
                                     <td>
-                                        <div><strong>{{ facture.metadonnees?.client?.nom }}</strong></div>
-                                        <small class="text-muted d-block">{{ facture.metadonnees?.client?.email
-                                            }}</small>
+                                        <div>
+                                            <strong>{{ getClientInfo(facture).nomComplet }}</strong>
+                                        </div>
+                                        <!-- @if (getClientInfo(facture).email) {
+                                        <small class="text-muted d-block">
+                                            {{ getClientInfo(facture).email }}
+                                        </small>
+                                        } -->
+                                        @if (getClientInfo(facture).telephone) {
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-phone fa-xs me-1"></i>{{ getClientInfo(facture).telephone
+                                            }}
+                                        </small>
+                                        }
                                     </td>
+
                                     <td><strong>{{ getMontant(facture) | number:'1.0-0':'fr' }} F</strong></td>
                                     <td><small>{{ formatDate(facture.date_emission) }}</small></td>
                                     <td>
@@ -336,23 +350,51 @@
             <div class="modal-body">
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-3">Informations Client</h6>
-                        <p class="mb-2"><strong>Nom :</strong> {{ selectedFacture.metadonnees?.client?.nom }}</p>
-                        <p class="mb-2"><strong>Email :</strong> {{ selectedFacture.metadonnees?.client?.email }}</p>
-                        <p class="mb-0"><strong>Adresse :</strong> {{ selectedFacture.metadonnees?.client?.adresse }}
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-user me-2 text-success"></i>Informations Client
+                        </h6>
+
+                        <!-- ✅ CORRIGÉ : utilise getClientInfo() -->
+                        <p class="mb-2">
+                            <strong>Nom complet :</strong>
+                            {{ getClientInfo(selectedFacture).nomComplet || '—' }}
                         </p>
+                        <!-- @if (getClientInfo(selectedFacture).email) {
+                        <p class="mb-2">
+                            <strong>Email :</strong>
+                            {{ getClientInfo(selectedFacture).email }}
+                        </p>
+                        } -->
+                        @if (getClientInfo(selectedFacture).telephone) {
+                        <p class="mb-2">
+                            <strong>Téléphone :</strong>
+                            {{ getClientInfo(selectedFacture).telephone }}
+                        </p>
+                        }
+                        @if (getClientInfo(selectedFacture).adresse) {
+                        <p class="mb-0">
+                            <strong>Adresse :</strong>
+                            {{ getClientInfo(selectedFacture).adresse }}
+                        </p>
+                        }
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-3">Informations Facture</h6>
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-file-invoice me-2 text-success"></i>Informations Facture
+                        </h6>
                         <p class="mb-2"><strong>N° Facture :</strong> {{ selectedFacture.numero_facture }}</p>
-                        <p class="mb-2"><strong>Date d'émission :</strong> {{ formatDate(selectedFacture.date_emission)
-                            }}</p>
-                        <p class="mb-2"><strong>Date d'échéance :</strong>
+                        <p class="mb-2">
+                            <strong>Date d'émission :</strong>
+                            {{ formatDate(selectedFacture.date_emission) }}
+                        </p>
+                        <p class="mb-2">
+                            <strong>Date d'échéance :</strong>
                             <span [class.text-danger]="isOverdue(selectedFacture)">
                                 {{ formatDate(selectedFacture.date_echeance) }}
                             </span>
                         </p>
-                        <p class="mb-0"><strong>Statut :</strong>
+                        <p class="mb-0">
+                            <strong>Statut :</strong>
                             <span class="badge {{ getStatutClass(selectedFacture.statut_paiement) }}">
                                 {{ getStatutLabel(selectedFacture.statut_paiement) }}
                             </span>
@@ -360,25 +402,28 @@
                     </div>
                 </div>
                 <hr>
-                <h6 class="fw-bold mb-3">Produits Facturés</h6>
-                @if (selectedFacture.metadonnees?.produits?.length) {
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-box me-2 text-success"></i>Produits Facturés
+                </h6>
+                @if (getProduits(selectedFacture).length > 0) {
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered">
-                        <thead>
+                        <thead class="table-success">
                             <tr>
                                 <th>Produit</th>
-                                <th>Quantité</th>
-                                <th>Prix Unitaire</th>
-                                <th>Total</th>
+                                <th class="text-center">Quantité</th>
+                                <th class="text-end">Prix Unitaire</th>
+                                <th class="text-end">Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @for (produit of selectedFacture.metadonnees?.produits ?? []; track $index) {
+                            @for (produit of getProduits(selectedFacture); track $index) {
                             <tr>
                                 <td>{{ produit.nom }}</td>
-                                <td>{{ produit.quantite }}</td>
-                                <td>{{ +produit.prix | number:'1.0-0':'fr' }} F</td>
-                                <td><strong>{{ +produit.quantite * +produit.prix | number:'1.0-0':'fr' }} F</strong>
+                                <td class="text-center">{{ produit.quantite }}</td>
+                                <td class="text-end">{{ produit.prix | number:'1.0-0':'fr' }} F</td>
+                                <td class="text-end">
+                                    <strong>{{ produit.quantite * produit.prix | number:'1.0-0':'fr' }} F</strong>
                                 </td>
                             </tr>
                             }
@@ -387,7 +432,7 @@
                 </div>
                 } @else {
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> Aucun produit dans cette facture
+                    <i class="fas fa-info-circle me-1"></i> Aucun produit dans cette facture
                 </div>
                 }
                 <hr>
@@ -396,7 +441,7 @@
                         <div class="bg-light p-3 rounded">
                             <div class="d-flex justify-content-between mb-2">
                                 <strong>Montant Total :</strong>
-                                <strong class="text-success">
+                                <strong class="text-success fs-5">
                                     {{ getMontant(selectedFacture) | number:'1.0-0':'fr' }} F
                                 </strong>
                             </div>
@@ -435,6 +480,20 @@
                         </ul>
                     </div>
                     }
+
+                    <!-- Info client en lecture seule -->
+                    <!-- <div class="alert alert-light border mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-user-circle text-success fa-lg"></i>
+                            <div>
+                                <div class="fw-bold">{{ getClientInfo(selectedFacture).nomComplet || '—' }}</div>
+                                @if (getClientInfo(selectedFacture).email) {
+                                <small class="text-muted">{{ getClientInfo(selectedFacture).email }}</small>
+                                }
+                            </div>
+                        </div>
+                    </div> -->
+
                     <div class="mb-3">
                         <label for="statut_edit" class="form-label">Statut de paiement *</label>
                         <select class="form-select" id="statut_edit" [(ngModel)]="editForm.statut_paiement"
@@ -451,7 +510,7 @@
                         <small class="text-muted">Modifier la date d'échéance si nécessaire</small>
                     </div>
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fas fa-info-circle me-1"></i>
                         <strong>Montant Total :</strong>
                         {{ getMontant(selectedFacture) | number:'1.0-0':'fr' }} F
                     </div>
@@ -490,6 +549,7 @@
                     <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer cette facture ?</h6>
                     <p class="mb-3">
                         La facture <span class="fw-bold text-danger">{{ factureToDelete.numero_facture }}</span>
+                        de <span class="fw-bold">{{ getClientInfo(factureToDelete).nomComplet }}</span>
                         sera définitivement supprimée.
                     </p>
                     <div class="alert alert-warning">

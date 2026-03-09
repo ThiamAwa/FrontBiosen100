@@ -1,0 +1,651 @@
+<div class="categories-wrapper">
+    <div class="categories-container">
+        <div class="page-header-custom">
+            <h1><i class="fas fa-dumbbell"></i> Gestion des Produits Sport</h1>
+        </div>
+
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-header-title">
+                    <i class="fas fa-running"></i>
+                    <span>Liste des Produits Sport</span>
+                </div>
+                <button type="button" class="btn btn-add-custom" (click)="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>Nouveau Produit Sport</span>
+                </button>
+            </div>
+
+            <!-- Alertes -->
+            @if (successMessage) {
+            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span>{{ successMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span>{{ errorMessage }}</span>
+                <button type="button" class="btn-close" (click)="closeAlert()"></button>
+            </div>
+            }
+            @if (validationErrors.length > 0) {
+            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Erreur de validation :</strong>
+                    <ul class="mb-0 mt-1">
+                        @for (err of validationErrors; track err) {
+                        <li>{{ err }}</li>
+                        }
+                    </ul>
+                </div>
+                <button type="button" class="btn-close" (click)="validationErrors = []"></button>
+            </div>
+            }
+
+            <div class="card-body-custom">
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th style="width:100px;">Médias</th>
+                                <th>Nom</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Promotion</th>
+                                <th>Stock</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (produit of produits; track produit.id) {
+                            <tr>
+                                <!-- Colonne Médias -->
+                                <td>
+                                    @let mediaPrincipal = getMediaPrincipal(produit);
+                                    @let nbMedias = getMediaCount(produit);
+                                    @if (mediaPrincipal) {
+                                    <div class="position-relative d-inline-block">
+                                        @if (mediaPrincipal.type === 'image') {
+                                        <img [src]="mediaPrincipal.url"
+                                            style="width:65px;height:65px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0;display:block;"
+                                            [alt]="produit.nom">
+                                        } @else if (mediaPrincipal.type === 'video_url' &&
+                                        mediaPrincipal.youtube_thumbnail) {
+                                        <div style="position:relative;width:65px;height:65px;">
+                                            <img [src]="mediaPrincipal.youtube_thumbnail"
+                                                style="width:65px;height:65px;object-fit:cover;border-radius:8px;"
+                                                alt="">
+                                            <div
+                                                style="position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                                <i class="fab fa-youtube text-danger"></i>
+                                            </div>
+                                        </div>
+                                        } @else {
+                                        <div
+                                            style="width:65px;height:65px;background:#1a1a2e;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                            <i class="fas fa-video text-white"></i>
+                                        </div>
+                                        }
+                                        @if (nbMedias > 1) {
+                                        <span
+                                            style="position:absolute;top:-6px;right:-6px;background:#287747;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;">
+                                            {{ nbMedias }}
+                                        </span>
+                                        }
+                                    </div>
+                                    <button type="button" class="btn btn-sm d-block mt-1 w-100"
+                                        style="background:#287747;color:white;font-size:11px;padding:2px 0;border:none;border-radius:5px;"
+                                        (click)="openGalleryModal(produit.id, produit.nom)">
+                                        <i class="fas fa-eye me-1"></i>Voir
+                                    </button>
+                                    } @else if (produit.image) {
+                                    <img [src]="produitService.getImageUrl(produit.image)"
+                                        style="width:65px;height:65px;object-fit:cover;border-radius:8px;cursor:pointer;"
+                                        (click)="openImageModal(produitService.getImageUrl(produit.image), produit.nom)"
+                                        [alt]="produit.nom">
+                                    } @else {
+                                    <div
+                                        style="width:65px;height:65px;background:#f8f9fa;border-radius:8px;border:2px dashed #dee2e6;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                    }
+                                </td>
+
+                                <!-- Nom -->
+                                <td>
+                                    <strong>{{ produit.nom }}</strong>
+                                    @if (produit.description) {
+                                    <small class="d-block text-muted mt-1">{{ produit.description | slice:0:35 }}{{
+                                        produit.description.length > 35 ? '...' : '' }}</small>
+                                    }
+                                </td>
+
+                                <!-- Catégorie -->
+                                <td>
+                                    @if (produit.categorie) {
+                                    {{ produit.categorie.nom }}
+                                    } @else {
+                                    <span class="text-muted fst-italic">Non défini</span>
+                                    }
+                                </td>
+
+                                <!-- Prix -->
+                                <td>
+                                    @if (produit.enPromotion && produit.prixPromo) {
+                                    <span class="text-decoration-line-through text-muted d-block small">{{ produit.prix
+                                        | number }} FCFA</span>
+                                    <span class="text-danger fw-bold">{{ produit.prixPromo | number }} FCFA</span>
+                                    } @else {
+                                    <span class="fw-bold">{{ produit.prix | number }} FCFA</span>
+                                    }
+                                </td>
+
+                                <!-- Promotion -->
+                                <td>
+                                    @if (produit.enPromotion) {
+                                    <span class="badge"
+                                        style="background:linear-gradient(135deg,#f56565,#e53e3e);color:white;">
+                                        <i class="fas fa-tag me-1"></i>Promo
+                                    </span>
+                                    } @else {
+                                    <span class="badge bg-secondary">Non</span>
+                                    }
+                                </td>
+
+                                <!-- Stock -->
+                                <td>
+                                    <span class="badge"
+                                        [ngClass]="{'bg-success': produit.stock > 10, 'bg-warning text-dark': produit.stock > 0 && produit.stock <= 10, 'bg-danger': produit.stock === 0}">
+                                        {{ produit.stock }}
+                                    </span>
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-light me-1"
+                                        style="background:#d4edda;color:#155724;border-color:#c3e6cb;"
+                                        (click)="openEditModal(produit)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        (click)="openDeleteModal(produit)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            } @empty {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-dumbbell fa-2x text-muted mb-3"></i>
+                                        <p class="text-muted mb-0">Aucun produit sport trouvé</p>
+                                        <small class="text-muted">Commencez par créer votre premier produit
+                                            sport</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (lastPage > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-4 px-3">
+                    <div class="text-muted">
+                        Affichage {{ firstItem }} à {{ lastItem }} sur {{ total }} produits
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage - 1)">Précédent</a>
+                            </li>
+                            @for (page of [].constructor(lastPage); track $index) {
+                            <li class="page-item" [class.active]="currentPage === $index + 1">
+                                <a class="page-link" href="javascript:void(0)" (click)="changePage($index + 1)">{{
+                                    $index + 1 }}</a>
+                            </li>
+                            }
+                            <li class="page-item" [class.disabled]="currentPage === lastPage">
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage + 1)">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL CRÉATION ========== -->
+@if (showCreateModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-content-sport">
+            <div class="modal-header modal-header-sport py-2">
+                <h6 class="modal-title text-white fw-bold mb-0">
+                    <i class="fas fa-plus me-2"></i>Nouveau Produit Sport
+                </h6>
+                <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+            </div>
+            <div class="modal-body modal-body-sport">
+                <form [formGroup]="createForm">
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="label-sport">Nom *</label>
+                            <input type="text" class="form-control form-control-sm" formControlName="nom"
+                                placeholder="Nom du produit">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="label-sport">Catégorie Sport</label>
+                            <select class="form-select form-select-sm" formControlName="categorie_id">
+                                <option [ngValue]="null">-- Sélectionner --</option>
+                                @for (cat of categories; track cat.id) {
+                                <option [ngValue]="cat.id">{{ cat.nom }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="label-sport">Description</label>
+                        <textarea class="form-control form-control-sm" formControlName="description" rows="2"
+                            placeholder="Description courte..."></textarea>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-4">
+                            <label class="label-sport">Prix (FCFA) *</label>
+                            <input type="number" class="form-control form-control-sm" formControlName="prix"
+                                step="0.01">
+                        </div>
+                        <div class="col-4">
+                            <label class="label-sport">Prix Promo</label>
+                            <input type="number" class="form-control form-control-sm" formControlName="prixPromo"
+                                step="0.01">
+                        </div>
+                        <div class="col-4">
+                            <label class="label-sport">Stock *</label>
+                            <input type="number" class="form-control form-control-sm" formControlName="stock">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="enPromotion"
+                                id="promoCreate">
+                            <label class="form-check-label small" for="promoCreate">En promotion</label>
+                        </div>
+                    </div>
+                    <hr class="my-2">
+                    <p class="fw-bold mb-2 small" style="color:#287747;">
+                        <i class="fas fa-photo-video me-1"></i>Médias du produit
+                    </p>
+
+                    <!-- Images -->
+                    <div class="mb-3">
+                        <label class="label-sport">
+                            <i class="fas fa-images me-1 text-primary"></i>Images
+                            <span class="badge bg-primary ms-1" style="font-size:.62rem;">Plusieurs possibles</span>
+                        </label>
+                        <div class="upload-zone" (click)="fileInputCreate.click()" (dragover)="$event.preventDefault()"
+                            (drop)="onFileChange($event, 'create')">
+                            <i class="fas fa-cloud-upload-alt fa-lg text-muted d-block mb-1"></i>
+                            <p class="text-muted mb-0 small">Glissez ici ou
+                                <span class="text-success fw-bold">cliquez pour parcourir</span>
+                            </p>
+                            <small class="text-muted" style="font-size:.7rem;">JPG, PNG, GIF, WEBP — max 5 Mo</small>
+                        </div>
+                        <input #fileInputCreate type="file" class="d-none" accept="image/*" multiple
+                            (change)="onFileChange($event, 'create')">
+                        <div class="row g-1 mt-1">
+                            @for (preview of createImagePreviews; track $index) {
+                            <div class="col-3 col-md-2">
+                                <div class="prev-img">
+                                    <img [src]="preview.url" alt="aperçu">
+                                    <button type="button" class="del-btn"
+                                        (click)="removePreview($index, 'create')">&times;</button>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Vidéos URL -->
+                    <div class="mb-2">
+                        <label class="label-sport">
+                            <i class="fab fa-youtube me-1 text-danger"></i>Liens vidéo YouTube / Vimeo
+                        </label>
+                        @for (urlCtrl of videosUrlsCreate.controls; track $index; let i = $index) {
+                        <div class="input-group input-group-sm mb-1">
+                            <span class="input-group-text px-2">
+                                <i class="fas fa-link text-muted" style="font-size:.75rem;"></i>
+                            </span>
+                            <input type="url" class="form-control form-control-sm" [formControl]="$any(urlCtrl)"
+                                placeholder="https://www.youtube.com/watch?v=...">
+                            <input type="text" class="form-control form-control-sm"
+                                [formControl]="$any(videosTitresCreate.at(i))" placeholder="Titre"
+                                style="max-width:110px;">
+                            <button type="button" class="btn btn-sm btn-outline-success px-2"
+                                (click)="addVideoRow(createForm)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        }
+                        @if (videosUrlsCreate.length === 0) {
+                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addVideoRow(createForm)">
+                            <i class="fas fa-plus me-1"></i>Ajouter une vidéo
+                        </button>
+                        }
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer modal-footer-sport py-2">
+                <button type="button" class="btn btn-sm btn-light" (click)="closeCreateModal()">Annuler</button>
+                <button type="button" class="btn btn-sm btn-success" (click)="onCreateSubmit()">
+                    <i class="fas fa-save me-1"></i>Créer le produit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ========== MODAL ÉDITION ========== -->
+@if (showEditModal && selectedProduit) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-content-sport">
+            <div class="modal-header modal-header-sport py-2">
+                <h6 class="modal-title text-white fw-bold mb-0">
+                    <i class="fas fa-edit me-2"></i>Modifier — {{ selectedProduit.nom }}
+                </h6>
+                <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()"></button>
+            </div>
+            <div class="modal-body modal-body-sport">
+                <form [formGroup]="editForm">
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="label-sport">Nom *</label>
+                            <input type="text" class="form-control form-control-sm" formControlName="nom">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="label-sport">Catégorie Sport</label>
+                            <select class="form-select form-select-sm" formControlName="categorie_id">
+                                <option [ngValue]="null">-- Sélectionner --</option>
+                                @for (cat of categories; track cat.id) {
+                                <option [ngValue]="cat.id">{{ cat.nom }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="label-sport">Description</label>
+                        <textarea class="form-control form-control-sm" formControlName="description"
+                            rows="2"></textarea>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-4">
+                            <label class="label-sport">Prix (FCFA) *</label>
+                            <input type="number" class="form-control form-control-sm" formControlName="prix"
+                                step="0.01">
+                        </div>
+                        <div class="col-4">
+                            <label class="label-sport">Prix Promo</label>
+                            <input type="number" class="form-control form-control-sm" formControlName="prixPromo"
+                                step="0.01">
+                        </div>
+                        <div class="col-4">
+                            <label class="label-sport">Stock *</label>
+                            <input type="number" class="form-control form-control-sm" formControlName="stock">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="enPromotion"
+                                id="promoEdit">
+                            <label class="form-check-label small" for="promoEdit">En promotion</label>
+                        </div>
+                    </div>
+                    <hr class="my-2">
+
+                    <!-- Médias existants -->
+                    @if (selectedProduit.medias?.length) {
+                    <div class="mb-3">
+                        <label class="label-sport">
+                            <i class="fas fa-photo-video me-1 text-success"></i>
+                            Médias actuels ({{ selectedProduit.medias?.length }})
+                            <small class="text-muted fw-normal"> — cochez pour supprimer</small>
+                        </label>
+                        <div class="row g-1 mt-1">
+                            @for (media of selectedProduit.medias; track media.id) {
+                            <div class="col-3 col-md-2">
+                                <div class="media-edit-card">
+                                    <div class="media-edit-preview">
+                                        @if (media.type === 'image') {
+                                        <img [src]="media.url" alt="">
+                                        } @else if (media.youtube_thumbnail) {
+                                        <img [src]="media.youtube_thumbnail" alt="">
+                                        <div class="media-video-overlay">
+                                            <i class="fab fa-youtube text-danger"></i>
+                                        </div>
+                                        } @else {
+                                        <div class="media-video-placeholder">
+                                            <i class="fas fa-link text-white small"></i>
+                                        </div>
+                                        }
+                                        @if (media.est_principal) {
+                                        <span class="principal-badge">★</span>
+                                        }
+                                    </div>
+                                    <div class="media-edit-actions">
+                                        <div class="form-check d-inline-flex align-items-center gap-1">
+                                            <input class="form-check-input m-0" type="checkbox"
+                                                (change)="onCheckboxChange($event, media.id)"
+                                                [checked]="existingMediaToDelete.includes(media.id)">
+                                            <label class="text-danger" style="font-size:10px;cursor:pointer;">
+                                                <i class="fas fa-trash"></i>
+                                            </label>
+                                        </div>
+                                        @if (media.type === 'image') {
+                                        <div class="form-check d-inline-flex align-items-center gap-1 ms-1">
+                                            <input class="form-check-input m-0" type="radio" name="media_principal"
+                                                [value]="media.id" (change)="setPrincipal(media.id)"
+                                                [checked]="editForm.get('media_principal_id')?.value === media.id">
+                                            <label style="font-size:9px;color:#287747;cursor:pointer;">★</label>
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Ajouter nouvelles images -->
+                    <div class="mb-2">
+                        <label class="label-sport">
+                            <i class="fas fa-images me-1 text-primary"></i>Ajouter des images
+                        </label>
+                        <input type="file" class="form-control form-control-sm" accept="image/*" multiple
+                            (change)="onFileChange($event, 'edit')">
+                        <div class="row g-1 mt-1">
+                            @for (preview of editImagePreviews; track $index) {
+                            <div class="col-3 col-md-2">
+                                <div class="prev-img">
+                                    <img [src]="preview.url" alt="aperçu">
+                                    <button type="button" class="del-btn"
+                                        (click)="removePreview($index, 'edit')">&times;</button>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Ajouter liens vidéo -->
+                    <div class="mb-2">
+                        <label class="label-sport">
+                            <i class="fab fa-youtube me-1 text-danger"></i>Ajouter des liens vidéo
+                            <small class="text-muted">(YouTube / Vimeo)</small>
+                        </label>
+                        @for (urlCtrl of videosUrlsEdit.controls; track $index; let i = $index) {
+                        <div class="input-group input-group-sm mb-1">
+                            <span class="input-group-text px-2">
+                                <i class="fas fa-link text-muted" style="font-size:.75rem;"></i>
+                            </span>
+                            <input type="url" class="form-control form-control-sm" [formControl]="$any(urlCtrl)"
+                                placeholder="https://www.youtube.com/watch?v=...">
+                            <input type="text" class="form-control form-control-sm"
+                                [formControl]="$any(videosTitresEdit.at(i))" placeholder="Titre"
+                                style="max-width:110px;">
+                            <button type="button" class="btn btn-sm btn-outline-success px-2"
+                                (click)="addVideoRow(editForm)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        }
+                        @if (videosUrlsEdit.length === 0) {
+                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addVideoRow(editForm)">
+                            <i class="fas fa-plus me-1"></i>Ajouter une vidéo
+                        </button>
+                        }
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer modal-footer-sport py-2">
+                <button type="button" class="btn btn-sm btn-light" (click)="closeEditModal()">Annuler</button>
+                <button type="button" class="btn btn-sm btn-success" (click)="onUpdateSubmit()">
+                    <i class="fas fa-save me-1"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ========== MODAL SUPPRESSION ========== -->
+@if (showDeleteModal && produitToDelete) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:12px;">
+            <div class="modal-header border-0 pb-0 pt-3 px-3">
+                <div class="d-flex align-items-center w-100">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-2"
+                        style="width:38px;height:38px;flex-shrink:0;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h6 class="modal-title mb-0 fw-bold flex-grow-1">Confirmer la suppression</h6>
+                    <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                </div>
+            </div>
+            <div class="modal-body py-3 px-3 text-center">
+                <p class="small mb-2">
+                    Le produit <strong class="text-danger">"{{ produitToDelete.nom }}"</strong>
+                    sera définitivement supprimé.
+                </p>
+                @if (produitToDelete.medias?.length) {
+                <small class="text-warning d-block">
+                    <i class="fas fa-photo-video me-1"></i>
+                    {{ produitToDelete.medias?.length }} média(s) associé(s) seront supprimés.
+                </small>
+                }
+                @if (produitToDelete.avis?.length) {
+                <small class="d-block text-muted mt-1">
+                    <i class="fas fa-comment me-1"></i>
+                    {{ produitToDelete.avis?.length }} avis seront supprimés.
+                </small>
+                }
+            </div>
+            <div class="modal-footer border-0 bg-light rounded-bottom py-2 px-3">
+                <div class="w-100 d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-success flex-fill" (click)="closeDeleteModal()">
+                        <i class="fas fa-times me-1"></i>Annuler
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger flex-fill" (click)="confirmDelete()">
+                        <i class="fas fa-trash me-1"></i>Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ========== MODAL GALERIE MÉDIAS ========== -->
+@if (showGalleryModal && galleryMedias.length) {
+@let currentMedia = galleryMedias[currentMediaIndex];
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-gallery modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:14px;overflow:hidden;">
+            <div class="modal-header border-0 py-2" style="background:linear-gradient(135deg,#287747,#1a5230);">
+                <h6 class="modal-title text-white fw-bold mb-0">
+                    <i class="fas fa-photo-video me-2"></i>Médias — {{ galleryProduitNom }}
+                </h6>
+                <span class="badge bg-white text-success ms-2">{{ galleryMedias.length }}</span>
+                <button type="button" class="btn-close btn-close-white ms-auto" (click)="closeGalleryModal()"></button>
+            </div>
+            <div class="modal-body p-0" style="background:#111;">
+                <!-- Zone principale -->
+                <div class="gallery-main-view">
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+                        @if (currentMediaType === 'image') {
+                        <img [src]="currentMediaUrl" style="max-width:100%;max-height:100%;object-fit:contain;" alt="">
+                        } @else if (currentMediaType === 'video') {
+                        <iframe [src]="currentMediaUrl" width="100%" height="100%" frameborder="0"
+                            allowfullscreen></iframe>
+                        } @else {
+                        <i class="fas fa-spinner fa-spin text-white fa-2x"></i>
+                        }
+                    </div>
+                    @if (galleryMedias.length > 1) {
+                    <button (click)="galleryNav(-1)" class="gallery-arrow gallery-arrow-left">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button (click)="galleryNav(1)" class="gallery-arrow gallery-arrow-right">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="gallery-counter">{{ currentMediaIndex + 1 }} / {{ galleryMedias.length }}</div>
+                    }
+                    <div style="position:absolute;top:10px;left:10px;">
+                        @if (currentMedia?.est_principal) {
+                        <span class="badge bg-warning text-dark" style="font-size:.7rem;">Principal</span>
+                        }
+                    </div>
+                </div>
+                <!-- Vignettes -->
+                <div class="gallery-thumbs">
+                    @for (media of galleryMedias; track media.id; let i = $index) {
+                    <div class="g-thumb" [class.active]="i === currentMediaIndex" (click)="selectGalleryMedia(i)">
+                        <img [src]="getThumbnail(media)" [alt]="media.titre || 'miniature'">
+                    </div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer border-0 py-1" style="background:#1a1a2e;">
+                <small class="text-muted me-auto" style="font-size:.75rem;">{{ currentMedia?.titre || '' }}</small>
+                <button type="button" class="btn btn-sm btn-light" (click)="closeGalleryModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ========== MODAL IMAGE SIMPLE ========== -->
+@if (showImageModal) {
+<div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+        <div class="modal-content border-0 bg-transparent">
+            <div class="modal-header border-0 bg-transparent">
+                <button type="button" class="btn-close btn-close-white ms-auto" (click)="closeImageModal()"></button>
+            </div>
+            <div class="modal-body p-0 text-center">
+                <img [src]="currentMediaUrl" alt="" class="img-fluid rounded shadow-lg"
+                    style="max-height:70vh;max-width:100%;object-fit:contain;">
+            </div>
+        </div>
+    </div>
+</div>
+}

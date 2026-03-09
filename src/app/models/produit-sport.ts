@@ -27,8 +27,9 @@ export interface ProduitSport {
   image?: string;
   categorie_id?: number;
   categorie?: Categorie;
-  medias: ProduitMedia[];
+  medias?: ProduitMedia[];
   created_at: string;
+  avis?: any[];
 }
 
 export interface ProduitSportResponse {

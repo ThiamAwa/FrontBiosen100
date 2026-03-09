@@ -1,5 +1,6 @@
 <div class="categories-wrapper">
     <div class="categories-container">
+
         <!-- Header -->
         <div class="page-header-custom">
             <h1><i class="fas fa-users"></i> Gestion des Clients</h1>
@@ -7,7 +8,8 @@
 
         <!-- Carte principale -->
         <div class="card-custom">
-            <!-- En-tête de la carte -->
+
+            <!-- En-tête -->
             <div class="card-header-custom">
                 <div class="card-header-title">
                     <i class="fas fa-address-book"></i>
@@ -45,17 +47,17 @@
             </div>
             }
 
-            <!-- Corps de la carte -->
+            <!-- Corps -->
             <div class="card-body-custom">
 
-                <!-- Recherche & Filtres -->
+                <!-- Filtres -->
                 <div class="filters-bar mb-4">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" placeholder="Rechercher par nom, email, téléphone..."
+                        <input type="text" class="form-control" placeholder="Rechercher par nom, téléphone..."
                             [(ngModel)]="searchQuery" (input)="onSearch()">
                     </div>
-                    <div class="filters-group">
+                    <div class="filters-right">
                         <select class="form-select filter-select" [(ngModel)]="filterStatut" (change)="onFilter()">
                             <option value="">Tous les statuts</option>
                             <option value="actif">Actif</option>
@@ -80,22 +82,22 @@
                             <thead>
                                 <tr>
                                     <th>Client</th>
-                                    <th>Email</th>
                                     <th>Téléphone</th>
                                     <th class="text-center">Commandes</th>
                                     <th class="text-end">Total dépensé</th>
                                     <th>Dernière commande</th>
+                                    <!-- <th class="text-center">Statut</th> -->
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @for (client of clients; track client.id) {
                                 <tr>
+
+                                    <!-- Client -->
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-circle me-2">
-                                                {{ getInitials(client) }}
-                                            </div>
+                                            <div class="avatar-circle me-2">{{ getInitials(client) }}</div>
                                             <div>
                                                 <strong>{{ client.prenom }} {{ client.nom }}</strong><br>
                                                 <small class="text-muted">
@@ -105,31 +107,57 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ client.email }}</td>
-                                    <td>{{ client.telephone }}</td>
-                                    <td class="text-center">
-                                        <span class="commandes-count">
-                                            {{ client.commandes_count ?? 0 }}
+
+                                    <!-- Téléphone -->
+                                    <td>
+                                        <span class="phone-badge">
+                                            <i class="fas fa-phone-alt"></i>
+                                            {{ client.telephone }}
                                         </span>
                                     </td>
+
+                                    <!-- Commandes -->
+                                    <td class="text-center">
+                                        <span class="commandes-count">{{ client.commandes_count ?? 0 }}</span>
+                                    </td>
+
+                                    <!-- ✅ Total dépensé normalisé dans loadClients() -->
                                     <td class="text-end">
                                         <span class="total-depense">
                                             {{ (client.commandes_sum_montant_total ?? 0) | number:'':'fr' }}
+                                            <!-- {{ clientStats.total_depense | number:'':'fr' }} -->
                                             <small>FCFA</small>
                                         </span>
                                     </td>
+
+                                    <!-- ✅ Dernière commande normalisée dans loadClients() -->
                                     <td>
                                         @if (client.derniere_commande) {
                                         <span class="derniere-commande clickable" (click)="openCommandeModal(client)"
                                             title="Voir la commande">
-                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            <i class="fas fa-calendar-alt"></i>
                                             {{ client.derniere_commande | date:'dd/MM/yyyy' }}
-                                            <i class="fas fa-external-link-alt ms-1" style="font-size:0.65rem;"></i>
+                                            <i class="fas fa-external-link-alt" style="font-size:0.6rem;"></i>
                                         </span>
                                         } @else {
                                         <span class="text-muted fst-italic" style="font-size:0.82rem;">Aucune</span>
                                         }
                                     </td>
+
+                                    <!-- Statut -->
+                                    <!-- <td class="text-center">
+                                        @if (client.statut === 'actif') {
+                                        <span class="statut-badge statut-actif">
+                                            <i class="fas fa-circle dot"></i> Actif
+                                        </span>
+                                        } @else {
+                                        <span class="statut-badge statut-suspendu">
+                                            <i class="fas fa-circle dot"></i> Suspendu
+                                        </span>
+                                        }
+                                    </td> -->
+
+                                    <!-- Actions -->
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-action-view me-1"
                                             (click)="openViewModal(client)" title="Voir détails">
@@ -144,13 +172,18 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
+
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="7" class="text-center py-5">
-                                        <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted fw-semibold mb-1">Aucun client trouvé</p>
-                                        <small class="text-muted">Commencez par créer votre premier client</small>
+                                    <td colspan="7">
+                                        <div class="text-center py-4">
+                                            <div class="empty-icon">
+                                                <i class="fas fa-users-slash"></i>
+                                            </div>
+                                            <p class="text-muted fw-semibold mb-1">Aucun client trouvé</p>
+                                            <small class="text-muted">Commencez par créer votre premier client</small>
+                                        </div>
                                     </td>
                                 </tr>
                                 }
@@ -191,46 +224,44 @@
                     </nav>
                 </div>
                 }
+
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Création -->
+<!-- ═══════════════════════════════════════════
+     MODAL CRÉATION
+═══════════════════════════════════════════ -->
 @if (showCreateModal) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-user-plus me-2"></i>Nouveau Client
-                </h5>
+                <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Nouveau Client</h5>
                 <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
             </div>
             <div class="modal-body">
                 @if (validationErrors.length > 0) {
                 <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
-                    </ul>
+                    <ul class="mb-0">@for (err of validationErrors; track err) { <li>{{ err }}</li> }</ul>
                 </div>
                 }
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Nom *</label>
-                        <input type="text" class="form-control" [(ngModel)]="createForm.nom" required>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.nom" required
+                            placeholder="Ex: Diallo">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Prénom *</label>
-                        <input type="text" class="form-control" [(ngModel)]="createForm.prenom" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Email *</label>
-                        <input type="email" class="form-control" [(ngModel)]="createForm.email" required>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.prenom" required
+                            placeholder="Ex: Fatou">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Téléphone *</label>
-                        <input type="text" class="form-control" [(ngModel)]="createForm.telephone" required>
+                        <input type="text" class="form-control" [(ngModel)]="createForm.telephone" required
+                            placeholder="77 000 00 00">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Mot de passe *</label>
@@ -238,36 +269,37 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">Adresse</label>
-                        <textarea class="form-control" [(ngModel)]="createForm.adresse" rows="2"></textarea>
+                        <textarea class="form-control" [(ngModel)]="createForm.adresse" rows="2"
+                            placeholder="Quartier, Ville..."></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
-                <button type="button" class="btn btn-success-custom" (click)="createClient()">Créer</button>
+                <button type="button" class="btn btn-success-custom" (click)="createClient()">
+                    <i class="fas fa-save me-1"></i> Créer
+                </button>
             </div>
         </div>
     </div>
 </div>
 }
 
-<!-- Modal Édition -->
+<!-- ═══════════════════════════════════════════
+     MODAL ÉDITION
+═══════════════════════════════════════════ -->
 @if (showEditModal && selectedClient) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-edit me-2"></i>Modifier Client
-                </h5>
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Modifier Client</h5>
                 <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()"></button>
             </div>
             <div class="modal-body">
                 @if (validationErrors.length > 0) {
                 <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @for (err of validationErrors; track err) { <li>{{ err }}</li> }
-                    </ul>
+                    <ul class="mb-0">@for (err of validationErrors; track err) { <li>{{ err }}</li> }</ul>
                 </div>
                 }
                 <div class="row">
@@ -278,10 +310,6 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Prénom *</label>
                         <input type="text" class="form-control" [(ngModel)]="editForm.prenom" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Email *</label>
-                        <input type="email" class="form-control" [(ngModel)]="editForm.email" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Téléphone *</label>
@@ -295,14 +323,18 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
-                <button type="button" class="btn btn-success-custom" (click)="updateClient()">Enregistrer</button>
+                <button type="button" class="btn btn-success-custom" (click)="updateClient()">
+                    <i class="fas fa-save me-1"></i> Enregistrer
+                </button>
             </div>
         </div>
     </div>
 </div>
 }
 
-<!-- Modal Suppression -->
+<!-- ═══════════════════════════════════════════
+     MODAL SUPPRESSION
+═══════════════════════════════════════════ -->
 @if (showDeleteModal && clientToDelete) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
@@ -334,10 +366,7 @@
                     <div class="d-flex align-items-start">
                         <i class="fas fa-info-circle mt-1 me-3 text-warning"></i>
                         <div>
-                            <p class="mb-0">
-                                <i class="fas fa-exclamation-circle me-1"></i>
-                                Cette action est <strong>irréversible</strong>.
-                            </p>
+                            <p class="mb-0">Cette action est <strong>irréversible</strong>.</p>
                         </div>
                     </div>
                 </div>
@@ -357,24 +386,26 @@
 </div>
 }
 
-<!-- Modal Détails Client -->
+<!-- ═══════════════════════════════════════════
+     MODAL DÉTAILS CLIENT
+═══════════════════════════════════════════ -->
 @if (showViewModal && clientToView) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-user-circle me-2"></i>Détails du Client
                 </h5>
                 <button type="button" class="btn-close btn-close-white" (click)="closeViewModal()"></button>
             </div>
+
             <div class="modal-body p-0">
 
                 <!-- Profil header -->
                 <div class="client-profile-header">
-                    <div class="client-avatar-lg">
-                        {{ getInitials(clientToView) }}
-                    </div>
+                    <div class="client-avatar-lg">{{ getInitials(clientToView) }}</div>
                     <div class="client-profile-info">
                         <h5 class="mb-1">{{ clientToView.prenom }} {{ clientToView.nom }}</h5>
                         <span class="text-muted small">
@@ -383,13 +414,9 @@
                         </span>
                         <div class="mt-2">
                             @if (clientToView.statut === 'actif') {
-                            <span class="statut-badge statut-actif">
-                                <i class="fas fa-circle"></i> Actif
-                            </span>
+                            <span class="statut-badge statut-actif"><i class="fas fa-circle dot"></i> Actif</span>
                             } @else {
-                            <span class="statut-badge statut-suspendu">
-                                <i class="fas fa-circle"></i> Suspendu
-                            </span>
+                            <span class="statut-badge statut-suspendu"><i class="fas fa-circle dot"></i> Suspendu</span>
                             }
                         </div>
                     </div>
@@ -404,23 +431,16 @@
                         </h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Email</label>
-                                <p class="mb-0">
-                                    <i class="fas fa-envelope me-2 text-muted"></i>{{ clientToView.email }}
-                                </p>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Téléphone</label>
-                                <p class="mb-0">
-                                    <i class="fas fa-phone me-2 text-muted"></i>{{ clientToView.telephone }}
-                                </p>
+                                <div class="info-item">
+                                    <span class="info-label"><i class="fas fa-phone"></i> Téléphone</span>
+                                    <span class="info-value">{{ clientToView.telephone }}</span>
+                                </div>
                             </div>
                             <div class="col-12 mb-0">
-                                <label class="form-label fw-semibold">Adresse</label>
-                                <p class="mb-0">
-                                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
-                                    {{ clientToView.adresse || 'Non renseignée' }}
-                                </p>
+                                <div class="info-item">
+                                    <span class="info-label"><i class="fas fa-map-marker-alt"></i> Adresse</span>
+                                    <span class="info-value">{{ clientToView.adresse || 'Non renseignée' }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -442,6 +462,7 @@
                             <div class="col-4">
                                 <div class="stats-box">
                                     <i class="fas fa-coins stats-icon"></i>
+                                    <!-- ✅ total_depense = sum('montantTotal') depuis stats() Laravel -->
                                     <strong>{{ clientStats.total_depense | number:'':'fr' }}</strong>
                                     <small>Dépenses (FCFA)</small>
                                 </div>
@@ -467,23 +488,18 @@
                             <div class="commande-item">
                                 <div class="commande-info">
                                     <span class="commande-ref">#{{ cmd.reference }}</span>
-                                    <span class="commande-date text-muted">
-                                        {{ cmd.date | date:'dd/MM/yyyy' }}
-                                    </span>
+                                    <span class="commande-date text-muted">{{ cmd.date | date:'dd/MM/yyyy' }}</span>
                                 </div>
                                 <div class="commande-right">
-                                    <span class="commande-montant">
-                                        {{ cmd.montant | number:'':'fr' }} FCFA
-                                    </span>
-                                    <span class="commande-statut-badge statut-{{ cmd.statut }}">
-                                        {{ cmd.statut }}
-                                    </span>
+                                    <span class="commande-montant">{{ cmd.montant | number:'':'fr' }} FCFA</span>
+                                    <span class="commande-statut-badge statut-{{ cmd.statut }}">{{ cmd.statut }}</span>
                                 </div>
                             </div>
                             }
                         </div>
                     </div>
                     }
+
                     } @else {
                     <div class="text-center py-3">
                         <i class="fas fa-spinner fa-spin text-muted"></i>
@@ -493,6 +509,7 @@
 
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeViewModal()">Fermer</button>
                 <button type="button" class="btn btn-success-custom"
@@ -505,7 +522,9 @@
 </div>
 }
 
-<!-- Modal Détail Dernière Commande -->
+<!-- ═══════════════════════════════════════════
+     MODAL DERNIÈRE COMMANDE
+═══════════════════════════════════════════ -->
 @if (showCommandeModal && commandeDetail) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-md modal-dialog-centered">
@@ -520,7 +539,6 @@
             </div>
 
             <div class="modal-body p-0">
-
                 @if (derniereCommande) {
 
                 <!-- Statut banner -->
@@ -531,7 +549,6 @@
 
                 <div class="p-4">
 
-                    <!-- Référence & Date -->
                     <div class="commande-modal-row">
                         <div class="commande-modal-field">
                             <span class="commande-modal-label">
@@ -553,7 +570,6 @@
 
                     <hr class="commande-divider">
 
-                    <!-- Montant & Commandes -->
                     <div class="commande-modal-row">
                         <div class="commande-modal-field">
                             <span class="commande-modal-label">
@@ -577,11 +593,8 @@
 
                     <hr class="commande-divider">
 
-                    <!-- Client info -->
                     <div class="commande-client-info">
-                        <div class="avatar-circle me-3">
-                            {{ getInitials(commandeDetail) }}
-                        </div>
+                        <div class="avatar-circle me-3">{{ getInitials(commandeDetail) }}</div>
                         <div>
                             <div class="fw-bold">{{ commandeDetail.prenom }} {{ commandeDetail.nom }}</div>
                             <div class="text-muted small">
@@ -601,7 +614,6 @@
                     <p class="text-muted small mt-3">Chargement de la commande...</p>
                 </div>
                 }
-
             </div>
 
             <div class="modal-footer">

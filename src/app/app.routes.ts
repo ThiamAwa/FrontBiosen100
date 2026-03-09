@@ -8,9 +8,9 @@ import { TemoignagesComponent } from './components/pages/temoignages/temoignages
 import { SportComponent } from './components/pages/sport/sport.component';
 import { ContactComponent } from './components/pages/contact/contact.component';
 import { SportDetailComponent } from './components/pages/sport-detail/sport-detail.component';
-import {CheckoutComponent} from './components/pages/checkout/checkout.component';
+import { CheckoutComponent } from './components/pages/checkout/checkout.component';
 import {
-  CheckoutConfirmationComponent
+    CheckoutConfirmationComponent
 } from './components/pages/checkout-confirmation/checkout-confirmation.component';
 
 export const routes: Routes = [
@@ -28,8 +28,8 @@ export const routes: Routes = [
             { path: 'sport', component: SportComponent },
             { path: 'sport/:id', component: SportDetailComponent },
             { path: 'contact', component: ContactComponent },
-          { path: 'checkout', component: CheckoutComponent },
-          { path: 'checkout/confirmation/:order_number', component: CheckoutConfirmationComponent },
+            { path: 'checkout', component: CheckoutComponent },
+            { path: 'checkout/confirmation/:order_number', component: CheckoutConfirmationComponent },
         ]
     },
 
@@ -59,10 +59,10 @@ export const routes: Routes = [
                 path: 'produits',
                 loadComponent: () => import('./components/admin/produit/produit.component').then(m => m.ProduitComponent)
             },
-            // {
-            //     path: 'produits-sport',
-            //     loadComponent: () => import('./components/admin/produit-sport/produit-sport.component').then(m => m.ProduitSportComponent)
-            // },
+            {
+                path: 'produits-sport',
+                loadComponent: () => import('./components/admin/produit-sport/produit-sport.component').then(m => m.ProduitSportComponent)
+            },
             {
                 path: 'vendeurs',
                 loadComponent: () => import('./components/admin/vendeur/vendeur.component').then(m => m.VendeurComponent)

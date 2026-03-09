@@ -5,19 +5,25 @@ export interface Client {
     email: string;
     telephone: string;
     adresse?: string;
-    role_id: number;
+    role_id?: number;
     role?: { id: number; name: string };
-    email_verified_at?: string;
-    created_at?: string;
-    updated_at?: string;
-
 
     statut?: 'actif' | 'suspendu';
+
+    created_at?: string;
+    updated_at?: string;
+    email_verified_at?: string | null;
+
+    // ─── Stats liste (retournées par index()) ────────────────────────────────
     commandes_count?: number;
-    commandes_sum_montant_total?: number;
-    total_commandes?: number;
-    total_depense?: number;
-    derniere_commande?: string;
+
+    // ✅ Les deux formes couvertes (Laravel camelCase → mappé en snake_case côté backend)
+    commandes_sum_montant_total?: number;   // après ->through() dans le controller
+    commandes_sum_montantTotal?: number;    // fallback si mapping absent
+
+    // ✅ Dernière commande (les deux formes)
+    derniere_commande?: string;             // alias propre après ->through()
+    commandes_max_created_at?: string;      // valeur brute Laravel withMax()
 }
 
 export interface ClientResponse {
@@ -26,10 +32,9 @@ export interface ClientResponse {
     last_page: number;
     per_page: number;
     total: number;
-    from: number;
-    to: number;
+    from: number | null;
+    to: number | null;
 }
-
 
 export interface ClientStats {
     total_commandes: number;
@@ -40,7 +45,6 @@ export interface ClientStats {
     moyenne_avis: number;
     dernieres_commandes: ClientCommande[];
 }
-
 
 export interface ClientCommande {
     id: number;

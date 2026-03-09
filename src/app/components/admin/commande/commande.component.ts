@@ -7,7 +7,8 @@ import { Commande, CommandeResponse } from '../../../models/commande';
 import * as XLSX from 'xlsx';
 import html2pdf from 'html2pdf.js';
 
-const LOGO_PATH = 'assets/img/logo-senbio.png';
+// ✅ Logo depuis public/
+const LOGO_PATH = '/logo-biosen.jpeg';
 
 @Component({
   selector: 'app-commande',
@@ -32,7 +33,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   selectedYear: string = '';
   selectedDate: string = '';
 
-  // ── Logo en base64 (chargé au démarrage) ──────────────────────────────────
+  // ── Logo en base64 ────────────────────────────────────────────────────────
   logoBase64: string = '';
 
   months = [
@@ -88,6 +89,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   private loadLogoAsBase64(): void {
     const img = new Image();
     img.crossOrigin = 'anonymous';
+
     img.onload = () => {
       const canvas = document.createElement('canvas');
       canvas.width = img.naturalWidth;
@@ -95,17 +97,20 @@ export class CommandeComponent implements OnInit, AfterViewInit {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(img, 0, 0);
-        this.logoBase64 = canvas.toDataURL('image/png');
+        this.logoBase64 = canvas.toDataURL('image/jpeg'); // ✅ jpeg
       }
     };
+
     img.onerror = () => {
       console.warn('Logo non chargé — export sans image.');
       this.logoBase64 = '';
     };
-    img.src = LOGO_PATH + '?v=' + Date.now();
+
+    // ✅ Chemin absolu depuis la racine + cache busting
+    img.src = window.location.origin + LOGO_PATH + '?v=' + Date.now();
   }
 
-  // ─── Helper : retourne le HTML du logo (base64 ou fallback texte) ─────────
+  // ─── Helper : HTML logo (base64 ou fallback texte) ────────────────────────
 
   private getLogoHtml(height: string = '54px'): string {
     if (this.logoBase64) {
@@ -306,7 +311,8 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     cloned.querySelectorAll('button, .btn, i.fas, i.fa, i.far').forEach(el => el.remove());
 
     cloned.querySelectorAll('td small').forEach(el => {
-      (el as HTMLElement).setAttribute('style', 'font-size:10px;color:#6b7280;display:block;');
+      (el as HTMLElement).setAttribute('style',
+        'font-size:10px;color:#6b7280;display:block;');
     });
 
     cloned.setAttribute('style',
@@ -314,8 +320,8 @@ export class CommandeComponent implements OnInit, AfterViewInit {
 
     cloned.querySelectorAll('th').forEach(th => {
       (th as HTMLElement).setAttribute('style',
-        'background-color:#198754;color:#fff;padding:10px;text-align:left;' +
-        'border:1px solid #157347;font-weight:bold;font-size:10.5px;letter-spacing:0.3px;');
+        'background-color:#287747;color:#fff;padding:10px;text-align:left;' +
+        'border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;letter-spacing:0.3px;');
     });
 
     cloned.querySelectorAll('tbody tr').forEach((tr, i) => {
@@ -323,7 +329,8 @@ export class CommandeComponent implements OnInit, AfterViewInit {
       (tr as HTMLElement).setAttribute('style', `background-color:${bg};`);
       tr.querySelectorAll('td').forEach(td => {
         (td as HTMLElement).setAttribute('style',
-          'padding:9px 10px;border:1px solid #d1fae5;font-size:11px;color:#111827;vertical-align:middle;');
+          'padding:9px 10px;border:1px solid #d1fae5;font-size:11px;' +
+          'color:#111827;vertical-align:middle;');
       });
     });
 
@@ -337,16 +344,16 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     const filterSummary = this.buildFilterSummary();
 
     const element = document.createElement('div');
-    element.setAttribute('style', 'font-family:Arial,sans-serif;padding:20px;background:#fff;');
-    element.innerHTML = `
+    element.setAttribute('style',
+      'font-family:Arial,sans-serif;padding:20px;background:#fff;');
 
+    element.innerHTML = `
       <!-- Header -->
       <div style="
         display:flex;justify-content:space-between;align-items:center;
         padding:16px 22px;
-        background:linear-gradient(135deg,#198754 0%,#0d5c38 100%);
-        border-radius:10px;margin-bottom:0;
-      ">
+        background:linear-gradient(135deg,#287747 0%,#1a5230 100%);
+        border-radius:10px;margin-bottom:0;">
         <div style="display:flex;align-items:center;gap:14px;">
           ${this.getLogoHtml('54px')}
           <div>
@@ -360,16 +367,16 @@ export class CommandeComponent implements OnInit, AfterViewInit {
             <div style="
               margin-top:7px;background:rgba(255,255,255,0.15);
               border-radius:5px;padding:4px 9px;
-              font-size:9px;color:rgba(255,255,255,0.9);
-            ">🔍 Filtres : ${filterSummary}</div>` : ''}
+              font-size:9px;color:rgba(255,255,255,0.9);">
+              🔍 Filtres : ${filterSummary}
+            </div>` : ''}
           </div>
         </div>
         <div style="text-align:right;">
           <div style="
             background:rgba(255,255,255,0.15);
             border:1px solid rgba(255,255,255,0.2);
-            border-radius:8px;padding:10px 16px;
-          ">
+            border-radius:8px;padding:10px 16px;">
             <div style="color:rgba(255,255,255,0.7);font-size:9px;margin-bottom:4px;">
               📅 ${date}
             </div>
@@ -382,9 +389,9 @@ export class CommandeComponent implements OnInit, AfterViewInit {
       <!-- Stripe -->
       <div style="
         height:4px;
-        background:linear-gradient(to right,#198754,#34d399,#6ee7b7);
-        margin-bottom:18px;
-      "></div>
+        background:linear-gradient(to right,#287747,#34d399,#6ee7b7);
+        margin-bottom:18px;">
+      </div>
 
       <!-- Tableau -->
       ${clonedTable.outerHTML}
@@ -394,14 +401,14 @@ export class CommandeComponent implements OnInit, AfterViewInit {
         margin-top:16px;padding-top:10px;
         border-top:1.5px solid #d1e7dd;
         display:flex;justify-content:space-between;align-items:center;
-        font-size:9px;color:#9ca3af;
-      ">
+        font-size:9px;color:#9ca3af;">
         <div style="display:flex;align-items:center;gap:8px;">
           <span style="
-            background:#198754;color:white;
+            background:#287747;color:white;
             padding:2px 9px;border-radius:20px;
-            font-size:8.5px;font-weight:700;letter-spacing:0.5px;
-          ">CONFIDENTIEL</span>
+            font-size:8.5px;font-weight:700;letter-spacing:0.5px;">
+            CONFIDENTIEL
+          </span>
           <span>© ${new Date().getFullYear()} SenBio — Tous droits réservés</span>
         </div>
         <span>biosens100.com</span>
@@ -459,8 +466,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
           <meta charset="UTF-8">
           <title>Commandes — SenBio</title>
           <style>
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-
+            * { box-sizing:border-box; margin:0; padding:0; }
             body {
               font-family: Arial, sans-serif;
               background: #fff;
@@ -468,42 +474,36 @@ export class CommandeComponent implements OnInit, AfterViewInit {
               font-size: 11px;
               color: #1a2e25;
             }
-
             .pdf-header {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              background: linear-gradient(135deg, #198754 0%, #0d5c38 100%);
+              background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
               border-radius: 10px;
               padding: 16px 22px;
               margin-bottom: 0;
             }
-
             .pdf-header-left {
               display: flex;
               align-items: center;
               gap: 14px;
             }
-
             .pdf-logo {
               height: 52px;
               width: auto;
               object-fit: contain;
             }
-
             .pdf-title {
               color: white;
               font-size: 17px;
               font-weight: 800;
               letter-spacing: -0.3px;
             }
-
             .pdf-subtitle {
               color: rgba(255,255,255,0.65);
               font-size: 9.5px;
               margin-top: 2px;
             }
-
             .pdf-filter-box {
               margin-top: 7px;
               background: rgba(255,255,255,0.15);
@@ -513,7 +513,6 @@ export class CommandeComponent implements OnInit, AfterViewInit {
               color: rgba(255,255,255,0.9);
               display: inline-block;
             }
-
             .pdf-meta-box {
               background: rgba(255,255,255,0.15);
               border: 1px solid rgba(255,255,255,0.2);
@@ -521,40 +520,33 @@ export class CommandeComponent implements OnInit, AfterViewInit {
               padding: 10px 16px;
               text-align: right;
             }
-
-            .pdf-meta-date  { color: rgba(255,255,255,0.7); font-size: 9px; margin-bottom: 4px; }
-            .pdf-meta-count { color: #bbf7d0; font-size: 18px; font-weight: 800; line-height: 1; }
-            .pdf-meta-label { color: rgba(255,255,255,0.65); font-size: 9px; }
-
+            .pdf-meta-date  { color:rgba(255,255,255,0.7); font-size:9px; margin-bottom:4px; }
+            .pdf-meta-count { color:#bbf7d0; font-size:18px; font-weight:800; line-height:1; }
+            .pdf-meta-label { color:rgba(255,255,255,0.65); font-size:9px; }
             .pdf-stripe {
               height: 4px;
-              background: linear-gradient(to right, #198754, #34d399, #6ee7b7);
+              background: linear-gradient(to right, #287747, #34d399, #6ee7b7);
               margin-bottom: 18px;
             }
-
-            table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
-
+            table { width:100%; border-collapse:collapse; font-size:10.5px; }
             thead th {
-              background: #198754;
+              background: #287747;
               color: white;
               padding: 10px;
               text-align: left;
-              border: 1px solid #157347;
+              border: 1px solid #1d5c35;
               font-weight: 700;
               font-size: 10px;
               letter-spacing: 0.3px;
             }
-
             tbody td {
               padding: 9px 10px;
               border: 1px solid #d1fae5;
               color: #1a2e25;
               vertical-align: middle;
             }
-
-            tbody tr:nth-child(even) td { background: #f0fdf4; }
-            tbody tr:nth-child(odd)  td { background: #ffffff; }
-
+            tbody tr:nth-child(even) td { background:#f0fdf4; }
+            tbody tr:nth-child(odd)  td { background:#ffffff; }
             .pdf-footer {
               margin-top: 16px;
               padding-top: 10px;
@@ -565,11 +557,9 @@ export class CommandeComponent implements OnInit, AfterViewInit {
               font-size: 9px;
               color: #9ca3af;
             }
-
-            .pdf-footer-left { display: flex; align-items: center; gap: 8px; }
-
+            .pdf-footer-left { display:flex; align-items:center; gap:8px; }
             .pdf-badge {
-              background: #198754;
+              background: #287747;
               color: white;
               padding: 2px 9px;
               border-radius: 20px;
@@ -577,9 +567,8 @@ export class CommandeComponent implements OnInit, AfterViewInit {
               font-weight: 700;
               letter-spacing: 0.5px;
             }
-
-            @page { size: A4 landscape; margin: 10mm; }
-            @media print { body { padding: 0; } }
+            @page  { size:A4 landscape; margin:10mm; }
+            @media print { body { padding:0; } }
           </style>
         </head>
         <body>

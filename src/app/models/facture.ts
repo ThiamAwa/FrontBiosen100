@@ -1,6 +1,7 @@
 import { Commande } from './commande';
 
-// ── Metadonnees ──────────────────────────────────────────────────
+// ── Metadonnees client ────────────────────────────────────────────
+// Ancienne structure (sous-objet "client") — conservée pour rétrocompat
 export interface MetadonneesClient {
     nom?: string;
     prenom?: string;
@@ -13,13 +14,42 @@ export interface MetadonneesClient {
 
 export interface MetadonneesProduit {
     nom: string;
-    quantite: number;   // ← number uniquement, plus de string
-    prix: number;       // ← number uniquement, plus de string
+    quantite: number;
+    prix: number;
+    prix_unitaire?: number;  // alias selon la version du checkout
+    total?: number;
 }
 
+// ── Metadonnees complètes ─────────────────────────────────────────
+// Structure actuelle du checkout Laravel :
+//   metadonnees.nom_client      = "Prenom Nom" (chaîne complète)
+//   metadonnees.telephone_client
+//   metadonnees.adresse_client
+//   metadonnees.email            (optionnel)
+//   metadonnees.total
+//   metadonnees.sous_total
+//   metadonnees.frais_livraison
+//   metadonnees.methode_paiement
+//   metadonnees.pays
+//   metadonnees.produits[]
+//
+// Ancienne structure (rétrocompat) :
+//   metadonnees.client.nom / .prenom / .email / .telephone / .adresse
 export interface Metadonnees {
-    client: MetadonneesClient;       // ← non-optionnel
-    produits: MetadonneesProduit[];  // ← non-optionnel
+    // ── Structure actuelle (checkout courant) ──
+    nom_client?: string;          // "Prenom Nom" — champ principal
+    telephone_client?: string;
+    adresse_client?: string;
+    email?: string;
+    total?: number;
+    sous_total?: number;
+    frais_livraison?: number;
+    methode_paiement?: string;
+    pays?: string;
+    produits?: MetadonneesProduit[];
+
+    // ── Ancienne structure (rétrocompat) ──
+    client?: MetadonneesClient;
 }
 
 // ── Facture ──────────────────────────────────────────────────────
@@ -30,7 +60,7 @@ export interface Facture {
     date_emission?: string;
     date_echeance: string;
     statut_paiement: 'payé' | 'impayé' | 'en_attente';
-    metadonnees: Metadonnees;
+    metadonnees?: Metadonnees;
     commande?: Commande;
     created_at?: string;
     updated_at?: string;

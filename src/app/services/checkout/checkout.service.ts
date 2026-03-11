@@ -74,4 +74,13 @@ export class CheckoutService {
       responseType: 'blob'
     });
   }
+  initCheckout(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/checkout/init`, data);
+  }
+  /**
+   * Confirmer le paiement et créer la commande après retour de PayDunya
+   */
+  confirmPaymentAndCreateOrder(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/checkout/confirm-payment`, data);
+  }
 }

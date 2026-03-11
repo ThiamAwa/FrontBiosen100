@@ -4,6 +4,7 @@ import {Categorie} from './categorie';
 import {Gamme} from './gamme';
 import {Vendeur} from './vendeur';
 import {Stats} from './stats';
+import {ProduitSport} from './produit-sport';
 
 export interface AccueilData {
   produits: Produit[];
@@ -11,6 +12,7 @@ export interface AccueilData {
   gammes: Gamme[];
   categories: Categorie[];
   typeCategories: TypeCategorie[];
+  produitsSport: ProduitSport[];
   vendeurs: Vendeur[];
   stats: Stats;
 }

@@ -13,14 +13,13 @@ export class TemoignageService {
 
   constructor(private http: HttpClient) { }
 
-  // Récupérer tous les témoignages publics (pour la page témoignages)
+
   getTemoignagesPublics(): Observable<Temoignage[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/temoignages`).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}/temoignages-public`).pipe(
       map(temoignages => temoignages.map(t => this.normalizeTemoignage(t)))
     );
   }
 
-  // Pour l'admin
   getTemoignagesAdmin(page: number = 1): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/temoignages?page=${page}`).pipe(
       map(response => ({

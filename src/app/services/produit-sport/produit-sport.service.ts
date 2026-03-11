@@ -124,7 +124,7 @@ export class ProduitSportService {
    */
   createProduit(formData: FormData): Observable<ProduitSport> {
     return this.http
-      .post<any>(this.adminUrl, formData)
+      .post<any>(`${this.apiUrl}/produits-sport`, formData)
       .pipe(map(p => this.normalizeProduit(p)));
   }
 
@@ -137,7 +137,7 @@ export class ProduitSportService {
   updateProduit(id: number, formData: FormData): Observable<ProduitSport> {
     formData.append('_method', 'PUT');
     return this.http
-      .post<any>(`${this.adminUrl}/${id}`, formData)
+      .post<any>(`${this.apiUrl}/produits-sport/${id}`, formData)
       .pipe(map(p => this.normalizeProduit(p)));
   }
 

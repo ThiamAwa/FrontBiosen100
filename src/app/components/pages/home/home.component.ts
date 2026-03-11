@@ -5,7 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HomeService } from '../../../services/home/home.service';
 import { TemoignageService } from '../../../services/temoignage/temoignage.service';
-import { ProduitSportService, ProduitSportResponse } from '../../../services/produit-sport/produit-sport.service'; // ✅ AJOUT
+import { ProduitSportService, ProduitSportResponse } from '../../../services/produit-sport/produit-sport.service';
+import { CartService, CartItem } from '../../../services/cart/cart.service';
 import { Produit } from '../../../models/produit';
 import { AccueilData } from '../../../models/accueilData';
 import { Gamme } from '../../../models/gamme';
@@ -64,8 +65,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   showLightbox = false;
   currentImageUrl = '';
 
-  // ─── Références internes ───────────────────────────────────
+  // ─── Modales produits ──────────────────────────────────────
   selectedGamme: Gamme | null = null;
+  selectedSport: ProduitSport | null = null;
+
+  // ─── Références internes ───────────────────────────────────
   private carouselInitialized = false;
   private gammeSwiper: any = null;
   private observer: IntersectionObserver | null = null;
@@ -74,7 +78,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private accueilService: HomeService,
     private temoignageService: TemoignageService,
-    private produitSportService: ProduitSportService, // ✅ AJOUT
+    private produitSportService: ProduitSportService,
+    private cartService: CartService,
     private sanitizer: DomSanitizer,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
@@ -114,7 +119,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.accueilService.getAccueilData().subscribe({
       next: (response) => {
         console.log('Réponse API accueil :', response);
-
         this.data = response;
         this.produits = response.produits || [];
         this.produitsPromo = response.produitsPromo || [];
@@ -124,10 +128,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.vendeurs = response.vendeurs || [];
         this.stats = response.stats || this.stats;
         this.loading = false;
-
-        // ✅ Charger les produits sport via leur propre service (l'API accueil renvoie un tableau vide)
         this.loadProduitsSport();
-
         setTimeout(() => this.initLibraries(), 800);
       },
       error: (err) => {
@@ -138,7 +139,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ✅ NOUVELLE MÉTHODE — appel direct à ProduitSportService
   loadProduitsSport(): void {
     this.produitSportService.getProduitsWithFilters({ page: 1 }).subscribe({
       next: (sportResponse: ProduitSportResponse) => {
@@ -148,7 +148,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           typeCategorie: p.typeCategorie || null,
         }));
         console.log('Produits sport chargés :', this.produitsSport);
-        // Réinitialiser le swiper sport après chargement des données
         setTimeout(() => this.initSwiper(), 300);
       },
       error: (err) => {
@@ -169,6 +168,82 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadingTemoignages = false;
       }
     });
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Panier
+  // ══════════════════════════════════════════════════════════
+
+  addToCart(produit: any, event?: Event): void {
+    if (event) event.stopPropagation();
+
+    const isPromo = produit.enPromotion && produit.prixPromo;
+
+    const item: CartItem = {
+      id: produit.id,
+      name: produit.nom,
+      price: isPromo ? produit.prixPromo : (produit.prix ?? 0),
+      quantity: 1,
+      image: produit.image ?? produit.imageUrls?.[0] ?? '',
+      category: produit.typeCategorie?.nom ?? 'Bio',
+      description: produit.description ?? ''
+    };
+
+    this.cartService.addToCart(item);
+
+    // Fermer la modale ouverte avant d'ouvrir le panier
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        if (typeof bootstrap !== 'undefined') {
+          // Fermer toutes les modales ouvertes
+          const openModals = document.querySelectorAll('.modal.show');
+          openModals.forEach(modalEl => {
+            const instance = bootstrap.Modal.getInstance(modalEl);
+            if (instance) instance.hide();
+          });
+
+          // Ouvrir le modal panier après fermeture
+          setTimeout(() => {
+            const cartModalEl = document.getElementById('cartModal');
+            if (cartModalEl) {
+              bootstrap.Modal.getOrCreateInstance(cartModalEl).show();
+            }
+          }, 300);
+        }
+      }, 100);
+    }
+  }
+
+  isInCart(id: number): boolean {
+    return this.cartService.isInCart(id);
+  }
+
+  getItemQuantity(id: number): number {
+    return this.cartService.getItemQuantity(id);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Modales produits
+  // ══════════════════════════════════════════════════════════
+
+  openGammeModal(gamme: Gamme): void {
+    this.selectedGamme = gamme;
+    setTimeout(() => {
+      if (typeof bootstrap !== 'undefined') {
+        const modal = document.getElementById('gammeModal');
+        if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
+      }
+    }, 100);
+  }
+
+  openSportModal(produit: ProduitSport): void {
+    this.selectedSport = produit;
+    setTimeout(() => {
+      if (typeof bootstrap !== 'undefined') {
+        const modal = document.getElementById('sportModal');
+        if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
+      }
+    }, 100);
   }
 
   // ══════════════════════════════════════════════════════════
@@ -262,7 +337,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           };
 
-          // Swiper Gammes
           const gammeEl = document.querySelector('.gammes-swiper');
           if (gammeEl) {
             try {
@@ -284,11 +358,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
               });
             } catch (e) {
-              console.error('❌ Erreur Swiper gammes:', e);
+              console.error('Erreur Swiper gammes:', e);
             }
           }
 
-          // Swiper Sport
           const sportEl = document.querySelector('.sport-swiper');
           if (sportEl) {
             try {
@@ -305,7 +378,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
               });
             } catch (e) {
-              console.error('❌ Erreur Swiper sport:', e);
+              console.error('Erreur Swiper sport:', e);
             }
           }
 
@@ -363,7 +436,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ══════════════════════════════════════════════════════════
-  // Filtrage — Section Swiper Gammes
+  // Filtrage — Section Catalogue
   // ══════════════════════════════════════════════════════════
 
   setActiveGammeTab(tab: string): void {
@@ -409,20 +482,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getProduitsByCategory(categoryId: number): Produit[] {
     return this.produits.filter(p => p.categorie?.id === categoryId);
-  }
-
-  // ══════════════════════════════════════════════════════════
-  // Modale Gamme
-  // ══════════════════════════════════════════════════════════
-
-  openGammeModal(gamme: Gamme): void {
-    this.selectedGamme = gamme;
-    setTimeout(() => {
-      if (typeof bootstrap !== 'undefined') {
-        const modal = document.getElementById('gammeModal');
-        if (modal) new bootstrap.Modal(modal).show();
-      }
-    }, 100);
   }
 
   // ══════════════════════════════════════════════════════════

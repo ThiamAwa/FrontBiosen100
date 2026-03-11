@@ -19,6 +19,8 @@
   background: radial-gradient(circle, rgba(40, 119, 71, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 0;
+  /* ✅ FIX MENU : le pseudo-element ne doit pas bloquer les clics */
+  pointer-events: none;
 }
 
 .hero-header .container {
@@ -176,6 +178,34 @@
   }
 }
 
+@keyframes cartBounce {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.22);
+  }
+
+  70% {
+    transform: scale(0.93);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
 .btn {
   transition: all 0.3s ease;
 }
@@ -250,18 +280,31 @@
 }
 
 /* ══════════════════════════════════════════════════════
-   SECTION CATALOGUE — GRILLE NORMALE
+   SECTION CATALOGUE
 ══════════════════════════════════════════════════════ */
 
 .catalogue-section {
-  background: #f4f7f4;
-  padding: 80px 0;
+  background: linear-gradient(180deg, #f0f7f2 0%, #f4f7f4 60%, #eef4ee 100%);
+  padding: 90px 0;
+  position: relative;
+}
+
+.catalogue-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #287747, #1a5230, #287747, transparent);
+  /* ✅ FIX MENU : ne bloque pas les clics */
+  pointer-events: none;
 }
 
 /* ── En-tête ── */
 .catalogue-header {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 55px;
 }
 
 .catalogue-badge {
@@ -277,6 +320,7 @@
   padding: 6px 18px;
   border-radius: 20px;
   margin-bottom: 14px;
+  border: 1px solid rgba(40, 119, 71, 0.18);
 }
 
 .catalogue-badge-logo {
@@ -286,10 +330,11 @@
 }
 
 .catalogue-title {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 800;
   color: #1a1a2e;
   margin-bottom: 10px;
+  letter-spacing: -0.5px;
 }
 
 .catalogue-title span {
@@ -307,7 +352,7 @@
 .catalogue-tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 50px;
+  margin-bottom: 55px;
 }
 
 .tabs-wrapper {
@@ -318,7 +363,8 @@
   background: #fff;
   border-radius: 50px;
   padding: 6px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.09);
+  border: 1px solid rgba(40, 119, 71, 0.08);
 }
 
 .tab-btn {
@@ -334,6 +380,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
+  /* ✅ FIX MENU : s'assure que les boutons sont cliquables */
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .tab-btn:hover {
@@ -349,24 +399,25 @@
 
 /* ── Bloc de section (Bio / Sport) ── */
 .section-block {
-  margin-bottom: 60px;
+  margin-bottom: 64px;
 }
 
 .section-block-header {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 28px;
+  margin-bottom: 30px;
 }
 
 .section-block-icon {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(40, 119, 71, 0.3);
 }
 
 .bio-icon {
@@ -374,7 +425,8 @@
 }
 
 .sport-icon {
-  background: linear-gradient(135deg, #1a1a2e, #2d2d5e);
+  background: linear-gradient(135deg, #287747, #1a5230);
+  box-shadow: 0 4px 12px rgba(40, 119, 71, 0.3);
 }
 
 .section-block-icon i {
@@ -386,20 +438,20 @@
   font-weight: 800;
   color: #1a1a2e;
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   white-space: nowrap;
+  letter-spacing: -0.3px;
 }
 
 .section-block-line {
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, #287747 0%, transparent 100%);
-  opacity: 0.2;
+  background: linear-gradient(90deg, rgba(40, 119, 71, 0.3) 0%, transparent 100%);
   border-radius: 2px;
 }
 
 .sport-line {
-  background: linear-gradient(90deg, #1a1a2e 0%, transparent 100%);
+  background: linear-gradient(90deg, rgba(40, 119, 71, 0.3) 0%, transparent 100%);
 }
 
 .section-block-count {
@@ -407,16 +459,17 @@
   font-weight: 700;
   color: #287747;
   background: rgba(40, 119, 71, 0.1);
-  padding: 4px 12px;
+  padding: 4px 14px;
   border-radius: 20px;
   white-space: nowrap;
+  border: 1px solid rgba(40, 119, 71, 0.15);
 }
 
 /* ── Grille produits ── */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 26px;
 }
 
 /* ── Carte produit ── */
@@ -426,28 +479,67 @@
 
 .product-card {
   background: #fff;
-  border-radius: 18px;
+  border-radius: 22px;
   overflow: hidden;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    0 8px 24px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   width: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s ease,
+    border-color 0.3s ease;
   cursor: pointer;
+  border: 1.5px solid rgba(40, 119, 71, 0.07);
+  position: relative;
+}
+
+.product-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px rgba(40, 119, 71, 0.25);
 }
 
 .product-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-10px);
+  box-shadow:
+    0 10px 30px rgba(40, 119, 71, 0.12),
+    0 24px 60px rgba(0, 0, 0, 0.1);
+  border-color: rgba(40, 119, 71, 0.18);
+}
+
+.product-card:hover::after {
+  opacity: 1;
+}
+
+.sport-card {
+  border-color: rgba(40, 119, 71, 0.07);
+}
+
+.sport-card::after {
+  box-shadow: inset 0 0 0 2px rgba(40, 119, 71, 0.25);
+}
+
+.sport-card:hover {
+  box-shadow:
+    0 10px 30px rgba(40, 119, 71, 0.12),
+    0 24px 60px rgba(0, 0, 0, 0.1);
+  border-color: rgba(40, 119, 71, 0.18);
 }
 
 /* ── Image ── */
 .product-img-wrap {
   position: relative;
   width: 100%;
-  height: 220px;
+  height: 230px;
   overflow: hidden;
-  background: #e8f5e9;
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f2 100%);
   flex-shrink: 0;
 }
 
@@ -457,24 +549,26 @@
   object-fit: cover;
   object-position: center;
   display: block;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .product-card:hover .product-img {
-  transform: scale(1.06);
+  transform: scale(1.08);
 }
 
 /* ── Overlay ── */
 .product-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(26, 82, 48, 0.55);
+  background: linear-gradient(180deg,
+      rgba(26, 82, 48, 0.1) 0%,
+      rgba(26, 82, 48, 0.65) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  backdrop-filter: blur(2px);
+  transition: opacity 0.35s ease;
+  backdrop-filter: blur(3px);
 }
 
 .product-card:hover .product-overlay {
@@ -487,14 +581,17 @@
   background: #fff;
   color: #287747;
   font-weight: 700;
-  font-size: 0.9rem;
-  padding: 10px 22px;
+  font-size: 0.88rem;
+  padding: 11px 24px;
   border-radius: 50px;
   text-decoration: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  transform: translateY(10px);
-  transition: transform 0.3s ease, background 0.2s ease, color 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(14px);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.2s ease,
+    color 0.2s ease;
   cursor: pointer;
+  border: none;
 }
 
 .product-card:hover .product-overlay-btn {
@@ -511,61 +608,64 @@
   position: absolute;
   top: 14px;
   left: 14px;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 700;
   padding: 5px 14px;
   border-radius: 20px;
   color: #fff;
   z-index: 3;
   letter-spacing: 0.3px;
+  backdrop-filter: blur(4px);
 }
 
 .bio-badge {
   background: linear-gradient(135deg, #287747, #1a5230);
-  box-shadow: 0 2px 8px rgba(40, 119, 71, 0.4);
+  box-shadow: 0 3px 10px rgba(40, 119, 71, 0.45);
 }
 
 .sport-badge {
-  background: linear-gradient(135deg, #1a1a2e, #3a3a6e);
-  box-shadow: 0 2px 8px rgba(26, 26, 46, 0.4);
+  background: linear-gradient(135deg, #287747, #1a5230);
+  box-shadow: 0 3px 10px rgba(40, 119, 71, 0.45);
 }
 
 .product-promo-badge {
   position: absolute;
   top: 14px;
   right: 14px;
-  background: #e53e3e;
+  background: linear-gradient(135deg, #e53e3e, #c53030);
   color: #fff;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 800;
   padding: 5px 12px;
   border-radius: 20px;
   z-index: 3;
-  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.4);
+  box-shadow: 0 3px 12px rgba(229, 62, 62, 0.5);
+  letter-spacing: 0.3px;
 }
 
 /* ── Corps carte ── */
 .product-body {
-  padding: 18px 18px 16px;
+  padding: 20px 20px 18px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .product-name {
-  font-weight: 700;
+  font-weight: 800;
   color: #1a1a2e;
   font-size: 1rem;
   margin-bottom: 8px;
   line-height: 1.4;
+  letter-spacing: -0.2px;
 }
 
 .product-desc {
-  font-size: 0.85rem;
-  color: #777;
-  line-height: 1.6;
+  font-size: 0.84rem;
+  color: #888;
+  line-height: 1.65;
   flex: 1;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -577,109 +677,179 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid #f0f4f0;
-  padding-top: 14px;
+  border-top: 1px solid rgba(40, 119, 71, 0.09);
+  padding-top: 16px;
   margin-top: auto;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* ── Bloc prix ── */
 .product-price-block {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .product-price {
-  font-weight: 800;
-  font-size: 1.1rem;
+  font-weight: 900;
+  font-size: 1.15rem;
   color: #287747;
   line-height: 1.2;
-}
-
-.product-price.promo {
-  color: #e53e3e;
+  letter-spacing: -0.3px;
 }
 
 .product-price small {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  opacity: 0.75;
-}
-
-.product-price-old {
-  font-size: 0.78rem;
-  color: #bbb;
-  text-decoration: line-through;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
 }
 
 .product-price-empty {
   font-size: 0.82rem;
-  color: #aaa;
+  color: #bbb;
   font-style: italic;
 }
 
-/* ── Bouton CTA ── */
-.product-cta-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+/* ── Prix promo ── */
+.promo-wrap {
   display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.promo-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  width: fit-content;
+  text-transform: uppercase;
+}
+
+.product-price.promo {
+  color: #e53e3e;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.product-price-old {
+  font-size: 0.75rem;
+  color: #c0c0c0;
+  text-decoration: line-through;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* ── Bouton Ajouter au panier ── */
+.add-to-cart-btn {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  flex-shrink: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  text-decoration: none;
+  gap: 7px;
+  padding: 10px 18px;
+  border-radius: 50px;
   border: none;
   cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
 }
 
-.bio-btn {
+.add-to-cart-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 100%);
+  background-size: 200% auto;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.add-to-cart-btn:hover::before {
+  opacity: 1;
+  animation: shimmer 0.8s linear infinite;
+}
+
+.bio-cart-btn {
   background: linear-gradient(135deg, #287747, #1a5230);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(40, 119, 71, 0.3);
+  box-shadow: 0 4px 16px rgba(40, 119, 71, 0.35);
 }
 
-.sport-btn {
-  background: linear-gradient(135deg, #1a1a2e, #2d2d5e);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(26, 26, 46, 0.3);
-}
-
-.product-cta-btn:hover {
-  transform: scale(1.12);
+.bio-cart-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 28px rgba(40, 119, 71, 0.48);
   color: #fff;
 }
 
-.bio-btn:hover {
-  box-shadow: 0 6px 18px rgba(40, 119, 71, 0.45);
+.bio-cart-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px rgba(40, 119, 71, 0.3);
 }
 
-.sport-btn:hover {
-  box-shadow: 0 6px 18px rgba(26, 26, 46, 0.45);
+.sport-cart-btn {
+  background: linear-gradient(135deg, #287747, #1a5230);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(40, 119, 71, 0.35);
+}
+
+.sport-cart-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 28px rgba(40, 119, 71, 0.48);
+  color: #fff;
+}
+
+.sport-cart-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px rgba(40, 119, 71, 0.3);
+}
+
+.add-to-cart-btn i {
+  font-size: 0.88rem;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.add-to-cart-btn:hover i {
+  animation: cartBounce 0.4s ease forwards;
 }
 
 /* ── Empty state ── */
 .catalogue-empty {
   text-align: center;
-  padding: 60px 0;
+  padding: 70px 0;
 }
 
 .catalogue-empty-icon {
-  width: 90px;
-  height: 90px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  background: rgba(40, 119, 71, 0.08);
+  background: rgba(40, 119, 71, 0.07);
+  border: 2px dashed rgba(40, 119, 71, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
 }
 
 .catalogue-empty-icon i {
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: #287747;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .catalogue-empty p {
@@ -707,7 +877,6 @@
     radial-gradient(circle at 50% 5%, rgba(255, 193, 7, 0.04) 0%, transparent 30%);
 }
 
-/* ── En-tête témoignages ── */
 .temo-label {
   display: inline-block;
   background: linear-gradient(135deg, #287747, #1a5230);
@@ -727,7 +896,6 @@
   line-height: 1.2;
 }
 
-/* ── Card témoignage ── */
 .temo-card {
   background: #fff;
   border-radius: 20px;
@@ -744,7 +912,6 @@
   box-shadow: 0 16px 40px rgba(40, 119, 71, 0.18);
 }
 
-/* ── Dual média ── */
 .temo-media-dual {
   display: flex;
   gap: 3px;
@@ -762,7 +929,6 @@
   border-radius: 0;
 }
 
-/* ── Bloc média ── */
 .temo-media {
   position: relative;
   width: 100%;
@@ -784,7 +950,6 @@
   transform: scale(1.06);
 }
 
-/* ── Vidéo overlay ── */
 .temo-video-overlay {
   position: absolute;
   inset: 0;
@@ -855,7 +1020,6 @@
   backdrop-filter: blur(4px);
 }
 
-/* ── Photo overlay ── */
 .temo-photo-overlay {
   position: absolute;
   inset: 0;
@@ -884,7 +1048,6 @@
   z-index: 4;
 }
 
-/* ── Corps card témoignage ── */
 .temo-body {
   padding: 1.5rem;
   display: flex;
@@ -930,7 +1093,6 @@
   margin-bottom: 1rem;
 }
 
-/* ── Auteur ── */
 .temo-author {
   display: flex;
   align-items: center;
@@ -976,7 +1138,6 @@
   font-size: 0.85rem;
 }
 
-/* ── CTA témoignages ── */
 .temo-cta-btn {
   background: linear-gradient(135deg, #287747, #1a5230);
   color: #fff !important;
@@ -996,7 +1157,6 @@
   color: #fff !important;
 }
 
-/* ── Empty state témoignages ── */
 .temo-empty-icon {
   width: 90px;
   height: 90px;
@@ -1107,7 +1267,6 @@
   background: #cc0000;
 }
 
-/* ── Lightbox ── */
 .temo-lightbox-box {
   position: relative;
   max-width: 95vw;
@@ -1131,7 +1290,48 @@
 }
 
 /* ══════════════════════════════════════════════════════
-   RESPONSIVE GLOBAL
+   MODAL SPORT — GALERIE THUMBNAIL
+══════════════════════════════════════════════════════ */
+.sport-gallery-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sport-gallery-thumb:hover {
+  border-color: #287747;
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(40, 119, 71, 0.3);
+}
+
+/* ══════════════════════════════════════════════════════
+   MODAL BIO — Overrides spécifiques
+══════════════════════════════════════════════════════ */
+#gammeModal .modal-header {
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+}
+
+#gammeModal .modal-footer {
+  background-color: #f8f9fa;
+}
+
+/* ══════════════════════════════════════════════════════
+   MODAL SPORT — Overrides spécifiques
+══════════════════════════════════════════════════════ */
+#sportModal .modal-header {
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+}
+
+#sportModal .modal-footer {
+  background-color: #f8f9fa;
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
 ══════════════════════════════════════════════════════ */
 @media (max-width: 1199px) {
   .products-grid {
@@ -1164,7 +1364,7 @@
   }
 
   .catalogue-title {
-    font-size: 1.7rem;
+    font-size: 1.8rem;
   }
 
   .tabs-wrapper {
@@ -1178,7 +1378,7 @@
   }
 
   .product-img-wrap {
-    height: 190px;
+    height: 200px;
   }
 
   .section-block-count {
@@ -1201,11 +1401,24 @@
   }
 
   .product-img-wrap {
-    height: 200px;
+    height: 210px;
   }
 
   .product-body {
-    padding: 14px 14px 12px;
+    padding: 16px 16px 14px;
+  }
+
+  /* Sur mobile : icône seulement pour gagner de la place */
+  .add-to-cart-btn span {
+    display: none;
+  }
+
+  .add-to-cart-btn {
+    padding: 10px 13px;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    justify-content: center;
   }
 
   .temo-media {

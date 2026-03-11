@@ -6,8 +6,8 @@ import { Commande, CommandeResponse } from '../../models/commande';
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
-  private apiUrl = `${environment.apiUrl}/admin/commandes`;
-  private boutiquesUrl = `${environment.apiUrl}/admin/boutiques`;
+  private apiUrl = `${environment.apiUrl}/commandes`;
+  private boutiquesUrl = `${environment.apiUrl}/boutiques`;
 
   constructor(private http: HttpClient) { }
 

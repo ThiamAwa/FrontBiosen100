@@ -36,7 +36,7 @@ export interface Stats {
 
 @Injectable({ providedIn: 'root' })
 export class GammeService {
-  private apiUrl = 'http://localhost:8000/api/admin/gammes';
+  private apiUrl = `${environment.apiUrl}/gammes`;
   // ===== AJOUT POUR LA BOUTIQUE =====
   private publicApiUrl = environment.apiUrl; // http://localhost:8000/api
   private storageUrl = environment.storageUrl; // http://localhost:8000/storage
@@ -103,7 +103,7 @@ export class GammeService {
     if (prix_max > 0) params = params.set('prix_max', prix_max.toString());
     if (tri !== 'default') params = params.set('tri', tri);
 
-    return this.http.get<any>(`${this.publicApiUrl}/gammes`, { params }).pipe(
+    return this.http.get<any>(`${this.apiUrl}`, { params }).pipe(
       map(response => ({
         data: response.data.map((g: any) => this.normalizeGamme(g)),
         current_page: response.current_page,

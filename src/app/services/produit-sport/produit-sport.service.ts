@@ -65,7 +65,6 @@ export interface MediasResponse {
 export class ProduitSportService {
 
   private apiUrl = environment.apiUrl;
-  private adminUrl = `${environment.apiUrl}/admin/produits-sport`;
   private storageUrl = environment.storageUrl;
 
   constructor(private http: HttpClient) { }
@@ -143,7 +142,7 @@ export class ProduitSportService {
   }
 
   deleteProduit(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.adminUrl}/${id}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/produits-sport/${id}`);
   }
 
   // ─── HELPERS ──────────────────────────────────────────────────────────────

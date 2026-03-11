@@ -9,7 +9,6 @@ import { ProduitSport, ProduitSportResponse, ProduitMedia, Categorie } from '../
 })
 export class ProduitSportService {
   private apiUrl = environment.apiUrl;
-  private adminUrl = `${environment.apiUrl}/admin/produits-sport`; // URL pour les actions admin
   private storageUrl = environment.storageUrl;
 
   constructor(private http: HttpClient) { }
@@ -71,7 +70,7 @@ export class ProduitSportService {
    * @param formData Formulaire contenant les champs du produit, les images et les vidéos.
    */
   createProduit(formData: FormData): Observable<ProduitSport> {
-    return this.http.post<ProduitSport>(this.adminUrl, formData).pipe(
+    return this.http.post<ProduitSport>(`${this.apiUrl}/produits-sport`, formData).pipe(
       map(produit => this.normalizeProduit(produit))
     );
   }
@@ -84,7 +83,7 @@ export class ProduitSportService {
   updateProduit(id: number, formData: FormData): Observable<ProduitSport> {
     // On ajoute le champ _method pour simuler une requête PUT (nécessaire pour Laravel avec FormData)
     formData.append('_method', 'PUT');
-    return this.http.post<ProduitSport>(`${this.adminUrl}/${id}`, formData).pipe(
+    return this.http.post<ProduitSport>(`${this.apiUrl}/produits-sport/${id}`, formData).pipe(
       map(produit => this.normalizeProduit(produit))
     );
   }
@@ -94,7 +93,7 @@ export class ProduitSportService {
    * @param id ID du produit
    */
   deleteProduit(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.adminUrl}/${id}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/produits-sport/${id}`);
   }
 
   // ─── HELPERS ─────────────────────────────────────────────────────

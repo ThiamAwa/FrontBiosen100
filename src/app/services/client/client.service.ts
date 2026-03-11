@@ -6,7 +6,7 @@ import { Client, ClientResponse, ClientStats } from '../../models/client';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  private apiUrl = `${environment.apiUrl}/admin/clients`;
+  private apiUrl = `${environment.apiUrl}/clients`;
 
   constructor(private http: HttpClient) { }
 

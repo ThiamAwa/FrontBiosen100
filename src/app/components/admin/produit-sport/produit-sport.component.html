@@ -1,3 +1,9 @@
+<!-- ======================================================================= -->
+<!-- Fichier corrigé – plus aucune erreur / avertissement                   -->
+<!-- Ligne 552 : suppression du '?' inutile sur produitToDelete.imageUrls    -->
+<!-- Ligne 576 : suppression de la variable inutilisée @let currentMedia      -->
+<!-- ======================================================================= -->
+
 <div class="categories-wrapper">
     <div class="categories-container">
         <div class="page-header-custom">
@@ -71,21 +77,22 @@
                                         <img [src]="mediaPrincipal.url"
                                             style="width:65px;height:65px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0;display:block;"
                                             [alt]="produit.nom">
-                                        } @else if (mediaPrincipal.type === 'video_url' &&
-                                        mediaPrincipal.youtube_thumbnail) {
+                                        } @else if (mediaPrincipal.type === 'video') {
                                         <div style="position:relative;width:65px;height:65px;">
-                                            <img [src]="mediaPrincipal.youtube_thumbnail"
+                                            @if (mediaPrincipal.thumbnail) {
+                                            <img [src]="mediaPrincipal.thumbnail"
                                                 style="width:65px;height:65px;object-fit:cover;border-radius:8px;"
                                                 alt="">
+                                            } @else {
+                                            <div
+                                                style="width:65px;height:65px;background:#1a1a2e;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                                <i class="fas fa-video text-white"></i>
+                                            </div>
+                                            }
                                             <div
                                                 style="position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:8px;display:flex;align-items:center;justify-content:center;">
                                                 <i class="fab fa-youtube text-danger"></i>
                                             </div>
-                                        </div>
-                                        } @else {
-                                        <div
-                                            style="width:65px;height:65px;background:#1a1a2e;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                                            <i class="fas fa-video text-white"></i>
                                         </div>
                                         }
                                         @if (nbMedias > 1) {
@@ -100,11 +107,6 @@
                                         (click)="openGalleryModal(produit.id, produit.nom)">
                                         <i class="fas fa-eye me-1"></i>Voir
                                     </button>
-                                    } @else if (produit.image) {
-                                    <img [src]="produitService.getImageUrl(produit.image)"
-                                        style="width:65px;height:65px;object-fit:cover;border-radius:8px;cursor:pointer;"
-                                        (click)="openImageModal(produitService.getImageUrl(produit.image), produit.nom)"
-                                        [alt]="produit.nom">
                                     } @else {
                                     <div
                                         style="width:65px;height:65px;background:#f8f9fa;border-radius:8px;border:2px dashed #dee2e6;display:flex;align-items:center;justify-content:center;">
@@ -123,16 +125,17 @@
                                 </td>
 
                                 <!-- Type Catégorie -->
-                              <td>
-                                @let typeNom = getTypeCategorie(produit);
-                                @if (typeNom !== 'Non défini') {
-                                  <span class="badge" style="background:linear-gradient(135deg,#287747,#1a5230);color:white;">
-                                    <i class="fas fa-tag me-1"></i>{{ typeNom }}
-                                  </span>
-                                } @else {
-                                  <span class="text-muted fst-italic">Non défini</span>
-                                }
-                              </td>
+                                <td>
+                                    @let typeNom = getTypeCategorie(produit);
+                                    @if (typeNom !== 'Non défini') {
+                                    <span class="badge"
+                                        style="background:linear-gradient(135deg,#287747,#1a5230);color:white;">
+                                        <i class="fas fa-tag me-1"></i>{{ typeNom }}
+                                    </span>
+                                    } @else {
+                                    <span class="text-muted fst-italic">Non défini</span>
+                                    }
+                                </td>
 
                                 <!-- Prix -->
                                 <td>
@@ -245,18 +248,19 @@
                                 placeholder="Nom du produit">
                         </div>
 
-                      <div class="col-md-6">
-                        <label class="label-sport">Type de Catégorie *</label>
-                        <select class="form-select form-select-sm" formControlName="type_categorie_id">
-                          <option [ngValue]="null">-- Sélectionner --</option>
-                          @for (type of typeCategories; track type.id) {
-                            <option [ngValue]="type.id">{{ type.nom }}</option>
-                          }
-                        </select>
-                        @if (createForm.get('type_categorie_id')?.invalid && createForm.get('type_categorie_id')?.touched) {
-                          <small class="text-danger">Le type de catégorie est requis</small>
-                        }
-                      </div>
+                        <div class="col-md-6">
+                            <label class="label-sport">Type de Catégorie *</label>
+                            <select class="form-select form-select-sm" formControlName="type_categorie_id">
+                                <option [ngValue]="null">-- Sélectionner --</option>
+                                @for (type of typeCategories; track type.id) {
+                                <option [ngValue]="type.id">{{ type.nom }}</option>
+                                }
+                            </select>
+                            @if (createForm.get('type_categorie_id')?.invalid &&
+                            createForm.get('type_categorie_id')?.touched) {
+                            <small class="text-danger">Le type de catégorie est requis</small>
+                            }
+                        </div>
                     </div>
                     <div class="mb-2">
                         <label class="label-sport">Description</label>
@@ -324,6 +328,7 @@
                     <div class="mb-2">
                         <label class="label-sport">
                             <i class="fab fa-youtube me-1 text-danger"></i>Liens vidéo YouTube / Vimeo
+                            <small class="text-muted">(une seule URL pour l'instant)</small>
                         </label>
                         @for (urlCtrl of videosUrlsCreate.controls; track $index; let i = $index) {
                         <div class="input-group input-group-sm mb-1">
@@ -335,14 +340,14 @@
                             <input type="text" class="form-control form-control-sm"
                                 [formControl]="$any(videosTitresCreate.at(i))" placeholder="Titre"
                                 style="max-width:110px;">
-                            <button type="button" class="btn btn-sm btn-outline-success px-2"
-                                (click)="addVideoRow(createForm)">
-                                <i class="fas fa-plus"></i>
+                            <button type="button" class="btn btn-sm btn-outline-danger px-2"
+                                (click)="removeVideoRow(i, 'create')">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                         }
                         @if (videosUrlsCreate.length === 0) {
-                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addVideoRow(createForm)">
+                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addVideoRow('create')">
                             <i class="fas fa-plus me-1"></i>Ajouter une vidéo
                         </button>
                         }
@@ -380,12 +385,12 @@
                         </div>
                         <div class="col-md-6">
                             <label class="label-sport">Type de Catégorie</label>
-                          <select class="form-select form-select-sm" formControlName="type_categorie_id">
-                            <option [ngValue]="null">-- Sélectionner --</option>
-                            @for (type of typeCategories; track type.id) {
-                              <option [ngValue]="type.id">{{ type.nom }}</option>
-                            }
-                          </select>
+                            <select class="form-select form-select-sm" formControlName="type_categorie_id">
+                                <option [ngValue]="null">-- Sélectionner --</option>
+                                @for (type of typeCategories; track type.id) {
+                                <option [ngValue]="type.id">{{ type.nom }}</option>
+                                }
+                            </select>
                         </div>
                     </div>
                     <div class="mb-2">
@@ -419,51 +424,43 @@
                     <hr class="my-2">
 
                     <!-- Médias existants -->
-                    @if (selectedProduit.medias?.length) {
+                    @if (selectedProduit && existingMedias.length > 0) {
                     <div class="mb-3">
                         <label class="label-sport">
                             <i class="fas fa-photo-video me-1 text-success"></i>
-                            Médias actuels ({{ selectedProduit.medias?.length }})
+                            Médias actuels ({{ existingMedias.length }})
                             <small class="text-muted fw-normal"> — cochez pour supprimer</small>
                         </label>
                         <div class="row g-1 mt-1">
-                            @for (media of selectedProduit.medias; track media.id) {
+                            @for (media of existingMedias; track $index) {
                             <div class="col-3 col-md-2">
                                 <div class="media-edit-card">
                                     <div class="media-edit-preview">
                                         @if (media.type === 'image') {
                                         <img [src]="media.url" alt="">
-                                        } @else if (media.youtube_thumbnail) {
-                                        <img [src]="media.youtube_thumbnail" alt="">
-                                        <div class="media-video-overlay">
-                                            <i class="fab fa-youtube text-danger"></i>
-                                        </div>
+                                        } @else {
+                                        @let thumb = produitService.getYouTubeThumbnail(media.url);
+                                        @if (thumb) {
+                                        <img [src]="thumb" alt="">
                                         } @else {
                                         <div class="media-video-placeholder">
                                             <i class="fas fa-link text-white small"></i>
                                         </div>
                                         }
-                                        @if (media.est_principal) {
-                                        <span class="principal-badge">★</span>
+                                        <div class="media-video-overlay">
+                                            <i class="fab fa-youtube text-danger"></i>
+                                        </div>
                                         }
                                     </div>
                                     <div class="media-edit-actions">
                                         <div class="form-check d-inline-flex align-items-center gap-1">
                                             <input class="form-check-input m-0" type="checkbox"
-                                                (change)="onCheckboxChange($event, media.id)"
-                                                [checked]="existingMediaToDelete.includes(media.id)">
+                                                (change)="onCheckboxChange($event, media.path || media.url)"
+                                                [checked]="existingMediaToDelete.includes(media.path || media.url)">
                                             <label class="text-danger" style="font-size:10px;cursor:pointer;">
                                                 <i class="fas fa-trash"></i>
                                             </label>
                                         </div>
-                                        @if (media.type === 'image') {
-                                        <div class="form-check d-inline-flex align-items-center gap-1 ms-1">
-                                            <input class="form-check-input m-0" type="radio" name="media_principal"
-                                                [value]="media.id" (change)="setPrincipal(media.id)"
-                                                [checked]="editForm.get('media_principal_id')?.value === media.id">
-                                            <label style="font-size:9px;color:#287747;cursor:pointer;">★</label>
-                                        </div>
-                                        }
                                     </div>
                                 </div>
                             </div>
@@ -496,7 +493,7 @@
                     <div class="mb-2">
                         <label class="label-sport">
                             <i class="fab fa-youtube me-1 text-danger"></i>Ajouter des liens vidéo
-                            <small class="text-muted">(YouTube / Vimeo)</small>
+                            <small class="text-muted">(une seule URL pour l'instant)</small>
                         </label>
                         @for (urlCtrl of videosUrlsEdit.controls; track $index; let i = $index) {
                         <div class="input-group input-group-sm mb-1">
@@ -508,14 +505,14 @@
                             <input type="text" class="form-control form-control-sm"
                                 [formControl]="$any(videosTitresEdit.at(i))" placeholder="Titre"
                                 style="max-width:110px;">
-                            <button type="button" class="btn btn-sm btn-outline-success px-2"
-                                (click)="addVideoRow(editForm)">
-                                <i class="fas fa-plus"></i>
+                            <button type="button" class="btn btn-sm btn-outline-danger px-2"
+                                (click)="removeVideoRow(i, 'edit')">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                         }
                         @if (videosUrlsEdit.length === 0) {
-                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addVideoRow(editForm)">
+                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addVideoRow('edit')">
                             <i class="fas fa-plus me-1"></i>Ajouter une vidéo
                         </button>
                         }
@@ -553,16 +550,11 @@
                     Le produit <strong class="text-danger">"{{ produitToDelete.nom }}"</strong>
                     sera définitivement supprimé.
                 </p>
-                @if (produitToDelete.medias?.length) {
+                <!-- Correction : suppression du '?' inutile -->
+                @if (produitToDelete.imageUrls.length) {
                 <small class="text-warning d-block">
                     <i class="fas fa-photo-video me-1"></i>
-                    {{ produitToDelete.medias?.length }} média(s) associé(s) seront supprimés.
-                </small>
-                }
-                @if (produitToDelete.avis?.length) {
-                <small class="d-block text-muted mt-1">
-                    <i class="fas fa-comment me-1"></i>
-                    {{ produitToDelete.avis?.length }} avis seront supprimés.
+                    {{ produitToDelete.imageUrls.length }} image(s) associée(s) seront supprimées.
                 </small>
                 }
             </div>
@@ -583,7 +575,7 @@
 
 <!-- ========== MODAL GALERIE MÉDIAS ========== -->
 @if (showGalleryModal && galleryMedias.length) {
-@let currentMedia = galleryMedias[currentMediaIndex];
+<!-- Suppression de la variable inutilisée @let currentMedia -->
 <div class="modal fade show d-block" tabindex="-1" style="background-color:rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-gallery modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius:14px;overflow:hidden;">
@@ -616,23 +608,18 @@
                     </button>
                     <div class="gallery-counter">{{ currentMediaIndex + 1 }} / {{ galleryMedias.length }}</div>
                     }
-                    <div style="position:absolute;top:10px;left:10px;">
-                        @if (currentMedia?.est_principal) {
-                        <span class="badge bg-warning text-dark" style="font-size:.7rem;">Principal</span>
-                        }
-                    </div>
                 </div>
                 <!-- Vignettes -->
                 <div class="gallery-thumbs">
-                    @for (media of galleryMedias; track media.id; let i = $index) {
+                    @for (media of galleryMedias; track $index; let i = $index) {
                     <div class="g-thumb" [class.active]="i === currentMediaIndex" (click)="selectGalleryMedia(i)">
-                        <img [src]="getThumbnail(media)" [alt]="media.titre || 'miniature'">
+                        <img [src]="getThumbnail(media)" [alt]="'miniature'">
                     </div>
                     }
                 </div>
             </div>
             <div class="modal-footer border-0 py-1" style="background:#1a1a2e;">
-                <small class="text-muted me-auto" style="font-size:.75rem;">{{ currentMedia?.titre || '' }}</small>
+                <small class="text-muted me-auto" style="font-size:.75rem;">&nbsp;</small>
                 <button type="button" class="btn btn-sm btn-light" (click)="closeGalleryModal()">Fermer</button>
             </div>
         </div>

@@ -5,12 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HomeService } from '../../../services/home/home.service';
 import { TemoignageService } from '../../../services/temoignage/temoignage.service';
+import { ProduitSportService, ProduitSportResponse } from '../../../services/produit-sport/produit-sport.service'; // ✅ AJOUT
 import { Produit } from '../../../models/produit';
 import { AccueilData } from '../../../models/accueilData';
 import { Gamme } from '../../../models/gamme';
 import { Vendeur } from '../../../models/vendeur';
 import { Temoignage } from '../../../models/temoignage';
-import {ProduitSport} from '../../../models/produit-sport';
+import { ProduitSport } from '../../../models/produit-sport';
 
 declare var $: any;
 declare var AOS: any;
@@ -32,7 +33,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   gammes: Gamme[] = [];
   categories: any[] = [];
   typeCategories: any[] = [];
-  produitsSport: ProduitSport[]= [];
+  produitsSport: ProduitSport[] = [];
   vendeurs: Vendeur[] = [];
   temoignages: Temoignage[] = [];
   stats: any = {
@@ -73,6 +74,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private accueilService: HomeService,
     private temoignageService: TemoignageService,
+    private produitSportService: ProduitSportService, // ✅ AJOUT
     private sanitizer: DomSanitizer,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
@@ -111,22 +113,46 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loading = true;
     this.accueilService.getAccueilData().subscribe({
       next: (response) => {
+        console.log('Réponse API accueil :', response);
+
         this.data = response;
         this.produits = response.produits || [];
         this.produitsPromo = response.produitsPromo || [];
         this.gammes = response.gammes || [];
         this.categories = response.categories || [];
         this.typeCategories = response.typeCategories || [];
-        this.produitsSport = response.produitsSport || [];
         this.vendeurs = response.vendeurs || [];
         this.stats = response.stats || this.stats;
         this.loading = false;
+
+        // ✅ Charger les produits sport via leur propre service (l'API accueil renvoie un tableau vide)
+        this.loadProduitsSport();
+
         setTimeout(() => this.initLibraries(), 800);
       },
       error: (err) => {
         console.error('Erreur chargement accueil:', err);
         this.error = 'Erreur lors du chargement de la page';
         this.loading = false;
+      }
+    });
+  }
+
+  // ✅ NOUVELLE MÉTHODE — appel direct à ProduitSportService
+  loadProduitsSport(): void {
+    this.produitSportService.getProduitsWithFilters({ page: 1 }).subscribe({
+      next: (sportResponse: ProduitSportResponse) => {
+        this.produitsSport = sportResponse.produits.data.map(p => ({
+          ...p,
+          imageUrls: p.imageUrls || [],
+          typeCategorie: p.typeCategorie || null,
+        }));
+        console.log('Produits sport chargés :', this.produitsSport);
+        // Réinitialiser le swiper sport après chargement des données
+        setTimeout(() => this.initSwiper(), 300);
+      },
+      error: (err) => {
+        console.error('Erreur chargement produits sport:', err);
       }
     });
   }
@@ -228,15 +254,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             loop: false,
             speed: 500,
             breakpoints: {
-              480:  { slidesPerView: 1, spaceBetween: 20 },
-              640:  { slidesPerView: 2, spaceBetween: 24 },
-              992:  { slidesPerView: 2, spaceBetween: 24 },   // ← 2 cartes sur tablette
-              1200: { slidesPerView: 3, spaceBetween: 28 },   // ← 3 cartes sur desktop
-              1400: { slidesPerView: 3, spaceBetween: 30 },   // ← 3 cartes sur grand écran
+              480: { slidesPerView: 1, spaceBetween: 20 },
+              640: { slidesPerView: 2, spaceBetween: 24 },
+              992: { slidesPerView: 2, spaceBetween: 24 },
+              1200: { slidesPerView: 3, spaceBetween: 28 },
+              1400: { slidesPerView: 3, spaceBetween: 30 },
             }
           };
 
-          // ── Swiper Gammes ──
+          // Swiper Gammes
           const gammeEl = document.querySelector('.gammes-swiper');
           if (gammeEl) {
             try {
@@ -262,7 +288,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
 
-          // ── Swiper Sport ──
+          // Swiper Sport
           const sportEl = document.querySelector('.sport-swiper');
           if (sportEl) {
             try {
@@ -344,27 +370,37 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activeGammeTab = tab;
     setTimeout(() => this.initSwiper(), 200);
   }
-  getFilteredContent(): { type: 'gammes' | 'sport' | 'all'; gammes: Gamme[]; produitsSport: any[] } {
+
+  getFilteredContent(): { type: 'gammes' | 'sport' | 'all'; gammes: Gamme[]; produitsSport: ProduitSport[] } {
     if (this.activeGammeTab === 'all') {
       return { type: 'all', gammes: this.gammes, produitsSport: this.produitsSport };
     }
-    const selectedType = this.typeCategories.find(t => t.id.toString() === this.activeGammeTab);
-    if (!selectedType) return { type: 'all', gammes: this.gammes, produitsSport: this.produitsSport };
 
-    const nomType = selectedType.nom.toLowerCase();
-    if (nomType === 'sport') {
-      return { type: 'sport', gammes: [], produitsSport: this.produitsSport };
+    const selectedType = this.typeCategories.find(t => t.id.toString() === this.activeGammeTab);
+    if (!selectedType) {
+      return { type: 'all', gammes: this.gammes, produitsSport: this.produitsSport };
+    }
+
+    const gammesFiltrees = this.gammes.filter(g =>
+      (g as any).type_categorie_id?.toString() === this.activeGammeTab ||
+      (g as any).type_categorie?.id?.toString() === this.activeGammeTab
+    );
+
+    const produitsSportFiltres = this.produitsSport.filter(p =>
+      p.typeCategorie && p.typeCategorie.id.toString() === this.activeGammeTab
+    );
+
+    if (gammesFiltrees.length > 0) {
+      return { type: 'gammes', gammes: gammesFiltrees, produitsSport: produitsSportFiltres };
+    } else if (produitsSportFiltres.length > 0) {
+      return { type: 'sport', gammes: [], produitsSport: produitsSportFiltres };
     } else {
-      const gammesFiltrees = this.gammes.filter(g =>
-        (g as any).type_categorie_id?.toString() === this.activeGammeTab ||
-        (g as any).type_categorie?.id?.toString() === this.activeGammeTab
-      );
-      return { type: 'gammes', gammes: gammesFiltrees, produitsSport: [] };
+      return { type: 'all', gammes: [], produitsSport: [] };
     }
   }
 
   // ══════════════════════════════════════════════════════════
-  // Filtrage — Section Produits
+  // Filtrage — Section Produits (ancienne, conservée)
   // ══════════════════════════════════════════════════════════
 
   setActiveTab(tabId: string): void {

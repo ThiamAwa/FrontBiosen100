@@ -94,34 +94,32 @@
 <!-- ═══════════════════════════════════════════════════
      CATALOGUE BIOSEN 100
 ═══════════════════════════════════════════════════ -->
-<div class="container-fluid py-5" id="products" style="background: #f4f7f4;">
+<div class="catalogue-section" id="products">
   <div class="container">
 
     <!-- En-tête -->
-    <div class="text-center mb-5" data-aos="fade-up">
-      <span style="display:inline-block;background:rgba(40,119,71,0.1);color:#287747;font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:20px;margin-bottom:12px;">
-        🌿 Notre sélection
-      </span>
-      <h2 class="fw-bold mb-2" style="font-size:2.2rem;color:#1a1a2e;">Catalogue <span style="color:#287747;">BioSen 100</span></h2>
-      <p class="text-muted mx-auto" style="max-width:500px;font-size:1rem;">Gammes bio authentiques & produits sport de qualité</p>
+    <div class="catalogue-header" data-aos="fade-up">
+      <div class="catalogue-badge">
+        <img src="/logo-biosen.jpeg" alt="Logo BioSen" class="catalogue-badge-logo">
+        Notre sélection
+      </div>
+      <h2 class="catalogue-title">Catalogue <span>BioSen 100</span></h2>
+      <p class="catalogue-subtitle">Gammes bio authentiques & produits sport de qualité</p>
     </div>
 
     <!-- Onglets -->
-    <div class="text-center mb-5" data-aos="fade-up">
-      <div class="d-inline-flex bg-white rounded-pill shadow-sm p-1 gap-1 flex-wrap justify-content-center">
-        <button class="btn rounded-pill px-4 py-2 fw-semibold catalogue-tab"
-                [class.active-tab]="activeGammeTab === 'all'"
-                (click)="setActiveGammeTab('all')"
-                style="font-size:.9rem;transition:all .25s;">
-          <i class="fas fa-th-large me-2"></i>Tous
+    <div class="catalogue-tabs" data-aos="fade-up">
+      <div class="tabs-wrapper">
+        <button class="tab-btn" [class.tab-active]="activeGammeTab === 'all'" (click)="setActiveGammeTab('all')">
+          <i class="fas fa-th-large"></i>
+          <span>Tous</span>
         </button>
         @for (type of typeCategories; track type.id) {
-          <button class="btn rounded-pill px-4 py-2 fw-semibold catalogue-tab"
-                  [class.active-tab]="activeGammeTab === type.id.toString()"
-                  (click)="setActiveGammeTab(type.id.toString())"
-                  style="font-size:.9rem;transition:all .25s;">
-            <i class="fas fa-leaf me-2"></i>{{ type.nom }}
-          </button>
+        <button class="tab-btn" [class.tab-active]="activeGammeTab === type.id.toString()"
+          (click)="setActiveGammeTab(type.id.toString())">
+          <i class="fas fa-leaf"></i>
+          <span>{{ type.nom }}</span>
+        </button>
         }
       </div>
     </div>
@@ -130,116 +128,117 @@
 
     <!-- ── GAMMES BIO ── -->
     @if ((content.type === 'all' || content.type === 'gammes') && content.gammes.length > 0) {
-
-      <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-right">
-        <div style="width:36px;height:36px;background:linear-gradient(135deg,#287747,#1a5230);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-          <i class="fas fa-seedling text-white" style="font-size:.9rem;"></i>
+    <div class="section-block" data-aos="fade-up">
+      <div class="section-block-header">
+        <div class="section-block-icon bio-icon">
+          <i class="fas fa-seedling"></i>
         </div>
-        <h5 class="fw-bold mb-0" style="color:#1a1a2e;">Gammes Bio</h5>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,#287747 0%,transparent 100%);opacity:.2;"></div>
+        <h5 class="section-block-title">Gammes Bio</h5>
+        <div class="section-block-line"></div>
+        <span class="section-block-count">{{ content.gammes.length }} produit(s)</span>
       </div>
 
-      <div class="swiper gammes-swiper mb-5" data-aos="fade-up">
-        <div class="swiper-wrapper">
-          @for (gamme of content.gammes; track gamme.id) {
-            <div class="swiper-slide">
-              <div class="produit-card" (click)="openGammeModal(gamme)">
-                <div class="produit-card-img">
-                  <img [src]="getImageUrl(gamme.image ?? '')" [alt]="gamme.nom" loading="lazy">
-                  <span class="produit-badge-label bio">
-                <i class="fas fa-leaf me-1"></i>Bio
-              </span>
-                </div>
-                <div class="produit-card-body">
-                  <h6 class="produit-card-title">{{ gamme.nom }}</h6>
-                  @if (gamme.description) {
-                    <p class="produit-card-desc">{{ limitText(gamme.description, 60) }}</p>
-                  }
-                  <div class="produit-card-footer">
-                    <div class="produit-card-price">
-                      @if (gamme.prix && gamme.prix > 0) {
-                        <span class="price-normal">{{ formatPrice(gamme.prix) }}</span>
-                      }
-                    </div>
-                    <span class="produit-card-btn">
-                  <i class="fas fa-eye"></i>
-                </span>
-                  </div>
-                </div>
+      <div class="products-grid">
+        @for (gamme of content.gammes; track gamme.id) {
+        <div class="product-item" data-aos="fade-up" (click)="openGammeModal(gamme)">
+          <div class="product-card">
+            <div class="product-img-wrap">
+              <img [src]="getImageUrl(gamme.image ?? '')" [alt]="gamme.nom" loading="lazy" class="product-img">
+              <div class="product-overlay">
+                <span class="product-overlay-btn"><i class="fas fa-eye me-2"></i>Voir détails</span>
+              </div>
+              <span class="product-badge bio-badge"><i class="fas fa-leaf me-1"></i>Bio</span>
+            </div>
+            <div class="product-body">
+              <h6 class="product-name">{{ gamme.nom }}</h6>
+              @if (gamme.description) {
+              <p class="product-desc">{{ limitText(gamme.description, 65) }}</p>
+              }
+              <div class="product-footer">
+                @if (gamme.prix && gamme.prix > 0) {
+                <span class="product-price">{{ formatPrice(gamme.prix) }} <small>FCFA</small></span>
+                } @else {
+                <span class="product-price-empty">Prix sur demande</span>
+                }
+                <span class="product-cta-btn bio-btn"><i class="fas fa-arrow-right"></i></span>
               </div>
             </div>
-          }
+          </div>
         </div>
-        <div class="swiper-pagination"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
+        }
       </div>
+    </div>
     }
 
     <!-- ── PRODUITS SPORT ── -->
     @if ((content.type === 'all' || content.type === 'sport') && content.produitsSport.length > 0) {
-
-      <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-right">
-        <div style="width:36px;height:36px;background:linear-gradient(135deg,#1a1a2e,#2d2d5e);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-          <i class="fas fa-dumbbell text-white" style="font-size:.9rem;"></i>
+    <div class="section-block" data-aos="fade-up">
+      <div class="section-block-header">
+        <div class="section-block-icon sport-icon">
+          <i class="fas fa-dumbbell"></i>
         </div>
-        <h5 class="fw-bold mb-0" style="color:#1a1a2e;">Produits Sport</h5>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,#1a1a2e 0%,transparent 100%);opacity:.15;"></div>
+        <h5 class="section-block-title">Produits Sport</h5>
+        <div class="section-block-line sport-line"></div>
+        <span class="section-block-count">{{ content.produitsSport.length }} produit(s)</span>
       </div>
 
-      <div class="swiper sport-swiper mb-5" data-aos="fade-up">
-        <div class="swiper-wrapper">
-          @for (produit of content.produitsSport; track produit.id) {
-            <div class="swiper-slide">
-              <div class="produit-card">
-                <div class="produit-card-img">
-                  @let media = produit.medias?.[0];
-                  <img [src]="media?.chemin ? getImageUrl(media.chemin) : getImageUrl(produit.image)"
-                       [alt]="produit.nom" loading="lazy">
-                  <span class="produit-badge-label sport">
-                <i class="fas fa-dumbbell me-1"></i>Sport
+      <div class="products-grid">
+        @for (produit of content.produitsSport; track produit.id) {
+        <div class="product-item" data-aos="fade-up">
+          <div class="product-card">
+            <div class="product-img-wrap">
+              @let imageUrl = produit.imageUrls?.[0] || 'assets/img/biosen/default-product.png';
+              <img [src]="imageUrl" [alt]="produit.nom" loading="lazy" class="product-img">
+              <div class="product-overlay">
+                <a [routerLink]="['/produit-sport', produit.id]" class="product-overlay-btn">
+                  <i class="fas fa-eye me-2"></i>Voir détails
+                </a>
+              </div>
+              @if (produit.typeCategorie) {
+              <span class="product-badge sport-badge">
+                <i class="fas fa-tag me-1"></i>{{ produit.typeCategorie.nom }}
               </span>
+              }
+              @if (produit.enPromotion && produit.prixPromo) {
+              <span class="product-promo-badge">
+                -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
+              </span>
+              }
+            </div>
+            <div class="product-body">
+              <h6 class="product-name">{{ produit.nom }}</h6>
+              @if (produit.description) {
+              <p class="product-desc">{{ limitText(produit.description, 65) }}</p>
+              }
+              <div class="product-footer">
+                <div class="product-price-block">
                   @if (produit.enPromotion && produit.prixPromo) {
-                    <span class="produit-badge-promo">
-                  -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
-                </span>
+                  <span class="product-price promo">{{ formatPrice(produit.prixPromo) }} <small>FCFA</small></span>
+                  <span class="product-price-old">{{ formatPrice(produit.prix) }} FCFA</span>
+                  } @else {
+                  <span class="product-price">{{ formatPrice(produit.prix) }} <small>FCFA</small></span>
                   }
                 </div>
-                <div class="produit-card-body">
-                  <h6 class="produit-card-title">{{ produit.nom }}</h6>
-                  @if (produit.description) {
-                    <p class="produit-card-desc">{{ limitText(produit.description, 60) }}</p>
-                  }
-                  <div class="produit-card-footer">
-                    <div class="produit-card-price">
-                      @if (produit.enPromotion && produit.prixPromo) {
-                        <span class="price-promo">{{ formatPrice(produit.prixPromo) }}</span>
-                        <span class="price-original">{{ formatPrice(produit.prix) }}</span>
-                      } @else {
-                        <span class="price-normal">{{ formatPrice(produit.prix) }}</span>
-                      }
-                    </div>
-                    <a [routerLink]="['/produit-sport', produit.id]" class="produit-card-btn">
-                      <i class="fas fa-eye"></i>
-                    </a>
-                  </div>
-                </div>
+                <a [routerLink]="['/produit-sport', produit.id]" class="product-cta-btn sport-btn">
+                  <i class="fas fa-arrow-right"></i>
+                </a>
               </div>
             </div>
-          }
+          </div>
         </div>
-        <div class="swiper-pagination"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
+        }
       </div>
+    </div>
     }
 
     <!-- Empty state -->
     @if (content.gammes.length === 0 && content.produitsSport.length === 0) {
-      <div class="text-center py-5">
-        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-        <p class="text-muted">Aucun contenu disponible pour cette catégorie.</p>
+    <div class="catalogue-empty" data-aos="fade-up">
+      <div class="catalogue-empty-icon">
+        <i class="fas fa-box-open"></i>
       </div>
+      <p>Aucun contenu disponible pour cette catégorie.</p>
+    </div>
     }
 
   </div>
@@ -278,7 +277,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     TÉMOIGNAGES — juste après les gammes
+     TÉMOIGNAGES
 ═══════════════════════════════════════════════════ -->
 <div class="temoignages-section">
 
@@ -412,168 +411,8 @@
 
   </div>
 </div>
-<!-- ═══════════════════════════════════════════════════
-     FIN TÉMOIGNAGES
-═══════════════════════════════════════════════════ -->
 
 @if (!loading && !error) {
-
-
-
-<!-- Products Shop -->
-<!-- <div class="container-fluid fruite py-5" style="background-color: #F9F9F9;">
-  <div class="container py-5">
-    <div class="tab-class text-center">
-      <div class="row g-4">
-        <div class="col-lg-12 text-center" data-aos="fade-up">
-          <h4 class="fw-semibold" style="color:#287747">Nos Produits</h4>
-          <h1 class="display-5 fw-bold">Produits Biologiques</h1>
-          <p class="text-muted mb-4">Sélection de nos meilleurs produits naturels</p>
-        </div>
-        <div class="col-lg-12 text-center">
-          <ul class="nav nav-pills d-inline-flex text-center mb-5 shadow-sm bg-white rounded-pill p-2 flex-wrap">
-            <li class="nav-item">
-              <a class="d-flex m-2 py-2 rounded-pill" [class.active]="activeTab === 'all'" (click)="setActiveTab('all')"
-                style="cursor: pointer;">
-                <span class="fw-semibold" style="width: 130px;">Tous</span>
-              </a>
-            </li>
-            @for (categorie of categories; track categorie.id) {
-            <li class="nav-item">
-              <a class="d-flex py-2 m-2 rounded-pill" [class.active]="activeTab === categorie.id.toString()"
-                (click)="setActiveTab(categorie.id.toString())" style="cursor: pointer;">
-                <span style="width: 130px;" class="fw-semibold">{{ categorie.nom }}</span>
-              </a>
-            </li>
-            }
-          </ul>
-        </div>
-      </div>
-      @if (activeTab === 'all') {
-      <div class="tab-pane fade show p-0 active">
-        <div class="row g-4">
-          <div class="col-lg-12">
-            <div class="row g-4">
-              @for (produit of produits | slice:0:8; track produit.id; let index = $index) {
-              <div class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up" [attr.data-aos-delay]="(index + 1) * 100">
-                <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
-                  <div class="fruite-img overflow-hidden">
-                    <img [src]="getImageUrl(produit.image ?? '')" class="img-fluid w-100 rounded-top"
-                      [alt]="produit.nom" style="height: 250px; object-fit: cover;">
-                  </div>
-                  <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
-                    style="top: 15px; left: 15px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-                    <i class="fas fa-leaf me-1"></i> {{ produit.categorie?.nom ?? 'Bio' }}
-                  </div>
-                  @if (produit.prix && produit.enPromotion && produit.prixPromo) {
-                  <div class="badge bg-danger position-absolute fw-semibold" style="top: 15px; right: 15px;">
-                    <i class="fas fa-fire me-1"></i> -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
-                  </div>
-                  }
-                  <div class="p-4 border-top-0">
-                    <h5 class="fw-bold mb-2">{{ produit.nom }}</h5>
-                    @if (produit.description) { <p class="text-muted small mb-3">{{ limitText(produit.description, 60)
-                      }}</p> }
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        @if (produit.prix) {
-                        @if (produit.enPromotion && produit.prixPromo) {
-                        <p class="text-success fw-bold mb-0">{{ formatPrice(produit.prixPromo) }}</p>
-                        <p class="text-muted small text-decoration-line-through mb-0">{{ formatPrice(produit.prix) }}
-                        </p>
-                        } @else {
-                        <p class="text-dark fw-bold mb-0">{{ formatPrice(produit.prix) }}</p>
-                        }
-                        } @else {
-                        <p class="text-muted fst-italic small mb-0">Sur demande</p>
-                        }
-                      </div>
-                      <a [routerLink]="['/produit', produit.id]" class="btn btn-sm rounded-pill px-3"
-                        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); color: white;">
-                        <i class="fas fa-eye me-1"></i> Voir
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              } @empty {
-              <div class="col-12">
-                <div class="alert alert-info text-center"><i class="fas fa-info-circle me-2"></i>Aucun produit
-                  disponible.</div>
-              </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-      }
-      @for (categorie of categories; track categorie.id) {
-      @if (activeTab === categorie.id.toString()) {
-      <div class="tab-pane fade show p-0 active">
-        <div class="row g-4">
-          <div class="col-lg-12">
-            <div class="row g-4">
-              @for (produit of getProduitsByCategory(categorie.id); track produit.id; let index = $index) {
-              <div class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up" [attr.data-aos-delay]="(index + 1) * 100">
-                <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
-                  <div class="fruite-img overflow-hidden">
-                    <img [src]="getImageUrl(produit.image ?? '')" class="img-fluid w-100 rounded-top"
-                      [alt]="produit.nom" style="height: 250px; object-fit: cover;">
-                  </div>
-                  <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
-                    style="top: 15px; left: 15px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-                    <i class="fas fa-leaf me-1"></i> {{ categorie.nom }}
-                  </div>
-                  @if (produit.prix && produit.enPromotion && produit.prixPromo) {
-                  <div class="badge bg-danger position-absolute fw-semibold" style="top: 15px; right: 15px;">
-                    <i class="fas fa-fire me-1"></i> -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
-                  </div>
-                  }
-                  <div class="p-4 border-top-0">
-                    <h5 class="fw-bold mb-2">{{ produit.nom }}</h5>
-                    @if (produit.description) { <p class="text-muted small mb-3">{{ limitText(produit.description, 60)
-                      }}</p> }
-                    <div class="d-flex justify-content-between align-items-center">
-                      @if (!isProduitBio(produit)) {
-                      <div>
-                        @if (produit.prix) {
-                        @if (produit.enPromotion && produit.prixPromo) {
-                        <p class="text-success fw-bold mb-0">{{ formatPrice(produit.prixPromo) }}</p>
-                        <p class="text-muted small text-decoration-line-through mb-0">{{ formatPrice(produit.prix) }}
-                        </p>
-                        } @else {
-                        <p class="text-dark fw-bold mb-0">{{ formatPrice(produit.prix) }}</p>
-                        }
-                        } @else {
-                        <p class="text-muted fst-italic small mb-0">Sur demande</p>
-                        }
-                      </div>
-                      }
-                      <a [routerLink]="['/produit', produit.id]" class="btn btn-sm rounded-pill px-3"
-                        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); color: white;">
-                        <i class="fas fa-eye me-1"></i> Voir
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              } @empty {
-              <div class="col-12">
-                <div class="alert alert-info text-center"><i class="fas fa-info-circle me-2"></i>Aucun produit dans
-                  cette catégorie.</div>
-              </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-      }
-      }
-    </div>
-  </div>
-</div> -->
-
-
 
 <!-- Pourquoi BioSen -->
 <div class="container-fluid py-5" style="background-color: #F9F9F9;">
@@ -780,10 +619,7 @@
             <img [src]="getGammeImageUrl(selectedGamme)" class="img-fluid rounded shadow-sm w-100"
               [alt]="selectedGamme.nom" style="height: 300px; object-fit: cover;">
             <div class="mt-3 p-3 bg-light rounded">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted small"><i class="fas fa-box me-1"></i>Produits</span>
-                <span class="badge bg-info">{{ getProduitsCountByGamme(selectedGamme.id) }}</span>
-              </div>
+
               @if (selectedGamme.prix && selectedGamme.prix > 0) {
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix</span>
@@ -799,26 +635,7 @@
             } @else {
             <p class="text-muted fst-italic">Aucune description disponible.</p>
             }
-            @if (getProduitsCountByGamme(selectedGamme.id) > 0) {
-            <div class="mt-4">
-              <h6 class="fw-bold mb-3" style="color:#287747"><i class="fas fa-box-open me-2"></i>Produits disponibles
-                ({{ getProduitsCountByGamme(selectedGamme.id) }})</h6>
-              <div class="d-flex flex-wrap gap-2">
-                @for (produit of produits | slice:0:5; track produit.id) {
-                @if (produitAppartientAGamme(produit, selectedGamme.id)) {
-                <span class="badge bg-light text-dark border px-3 py-2">
-                  <i class="fas fa-check-circle me-1" style="color:#287747"></i>{{ produit.nom }}
-                </span>
-                }
-                }
-              </div>
-            </div>
-            } @else {
-            <div class="mt-4 p-3 bg-light rounded text-center">
-              <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-              <p class="text-muted mb-0 small">Aucun produit dans cette gamme.</p>
-            </div>
-            }
+
           </div>
         </div>
         }
@@ -834,7 +651,6 @@
     </div>
   </div>
 </div>
-
 }
 
 <!-- ═══ MODAL VIDÉO ═══ -->

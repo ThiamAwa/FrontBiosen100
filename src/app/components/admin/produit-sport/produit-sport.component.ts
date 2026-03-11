@@ -1,218 +1,181 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { TypeCategorieService } from '../../../services/type-categorie/type-categorie.service';
-import { TypeCategorie } from '../../../models/type-categorie';
-import { ProduitSportService } from '../../../services/produit-sport/produit-sport.service';
-import { ProduitSport, ProduitMedia, Categorie, ProduitSportResponse } from '../../../models/produit-sport';
+import { ProduitSportService, ProduitSport, TypeCategorie, MediasResponse } from '../../../services/produit-sport/produit-sport.service';
+
+interface ImagePreview {
+  file: File;
+  url: string;
+}
+
+interface GalleryMedia {
+  type: 'image' | 'video';
+  url: string;
+  thumbnail?: string;
+  titre?: string;
+}
 
 @Component({
   selector: 'app-produit-sport',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './produit-sport.component.html',
   styleUrls: ['./produit-sport.component.css']
 })
 export class ProduitSportComponent implements OnInit {
+  @ViewChild('fileInputCreate') fileInputCreate!: ElementRef<HTMLInputElement>;
+
   // Données
   produits: ProduitSport[] = [];
   typeCategories: TypeCategorie[] = [];
+  total = 0;
   currentPage = 1;
   lastPage = 1;
-  total = 0;
+  perPage = 10;
   firstItem = 0;
   lastItem = 0;
 
-  // État
+  // États
   loading = false;
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
+  successMessage = '';
+  errorMessage = '';
   validationErrors: string[] = [];
 
-  // Modales (booléens)
+  // Modales
   showCreateModal = false;
   showEditModal = false;
   showDeleteModal = false;
   showGalleryModal = false;
   showImageModal = false;
 
-  // Formulaires
-  createForm: FormGroup;
-  editForm: FormGroup;
+  // Produit sélectionné
   selectedProduit: ProduitSport | null = null;
   produitToDelete: ProduitSport | null = null;
 
-  // Gestion des fichiers
-  createImagePreviews: { file: File; url: string }[] = [];
-  editImagePreviews: { file: File; url: string }[] = [];
-  existingMediaToDelete: number[] = [];
+  // Médias existants pour l'édition
+  existingMedias: any[] = [];
 
   // Galerie
-  galleryMedias: ProduitMedia[] = [];
+  galleryMedias: GalleryMedia[] = [];
   galleryProduitNom = '';
   currentMediaIndex = 0;
   currentMediaUrl: SafeResourceUrl | string | null = null;
   currentMediaType: 'image' | 'video' | null = null;
 
+  // Aperçus images
+  createImagePreviews: ImagePreview[] = [];
+  editImagePreviews: ImagePreview[] = [];
+
+  // Formulaires
+  createForm: FormGroup;
+  editForm: FormGroup;
+
+  // Vidéos (form arrays)
+  videosUrlsCreate: FormArray;
+  videosTitresCreate: FormArray;
+  videosUrlsEdit: FormArray;
+  videosTitresEdit: FormArray;
+
+  // Pour la suppression d'images existantes
+  existingMediaToDelete: string[] = [];
+
   constructor(
-    public produitService: ProduitSportService,
     private fb: FormBuilder,
-    private typeCategorieService: TypeCategorieService,
+    public produitService: ProduitSportService,
     private sanitizer: DomSanitizer
   ) {
     this.createForm = this.fb.group({
       nom: ['', Validators.required],
       description: [''],
-      prix: [0, [Validators.required, Validators.min(0)]],
+      prix: ['', [Validators.required, Validators.min(0)]],
       prixPromo: [null],
-      stock: [0, [Validators.required, Validators.min(0)]],
-      type_categorie_id: [null], // ← renommé
+      stock: ['', [Validators.required, Validators.min(0)]],
       enPromotion: [false],
-      videos_urls: this.fb.array([]),
-      videos_titres: this.fb.array([])
+      type_categorie_id: [null, Validators.required],
     });
 
     this.editForm = this.fb.group({
-      id: [null],
       nom: ['', Validators.required],
       description: [''],
-      prix: [0, [Validators.required, Validators.min(0)]],
+      prix: ['', [Validators.required, Validators.min(0)]],
       prixPromo: [null],
-      stock: [0, [Validators.required, Validators.min(0)]],
-      type_categorie_id: [null], // ← renommé
+      stock: ['', [Validators.required, Validators.min(0)]],
       enPromotion: [false],
-      medias_a_supprimer: [[]],
-      media_principal_id: [null],
-      videos_urls: this.fb.array([]),
-      videos_titres: this.fb.array([])
+      type_categorie_id: [null],
     });
+
+    this.videosUrlsCreate = this.fb.array([]);
+    this.videosTitresCreate = this.fb.array([]);
+    this.videosUrlsEdit = this.fb.array([]);
+    this.videosTitresEdit = this.fb.array([]);
   }
 
   ngOnInit(): void {
-    this.loadTypeCategories();
     this.loadProduits();
   }
 
-  // -------------------- Chargement des données --------------------
-  loadTypeCategories(): void {
-    this.typeCategorieService.getTypeCategories(1).subscribe({
-      next: (res) => { this.typeCategories = res.data; },
-      error: (err) => console.error('Erreur chargement types catégories', err)
-    });
-  }
-  loadProduits(page: number = this.currentPage): void {
+  loadProduits(page: number = 1): void {
     this.loading = true;
-    this.produitService.getProduits(page).subscribe({
-      next: (res: ProduitSportResponse) => {
+    this.produitService.getProduitsWithFilters({ page }).subscribe({
+      next: (res) => {
         this.produits = res.produits.data;
+        this.typeCategories = res.typeCategories;
         this.currentPage = res.produits.current_page;
         this.lastPage = res.produits.last_page;
+        this.perPage = res.produits.per_page;
         this.total = res.produits.total;
-        this.firstItem = (this.currentPage - 1) * res.produits.per_page + 1;
-        this.lastItem = Math.min(this.currentPage * res.produits.per_page, this.total);
+        this.firstItem = (this.currentPage - 1) * this.perPage + 1;
+        this.lastItem = Math.min(this.currentPage * this.perPage, this.total);
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur chargement produits', err);
-        this.errorMessage = 'Impossible de charger les produits.';
+        this.errorMessage = 'Erreur lors du chargement des produits.';
         this.loading = false;
+        console.error(err);
       }
     });
   }
 
   changePage(page: number): void {
-    if (page >= 1 && page <= this.lastPage) {
-      this.loadProduits(page);
-    }
+    if (page >= 1 && page <= this.lastPage) this.loadProduits(page);
   }
 
-  // -------------------- Gestion des modales --------------------
-  openCreateModal(): void {
-    this.createForm.reset({
-      nom: '', description: '', prix: 0,
-      prixPromo: null, stock: 0,
-      type_categorie_id: null,
-      enPromotion: false
-    });
-    this.clearVideosArray(this.createForm);
-    this.createImagePreviews = [];
+  closeAlert(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
     this.validationErrors = [];
-    this.errorMessage = null;
-    this.showCreateModal = true;
   }
 
-  closeCreateModal(): void {
-    this.showCreateModal = false;
-  }
+  // ──────────────────────────────────────────────────────────────────────────
+  // Helpers pour la liste
+  // ──────────────────────────────────────────────────────────────────────────
 
-  openEditModal(produit: ProduitSport): void {
-    this.selectedProduit = produit;
-    const typeCategorieId = produit.medias?.find(m => m.type_categorie_id)?.type_categorie_id || null;
-
-    this.editForm.patchValue({
-      id: produit.id,
-      nom: produit.nom,
-      description: produit.description,
-      prix: produit.prix,
-      prixPromo: produit.prixPromo,
-      stock: produit.stock,
-      type_categorie_id: typeCategorieId,
-      enPromotion: produit.enPromotion,
-      medias_a_supprimer: [],
-      media_principal_id: produit.medias?.find(m => m.est_principal)?.id || null
-    });
-
-    this.clearVideosArray(this.editForm);
-    if (produit.medias) {
-      produit.medias.filter(m => m.type === 'video_url').forEach(video => {
-        this.addVideoUrlToForm(this.editForm, video.url_externe || '', video.titre || '');
-      });
+  getMediaPrincipal(produit: ProduitSport): { type: 'image' | 'video', url: string, thumbnail?: string } | null {
+    if (produit.imageUrls && produit.imageUrls.length > 0) {
+      return { type: 'image', url: produit.imageUrls[0] };
     }
-
-    this.editImagePreviews = [];
-    this.existingMediaToDelete = [];
-    this.validationErrors = [];
-    this.errorMessage = null;
-    this.showEditModal = true;
+    if (produit.video) {
+      const embedUrl = this.produitService.getEmbedUrl(produit.video);
+      const thumbnail = this.produitService.getYouTubeThumbnail(produit.video);
+      return { type: 'video', url: embedUrl || produit.video, thumbnail: thumbnail || undefined };
+    }
+    return null;
   }
 
-  closeEditModal(): void {
-    this.showEditModal = false;
-    this.selectedProduit = null;
+  getMediaCount(produit: ProduitSport): number {
+    let count = produit.imageUrls?.length || 0;
+    if (produit.video) count++;
+    return count;
   }
 
-  openDeleteModal(produit: ProduitSport): void {
-    this.produitToDelete = produit;
-    this.errorMessage = null;
-    this.showDeleteModal = true;
+  getTypeCategorie(produit: ProduitSport): string {
+    return produit.typeCategorie?.nom || 'Non défini';
   }
 
-  closeDeleteModal(): void {
-    this.showDeleteModal = false;
-    this.produitToDelete = null;
-  }
-
-  openGalleryModal(produitId: number, produitNom: string): void {
-    this.produitService.getMedias(produitId).subscribe({
-      next: (data) => {
-        this.galleryProduitNom = data.produit.nom;
-        this.galleryMedias = data.medias;
-        this.currentMediaIndex = 0;
-        this.updateCurrentMedia();
-        this.showGalleryModal = true;
-      },
-      error: (err) => console.error('Erreur chargement médias', err)
-    });
-  }
-
-  closeGalleryModal(): void {
-    this.showGalleryModal = false;
-    this.galleryMedias = [];
-  }
-
-  openImageModal(imageUrl: string, title: string): void {
-    this.currentMediaUrl = imageUrl;
+  openImageModal(url: string, nom: string): void {
+    this.currentMediaUrl = url;
+    this.currentMediaType = 'image';
     this.showImageModal = true;
   }
 
@@ -221,239 +184,315 @@ export class ProduitSportComponent implements OnInit {
     this.currentMediaUrl = null;
   }
 
-  // -------------------- Gestion des tableaux de vidéos --------------------
-  get videosUrlsCreate(): FormArray {
-    return this.createForm.get('videos_urls') as FormArray;
-  }
-  get videosTitresCreate(): FormArray {
-    return this.createForm.get('videos_titres') as FormArray;
-  }
-  get videosUrlsEdit(): FormArray {
-    return this.editForm.get('videos_urls') as FormArray;
-  }
-  get videosTitresEdit(): FormArray {
-    return this.editForm.get('videos_titres') as FormArray;
+  // ──────────────────────────────────────────────────────────────────────────
+  // CRUD Création
+  // ──────────────────────────────────────────────────────────────────────────
+
+  openCreateModal(): void {
+    this.showCreateModal = true;
+    this.resetCreateForm();
   }
 
-  private clearVideosArray(form: FormGroup): void {
-    (form.get('videos_urls') as FormArray).clear();
-    (form.get('videos_titres') as FormArray).clear();
+  closeCreateModal(): void {
+    this.showCreateModal = false;
+    this.resetCreateForm();
   }
 
-  addVideoUrlToForm(form: FormGroup, url: string = '', titre: string = ''): void {
-    (form.get('videos_urls') as FormArray).push(this.fb.control(url));
-    (form.get('videos_titres') as FormArray).push(this.fb.control(titre));
+  resetCreateForm(): void {
+    this.createForm.reset({
+      nom: '',
+      description: '',
+      prix: '',
+      prixPromo: null,
+      stock: '',
+      enPromotion: false,
+      type_categorie_id: null
+    });
+    this.createImagePreviews = [];
+    this.videosUrlsCreate.clear();
+    this.videosTitresCreate.clear();
+    if (this.fileInputCreate) this.fileInputCreate.nativeElement.value = '';
   }
 
-  addVideoRow(form: FormGroup): void {
-    this.addVideoUrlToForm(form);
+  onFileChange(event: Event, mode: 'create' | 'edit'): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+    const files = Array.from(input.files);
+    const previews = files.map(file => ({ file, url: URL.createObjectURL(file) }));
+    if (mode === 'create') this.createImagePreviews = [...this.createImagePreviews, ...previews];
+    else this.editImagePreviews = [...this.editImagePreviews, ...previews];
+    input.value = '';
   }
 
-  removeVideoRow(form: FormGroup, index: number): void {
-    (form.get('videos_urls') as FormArray).removeAt(index);
-    (form.get('videos_titres') as FormArray).removeAt(index);
+  removePreview(index: number, mode: 'create' | 'edit'): void {
+    if (mode === 'create') {
+      URL.revokeObjectURL(this.createImagePreviews[index].url);
+      this.createImagePreviews.splice(index, 1);
+    } else {
+      URL.revokeObjectURL(this.editImagePreviews[index].url);
+      this.editImagePreviews.splice(index, 1);
+    }
   }
 
-  // -------------------- Création d'un produit --------------------
+  addVideoRow(form: 'create' | 'edit'): void {
+    if (form === 'create') {
+      this.videosUrlsCreate.push(this.fb.control('', Validators.pattern(/^https?:\/\//)));
+      this.videosTitresCreate.push(this.fb.control(''));
+    } else {
+      this.videosUrlsEdit.push(this.fb.control('', Validators.pattern(/^https?:\/\//)));
+      this.videosTitresEdit.push(this.fb.control(''));
+    }
+  }
+
+  removeVideoRow(index: number, form: 'create' | 'edit'): void {
+    if (form === 'create') {
+      this.videosUrlsCreate.removeAt(index);
+      this.videosTitresCreate.removeAt(index);
+    } else {
+      this.videosUrlsEdit.removeAt(index);
+      this.videosTitresEdit.removeAt(index);
+    }
+  }
+
   onCreateSubmit(): void {
     if (this.createForm.invalid) {
-      // Afficher quels champs sont invalides
-      Object.keys(this.createForm.controls).forEach(key => {
-        const control = this.createForm.get(key);
-        if (control?.invalid) {
-          console.log(`Champ invalide: ${key}`, control.errors);
-        }
-      });
-
       this.createForm.markAllAsTouched();
       return;
     }
 
-    const formData = this.buildFormData(this.createForm, this.createImagePreviews);
+    const formData = new FormData();
+    formData.append('nom', this.createForm.value.nom);
+    if (this.createForm.value.description) {
+      formData.append('description', this.createForm.value.description);
+    }
+    formData.append('prix', this.createForm.value.prix);
+    if (this.createForm.value.prixPromo) {
+      formData.append('prixPromo', this.createForm.value.prixPromo);
+    }
+    formData.append('stock', this.createForm.value.stock);
+    formData.append('enPromotion', this.createForm.value.enPromotion ? '1' : '0');
 
-    // Vérification supplémentaire
-    if (!formData.has('type_categorie_id')) {
-      console.error('type_categorie_id toujours absent après buildFormData!');
-      this.errorMessage = 'Erreur: type de catégorie non sélectionné';
-      return;
+    // ✅ Envoyer type_categorie_id seulement s'il a une valeur
+    const typeCategorieId = this.createForm.value.type_categorie_id;
+    if (typeCategorieId != null) {
+      formData.append('type_categorie_id', typeCategorieId);
+    }
+
+    // Images
+    this.createImagePreviews.forEach(preview => {
+      formData.append('images[]', preview.file);
+    });
+
+    // Vidéo (une seule URL)
+    if (this.videosUrlsCreate.length > 0 && this.videosUrlsCreate.at(0).value) {
+      formData.append('video', this.videosUrlsCreate.at(0).value);
     }
 
     this.produitService.createProduit(formData).subscribe({
       next: () => {
         this.successMessage = 'Produit créé avec succès.';
         this.closeCreateModal();
-        this.loadProduits(this.currentPage);
+        this.loadProduits();
       },
       error: (err) => {
-        this.handleError(err);
+        if (err.status === 422 && err.error.errors) {
+          this.validationErrors = Object.values(err.error.errors).flat() as string[];
+        } else {
+          this.errorMessage = 'Erreur lors de la création.';
+        }
+        console.error(err);
       }
     });
   }
 
-  // -------------------- Mise à jour d'un produit --------------------
+  // ──────────────────────────────────────────────────────────────────────────
+  // CRUD Édition
+  // ──────────────────────────────────────────────────────────────────────────
+
+  openEditModal(produit: ProduitSport): void {
+    this.selectedProduit = produit;
+    this.showEditModal = true;
+    this.existingMediaToDelete = [];
+    this.existingMedias = [];
+    this.editForm.patchValue({
+      nom: produit.nom,
+      description: produit.description,
+      prix: produit.prix,
+      prixPromo: produit.prixPromo,
+      stock: produit.stock,
+      enPromotion: produit.enPromotion,
+      type_categorie_id: produit.type_categorie_id
+    });
+    this.loadExistingMedias(produit.id);
+    this.editImagePreviews = [];
+    this.videosUrlsEdit.clear();
+    this.videosTitresEdit.clear();
+  }
+
+  loadExistingMedias(produitId: number): void {
+    this.produitService.getMedias(produitId).subscribe({
+      next: (data: MediasResponse) => {
+        this.existingMedias = data.medias.map(m => ({
+          ...m,
+          id: m.path || m.url,
+          titre: '',
+          est_principal: false
+        }));
+      },
+      error: (err) => console.error('Erreur chargement médias', err)
+    });
+  }
+
+  onCheckboxChange(event: Event, path: string): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) this.existingMediaToDelete.push(path);
+    else this.existingMediaToDelete = this.existingMediaToDelete.filter(p => p !== path);
+  }
+
+  setPrincipal(mediaId: string): void { } // non implémenté
+
   onUpdateSubmit(): void {
-    if (this.editForm.invalid || !this.selectedProduit) {
-      this.editForm.markAllAsTouched();
-      return;
+    if (this.editForm.invalid || !this.selectedProduit) return;
+
+    const formData = new FormData();
+    formData.append('nom', this.editForm.value.nom);
+    if (this.editForm.value.description) {
+      formData.append('description', this.editForm.value.description);
+    }
+    formData.append('prix', this.editForm.value.prix);
+    if (this.editForm.value.prixPromo) {
+      formData.append('prixPromo', this.editForm.value.prixPromo);
+    }
+    formData.append('stock', this.editForm.value.stock);
+    formData.append('enPromotion', this.editForm.value.enPromotion ? '1' : '0');
+
+    // ✅ Envoyer type_categorie_id seulement s'il a une valeur
+    const typeCategorieId = this.editForm.value.type_categorie_id;
+    if (typeCategorieId != null) {
+      formData.append('type_categorie_id', typeCategorieId);
     }
 
-    const formData = this.buildFormData(this.editForm, this.editImagePreviews);
-    this.existingMediaToDelete.forEach(id => formData.append('medias_a_supprimer[]', id.toString()));
+    // Images à supprimer
+    this.existingMediaToDelete.forEach(path => {
+      formData.append('images_a_supprimer[]', path);
+    });
+
+    // Nouvelles images
+    this.editImagePreviews.forEach(preview => {
+      formData.append('images[]', preview.file);
+    });
+
+    // Nouvelle vidéo (une seule)
+    if (this.videosUrlsEdit.length > 0 && this.videosUrlsEdit.at(0).value) {
+      formData.append('video', this.videosUrlsEdit.at(0).value);
+    }
 
     this.produitService.updateProduit(this.selectedProduit.id, formData).subscribe({
       next: () => {
-        this.successMessage = 'Produit mis à jour avec succès.';
+        this.successMessage = 'Produit mis à jour.';
         this.closeEditModal();
-        this.loadProduits(this.currentPage);
+        this.loadProduits();
       },
       error: (err) => {
-        this.handleError(err);
+        if (err.status === 422 && err.error.errors) {
+          this.validationErrors = Object.values(err.error.errors).flat() as string[];
+        } else {
+          this.errorMessage = 'Erreur lors de la mise à jour.';
+        }
+        console.error(err);
       }
     });
   }
 
-  // -------------------- Suppression d'un produit --------------------
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.selectedProduit = null;
+    this.existingMedias = [];
+    this.existingMediaToDelete = [];
+    this.editImagePreviews = [];
+    this.videosUrlsEdit.clear();
+    this.videosTitresEdit.clear();
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // CRUD Suppression
+  // ──────────────────────────────────────────────────────────────────────────
+
+  openDeleteModal(produit: ProduitSport): void {
+    this.produitToDelete = produit;
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.produitToDelete = null;
+  }
+
   confirmDelete(): void {
     if (!this.produitToDelete) return;
     this.produitService.deleteProduit(this.produitToDelete.id).subscribe({
-      next: (res) => {
-        this.successMessage = res.message || 'Produit supprimé.';
+      next: () => {
+        this.successMessage = 'Produit supprimé.';
         this.closeDeleteModal();
-        this.loadProduits(this.currentPage);
-        this.produitToDelete = null;
+        this.loadProduits();
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de la suppression.';
+        this.errorMessage = 'Erreur lors de la suppression.';
+        console.error(err);
       }
     });
   }
 
-  // -------------------- Construction FormData --------------------
+  // ──────────────────────────────────────────────────────────────────────────
+  // Galerie
+  // ──────────────────────────────────────────────────────────────────────────
 
-  private buildFormData(form: FormGroup, imagePreviews: { file: File }[]): FormData {
-    const formData = new FormData();
-    formData.append('nom', form.get('nom')?.value);
-    formData.append('description', form.get('description')?.value || '');
-    formData.append('prix', form.get('prix')?.value);
-    if (form.get('prixPromo')?.value) formData.append('prixPromo', form.get('prixPromo')?.value);
-    formData.append('stock', form.get('stock')?.value);
-    formData.append('enPromotion', form.get('enPromotion')?.value ? '1' : '0');
-
-    if (form.get('type_categorie_id')?.value) {
-      formData.append('type_categorie_id', form.get('type_categorie_id')?.value);
-    }
-
-    imagePreviews.forEach(item => formData.append('images[]', item.file));
-
-    const urls = form.get('videos_urls') as FormArray;
-    const titres = form.get('videos_titres') as FormArray;
-    urls.controls.forEach((ctrl, index) => {
-      if (ctrl.value) {
-        formData.append('videos_urls[]', ctrl.value);
-        formData.append('videos_titres[]', titres.at(index)?.value || '');
+  openGalleryModal(produitId: number, nom: string): void {
+    this.galleryProduitNom = nom;
+    this.showGalleryModal = true;
+    this.currentMediaIndex = 0;
+    this.produitService.getMedias(produitId).subscribe({
+      next: (data: MediasResponse) => {
+        this.galleryMedias = data.medias.map(m => ({
+          type: m.type,
+          url: m.url,
+          thumbnail: m.type === 'video' ? this.produitService.getYouTubeThumbnail(m.url) || undefined : m.url,
+          titre: ''
+        }));
+        if (this.galleryMedias.length > 0) this.selectGalleryMedia(0);
+      },
+      error: (err) => {
+        console.error(err);
+        this.closeGalleryModal();
       }
     });
-    return formData;
-  }
-  getTypeCategorie(produit: ProduitSport): string {
-    const media = produit.medias?.find(m => m.type_categorie_id);
-    return media?.type_categorie?.nom || 'Non défini';
   }
 
-  // -------------------- Gestion des erreurs --------------------
-  private handleError(err: any): void {
-    if (err.status === 422 && err.error?.errors) {
-      this.validationErrors = Object.values(err.error.errors).flat() as string[];
-    } else {
-      this.errorMessage = err.error?.message || 'Une erreur est survenue.';
-    }
-  }
-
-  closeAlert(): void {
-    this.successMessage = null;
-    this.errorMessage = null;
-    this.validationErrors = [];
-  }
-
-  // -------------------- Prévisualisation des images --------------------
-  onFileChange(event: any, type: 'create' | 'edit'): void {
-    const files = event.target.files;
-    if (!files) return;
-
-    const previews = type === 'create' ? this.createImagePreviews : this.editImagePreviews;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        previews.push({ file, url: e.target.result });
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removePreview(index: number, type: 'create' | 'edit'): void {
-    if (type === 'create') {
-      this.createImagePreviews.splice(index, 1);
-    } else {
-      this.editImagePreviews.splice(index, 1);
-    }
-  }
-
-  // -------------------- Gestion des médias existants dans edit --------------------
-  onCheckboxChange(event: any, mediaId: number): void {
-    if (event.target.checked) {
-      this.existingMediaToDelete.push(mediaId);
-    } else {
-      this.existingMediaToDelete = this.existingMediaToDelete.filter(id => id !== mediaId);
-    }
-    this.editForm.patchValue({ medias_a_supprimer: this.existingMediaToDelete });
-  }
-
-  setPrincipal(mediaId: number): void {
-    this.editForm.patchValue({ media_principal_id: mediaId });
-  }
-
-  // -------------------- Galerie --------------------
-  updateCurrentMedia(): void {
-    const media = this.galleryMedias[this.currentMediaIndex];
+  selectGalleryMedia(index: number): void {
+    const media = this.galleryMedias[index];
     if (!media) return;
-
+    this.currentMediaIndex = index;
+    this.currentMediaType = media.type;
     if (media.type === 'image') {
-      this.currentMediaType = 'image';
-      this.currentMediaUrl = media.url || null;
-    } else if (media.type === 'video_url') {
-      this.currentMediaType = 'video';
-      this.currentMediaUrl = this.sanitizer.bypassSecurityTrustResourceUrl(media.embed_url || '');
+      this.currentMediaUrl = media.url;
+    } else {
+      const embedUrl = this.produitService.getEmbedUrl(media.url);
+      this.currentMediaUrl = embedUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl) : media.url;
     }
   }
 
   galleryNav(direction: number): void {
     const newIndex = this.currentMediaIndex + direction;
-    if (newIndex >= 0 && newIndex < this.galleryMedias.length) {
-      this.currentMediaIndex = newIndex;
-      this.updateCurrentMedia();
-    }
+    if (newIndex >= 0 && newIndex < this.galleryMedias.length) this.selectGalleryMedia(newIndex);
   }
 
-  selectGalleryMedia(index: number): void {
-    this.currentMediaIndex = index;
-    this.updateCurrentMedia();
+  closeGalleryModal(): void {
+    this.showGalleryModal = false;
+    this.galleryMedias = [];
+    this.currentMediaUrl = null;
   }
 
-  getThumbnail(media: ProduitMedia): string {
-    if (media.type === 'image') return media.url || 'assets/images/placeholder.jpg';
-    if (media.type === 'video_url') return media.youtube_thumbnail || 'assets/images/video-placeholder.jpg';
-    return 'assets/images/placeholder.jpg';
-  }
-
-  // -------------------- Helpers pour l'affichage --------------------
-  getMediaPrincipal(produit: ProduitSport): ProduitMedia | undefined {
-    return produit.medias?.find(m => m.est_principal) ||
-      produit.medias?.find(m => m.type === 'image') ||
-      produit.medias?.[0];
-  }
-
-  getMediaCount(produit: ProduitSport): number {
-    return produit.medias?.length || 0;
+  getThumbnail(media: GalleryMedia): string {
+    return media.thumbnail || 'assets/images/video-placeholder.jpg';
   }
 }

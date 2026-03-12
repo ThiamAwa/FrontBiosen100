@@ -30,57 +30,36 @@ export interface CommandeResponse {
   whatsapp_message: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class CheckoutService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Soumettre une commande
-   */
+  /** Soumettre une commande */
   submitOrder(data: CheckoutData): Observable<CommandeResponse> {
     return this.http.post<CommandeResponse>(`${this.apiUrl}/checkout`, data);
   }
 
-  /**
-   * Récupérer les informations d'une commande
-   */
+  /** Récupérer les informations d'une commande */
   getOrder(orderNumber: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/checkout/confirmation/${orderNumber}`);
   }
 
-  /**
-   * Vérifier le statut d'une commande
-   */
+  /** Vérifier le statut d'une commande */
   checkOrderStatus(orderNumber: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/checkout/status/${orderNumber}`);
   }
 
-  /**
-   * Obtenir le message WhatsApp pour une commande
-   */
+  /** Obtenir le message WhatsApp pour une commande */
   getWhatsAppMessage(orderNumber: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/checkout/whatsapp/${orderNumber}`);
   }
 
-  /**
-   * Télécharger la facture PDF
-   */
+  /** Télécharger la facture PDF */
   downloadInvoice(orderNumber: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/checkout/pdf/${orderNumber}`, {
       responseType: 'blob'
     });
-  }
-  initCheckout(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/checkout/init`, data);
-  }
-  /**
-   * Confirmer le paiement et créer la commande après retour de PayDunya
-   */
-  confirmPaymentAndCreateOrder(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/checkout/confirm-payment`, data);
   }
 }

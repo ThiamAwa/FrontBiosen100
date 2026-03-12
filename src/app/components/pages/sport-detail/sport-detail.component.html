@@ -7,18 +7,13 @@
         <div class="detail-main-viewer">
           <div class="viewer-content" [ngSwitch]="getCurrentMedia()?.type">
             <!-- Image - cliquable pour lightbox -->
-            <img *ngSwitchCase="'image'"
-                 [src]="getCurrentMedia()?.url"
-                 class="img-fluid"
-                 style="max-height:450px; object-fit:contain; cursor:pointer;"
-                 (click)="openLightbox(getCurrentMedia()?.url!)"
-                 (error)="onImageError($event)">
+            <img *ngSwitchCase="'image'" [src]="getCurrentMedia()?.url" class="img-fluid"
+              style="max-height:450px; object-fit:contain; cursor:pointer;"
+              (click)="openLightbox(getCurrentMedia()?.url!)" (error)="onImageError($event)">
 
-            <!-- Vidéo - maintenant avec un bouton play comme dans témoignages -->
-            <div *ngSwitchCase="'video_url'" class="video-preview-container">
-              <img [src]="getVideoThumbnail(getCurrentMedia()!)"
-                   class="video-thumbnail"
-                   (error)="onImageError($event)">
+            <!-- Vidéo -->
+            <div *ngSwitchCase="'video'" class="video-preview-container">
+              <img [src]="getVideoThumbnail(getCurrentMedia()!)" class="video-thumbnail" (error)="onImageError($event)">
               <button class="btn-play-video-large" (click)="openVideoModal(getCurrentMedia()!)">
                 <div class="play-circle-large">
                   <i class="fas fa-play play-icon-large"></i>
@@ -50,15 +45,14 @@
 
         <!-- Vignettes -->
         <div class="thumb-strip" *ngIf="medias.length > 1">
-          <div *ngFor="let media of medias; let i = index"
-               class="thumb-item" [class.thumb-active]="i === currentIndex"
-               (click)="goToMedia(i)">
+          <div *ngFor="let media of medias; let i = index" class="thumb-item" [class.thumb-active]="i === currentIndex"
+            (click)="goToMedia(i)">
             <ng-container [ngSwitch]="media.type">
               <!-- Vignette image -->
               <img *ngSwitchCase="'image'" [src]="media.url" loading="lazy" (error)="onImageError($event)">
 
               <!-- Vignette vidéo -->
-              <div *ngSwitchCase="'video_url'" class="thumb-video">
+              <div *ngSwitchCase="'video'" class="thumb-video">
                 <img [src]="getVideoThumbnail(media)" (error)="onImageError($event)">
                 <div class="thumb-yt-overlay">
                   <i class="fab fa-youtube text-danger"></i>
@@ -86,13 +80,13 @@
       </ng-template>
     </div>
 
-    <!-- Infos produit (inchangé) -->
+    <!-- Infos produit -->
     <div class="col-lg-5">
       <div class="sticky-top" style="top:20px;">
         <!-- Badges catégorie/promo -->
         <div class="mb-3 d-flex gap-2">
-          <span class="badge bg-success" *ngIf="produit.categorie">
-            <i class="fas fa-tshirt me-1"></i>{{ produit.categorie.nom }}
+          <span class="badge bg-success" *ngIf="produit.typeCategorie">
+            <i class="fas fa-tag me-1"></i>{{ produit.typeCategorie.nom }}
           </span>
           <span class="badge bg-danger" *ngIf="produit.enPromotion">
             <i class="fas fa-fire me-1"></i>En promotion
@@ -115,7 +109,7 @@
         </div>
 
         <!-- Stock -->
-        <div class="mb-4">
+        <!-- <div class="mb-4">
           <span class="badge" [ngClass]="getStockStatus().class">
             <i class="fas" [ngClass]="{
               'fa-check-circle': produit.stock > 10,
@@ -124,7 +118,7 @@
             }"></i>
             {{ getStockStatus().text }}
           </span>
-        </div>
+        </div> -->
 
         <!-- Description -->
         <div class="mb-4" *ngIf="produit.description">
@@ -134,8 +128,7 @@
 
         <!-- Boutons -->
         <div class="d-grid gap-3">
-          <button class="btn btn-lg btn-success rounded-pill"
-                  [disabled]="produit.stock <= 0">
+          <button class="btn btn-lg btn-success rounded-pill" [disabled]="produit.stock <= 0">
             <i class="fas fa-shopping-bag me-2"></i>
             {{ produit.stock > 0 ? 'Ajouter au panier' : 'Rupture de stock' }}
           </button>
@@ -160,14 +153,14 @@
   {{ error }}
 </div>
 
-<!-- MODAL VIDÉO (comme dans témoignages) -->
+<!-- MODAL VIDÉO -->
 <div class="modal-video-overlay" [class.active]="showVideoModal" (click)="closeVideoModal()">
   <div class="modal-video-box" (click)="$event.stopPropagation()">
     <button class="modal-video-close" (click)="closeVideoModal()">&times;</button>
     <div class="modal-video-container">
       <iframe *ngIf="currentVideoUrl" [src]="currentVideoUrl"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
       </iframe>
       <div *ngIf="!currentVideoUrl" class="video-error-placeholder">
         <i class="fas fa-video fa-3x" style="color:#ffc107;"></i>

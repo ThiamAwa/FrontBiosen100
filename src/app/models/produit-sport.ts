@@ -1,35 +1,26 @@
-export interface ProduitMedia {
-  id: number;
-  type: 'image' | 'video_url';
-  chemin?: string;
-  url?: string;
-  url_externe?: string;
-  embed_url?: string;
-  youtube_thumbnail?: string;
-  titre?: string;
-  est_principal: boolean;
-  ordre: number;
-}
-
-export interface Categorie {
-  id: number;
-  nom: string;
-}
+import { TypeCategorie } from './type-categorie';
 
 export interface ProduitSport {
   id: number;
   nom: string;
-  description?: string;
+  description: string | null;
   prix: number;
-  prixPromo?: number;
+  prixPromo: number | null;
   stock: number;
   enPromotion: boolean;
-  image?: string;
-  categorie_id?: number;
-  categorie?: Categorie;
-  medias?: ProduitMedia[];
-  created_at: string;
-  avis?: any[];
+  noteProduit: number | null;
+  ordre: number;
+  type_categorie_id: number | null;
+  image: string[];        // ✅ JSON array — PAS un string
+  video: string | null;
+  typeCategorie?: TypeCategorie | null;
+  created_at?: string;          // ✅ optionnel — pas toujours retourné
+  updated_at?: string;          // ✅ optionnel
+
+  // Champs calculés par le service (non en BDD)
+  imageUrls?: string[];
+  embedUrl?: string | null;
+  thumbnail?: string | null;
 }
 
 export interface ProduitSportResponse {
@@ -40,5 +31,23 @@ export interface ProduitSportResponse {
     per_page: number;
     total: number;
   };
-  categories: Categorie[];
+  typeCategories: TypeCategorie[];
 }
+
+export interface MediaItem {
+  type: 'image' | 'video'; // ✅ PAS 'video_url'
+  url: string;
+  path?: string;
+}
+
+export interface MediasResponse {
+  produit: { id: number; nom: string; typeCategorie: string | null };
+  medias: {
+    type: 'image' | 'video';
+    url: string;
+    path?: string;
+  }[];
+}
+
+
+export type ProduitMedia = MediasResponse['medias'][number];

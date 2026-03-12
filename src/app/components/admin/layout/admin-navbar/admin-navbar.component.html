@@ -27,8 +27,8 @@
         </button>
     </div>
 
-    <!-- ── User Dropdown ── -->
-    <div class="user-dropdown me-3" (click)="$event.stopPropagation()">
+    <!-- ── User Dropdown (avec #dropdownContainer) ── -->
+    <div class="user-dropdown me-3" #dropdownContainer>
 
         <!-- Trigger -->
         <button class="user-trigger" (click)="toggleDropdown($event)">
@@ -63,11 +63,11 @@
 
             <!-- Actions -->
             <div class="user-menu-body">
-                <a routerLink="/admin/dashboard" class="user-menu-item" (click)="dropdownOpen = false">
+                <a routerLink="/" class="user-menu-item" (click)="dropdownOpen = false">
                     <span class="menu-item-icon green">
                         <i class="fas fa-tachometer-alt"></i>
                     </span>
-                    <span>Dashboard</span>
+                    <span>Acceuil</span>
                 </a>
 
                 <a routerLink="/admin/profile" class="user-menu-item" (click)="dropdownOpen = false">

@@ -383,249 +383,371 @@ export class FacturesComponent implements OnInit {
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════
-  // PDF individuel — design vert #287747 (style Commandes)
+// ══════════════════════════════════════════════════════════════════
+  // PDF individuel — design fidèle à la facture Blade invoice.blade.php
   // ══════════════════════════════════════════════════════════════════
   downloadPdf(facture: Facture): void {
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-    // ── Palette verte (style Commandes) ──────────────────────────
-    const VF = [40, 119, 71] as [number, number, number]; // vert foncé  #287747
-    const VM = [29, 92, 53] as [number, number, number]; // vert mid    #1d5c35
-    const VL = [209, 250, 229] as [number, number, number]; // vert clair  #d1fae5
-    const VT = [240, 253, 244] as [number, number, number]; // vert très clair #f0fdf4
-    const W = [255, 255, 255] as [number, number, number]; // blanc
-    const N = [17, 24, 39] as [number, number, number]; // noir texte  #111827
-    const S = [107, 114, 128] as [number, number, number]; // gris slate  #6b7280
-    const SL = [148, 163, 184] as [number, number, number]; // slate light
-    const F = [248, 250, 252] as [number, number, number]; // slate-50
+    // ── Palette ──────────────────────────────────────────────────
+    const VF  = [40, 119, 71]   as [number, number, number]; // #287747 vert principal
+    const VL  = [209, 250, 229] as [number, number, number]; // #d1fae5 vert clair
+    const VT  = [244, 249, 246] as [number, number, number]; // #f4f9f6 vert très clair
+    const W   = [255, 255, 255] as [number, number, number]; // blanc
+    const N   = [45,  45,  45]  as [number, number, number]; // #2d2d2d texte principal
+    const S   = [85,  85,  85]  as [number, number, number]; // #555 texte secondaire
+    const SL  = [150, 150, 150] as [number, number, number]; // gris léger
+    const BDR = [224, 224, 224] as [number, number, number]; // #e0e0e0 bordure
 
     const tc = (c: [number, number, number]) => doc.setTextColor(c[0], c[1], c[2]);
     const fc = (c: [number, number, number]) => doc.setFillColor(c[0], c[1], c[2]);
     const dc = (c: [number, number, number]) => doc.setDrawColor(c[0], c[1], c[2]);
+    const lw = (w: number) => doc.setLineWidth(w);
 
-    const client = this.getClientInfo(facture);
+    // ── Formatage montant sans caractère spécial ──────────────
+    const fmt = (n: number): string =>
+      Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+    const client   = this.getClientInfo(facture);
     const produits = this.getProduits(facture);
-    const montant = this.getMontant(facture);
-    const numCmd = facture.commande?.numeroCommande
+    const montant  = this.getMontant(facture);
+    const frais    = facture.metadonnees?.frais_livraison ?? 0;
+    const sousTotal = montant - frais;
+    const numCmd   = facture.commande?.numeroCommande
       ?? `CMD-${facture.numero_facture.replace('FAC-', '')}`;
+    const dateEmission = this.formatDate(facture.date_emission);
+    const dateEcheance = this.formatDate(facture.date_echeance);
+    const now    = new Date();
+    const dateGen = this.formatDate(now.toISOString())
+      + ' ' + String(now.getHours()).padStart(2, '0')
+      + ':' + String(now.getMinutes()).padStart(2, '0');
 
-    const PW = doc.internal.pageSize.getWidth();
-    const PH = doc.internal.pageSize.getHeight();
-    const m = 15;
+    const PW = doc.internal.pageSize.getWidth();  // 210 mm
+    const PH = doc.internal.pageSize.getHeight(); // 297 mm
+    const m  = 15;
+    const CW = PW - m * 2; // 180 mm
+    const pad = 5;
 
-    // ── Fond blanc ───────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // FOND BLANC GLOBAL
+    // ════════════════════════════════════════════════════════════
     fc(W); doc.rect(0, 0, PW, PH, 'F');
 
-    // ── Header vert (gradient simulé : bande foncée en bas) ──────
-    fc(VF); doc.rect(0, 0, PW, 42, 'F');
-    fc(VM); doc.rect(0, 38, PW, 4, 'F');
+    // ════════════════════════════════════════════════════════════
+    // HEADER — fond blanc + bande verte 3 mm en bas
+    // ════════════════════════════════════════════════════════════
+    const headerH = 38;
+    fc(VF); doc.rect(0, headerH, PW, 3, 'F');
 
-    // ── Logo image (si disponible) sinon cercle vert ──────────────
+    // ── Logo / Société (gauche) ───────────────────────────────
     if (this.logoBase64) {
-      doc.addImage(this.logoBase64, 'JPEG', m, 6, 20, 20);
+      doc.addImage(this.logoBase64, 'JPEG', m, 8, 18, 18);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(16); tc(VF);
+      doc.text('BIOSEN100', m + 22, 17);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(S);
+      doc.text('Dakar, Sénégal, Yoff', m + 22, 23);
+      doc.text('77 451 03 13', m + 22, 29);
     } else {
-      fc(W); doc.circle(m + 10, 16, 10, 'F');
-      fc(VF); doc.circle(m + 10, 16, 7, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(4); tc(W);
-      doc.text('SEN BIO', m + 10, 14.5, { align: 'center' });
-      doc.text('YOFF', m + 10, 17.5, { align: 'center' });
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(22); tc(VF);
+      doc.text('BIOSEN100', m, 22);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(S);
+      doc.text('Dakar, Sénégal, Yoff', m, 29);
+      doc.text('77 451 03 13', m, 34);
     }
 
-    // ── Nom société ───────────────────────────────────────────────
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); tc(W);
-    doc.text('BIOSEN100', m + 26, 14);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc([209, 250, 229]);
-    doc.text('Sen Bio Yoff  •  Yoff  •  774510313', m + 26, 20);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc([187, 247, 208]);
-    doc.text('www.biosen100.com', m + 26, 26);
+    // ── FACTURE + numéro + date (droite) ─────────────────────
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(26); tc(VF);
+    doc.text('FACTURE', PW - m, 18, { align: 'right' });
 
-    // ── FACTURE title + numéro (droite) ───────────────────────────
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc([187, 247, 208]);
-    doc.text('FACTURE', PW - m, 12, { align: 'right' });
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); tc(W);
-    doc.text(facture.numero_facture, PW - m, 22, { align: 'right' });
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); tc(N);
+    doc.text(facture.numero_facture, PW - m, 27, { align: 'right' });
 
-    // Date d'émission (droite)
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc([209, 250, 229]);
-    doc.text('Date d\'émission', PW - 55, 30);
-    doc.setFont('helvetica', 'bold'); tc(W);
-    doc.text(this.formatDate(facture.date_emission), PW - m, 30, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tc(S);
+    doc.text(`Date d'émission : ${dateEmission}`, PW - m, 34, { align: 'right' });
 
-    // ── Stripe colorée sous le header ────────────────────────────
-    fc([52, 211, 153]); doc.rect(0, 42, PW, 2.5, 'F');
+    // ════════════════════════════════════════════════════════════
+    // INFO-BAND — fond vert très clair, deux colonnes
+    // ════════════════════════════════════════════════════════════
+    const ibY = headerH + 3 + 6;
+    const ibH = 38;
 
-    // ── Zone DOIT + REF.CDE ───────────────────────────────────────
-    const zY = 52;
+    fc(VT); dc(BDR); lw(0.1);
+    doc.roundedRect(m, ibY, CW, ibH, 3, 3, 'FD');
 
-    // Bloc DOIT (gauche) — bordure gauche verte
-    fc(VF); doc.rect(m, zY, 2, 45, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(VF);
-    doc.text('DOIT', m + 5, zY + 7);
+    // ── Colonne gauche : ÉMIS ─────────────────────────────────
+    // Label "ÉMIS" + ligne décorative verte
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(VF);
+    doc.text('ÉMIS', m + pad, ibY + 7);
+    dc(VF); lw(0.4);
+    doc.line(m + pad, ibY + 9, m + pad + 14, ibY + 9);
 
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); tc(N);
-    doc.text(client.nomComplet || 'Client', m + 5, zY + 16);
+    // Nom client en gras noir
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); tc(N);
+    doc.text(
+      (client.nomComplet || 'Client').toUpperCase(),
+      m + pad, ibY + 17
+    );
 
-    let cy = zY + 24;
+    // Téléphone + adresse
+    let cly = ibY + 24;
     if (client.telephone) {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); tc(S);
-      doc.text(client.telephone, m + 5, cy);
-      cy += 8;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); tc(S);
+      doc.text(client.telephone, m + pad, cly);
+      cly += 6;
     }
     if (client.adresse) {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); tc(S);
-      const adr = doc.splitTextToSize(client.adresse, 70);
-      doc.text(adr[0], m + 5, cy);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tc(S);
+      const adrLines = doc.splitTextToSize(client.adresse, 85);
+      doc.text(adrLines[0], m + pad, cly);
     }
 
-    // Bloc REF.CDE (droite) — tableau d'infos
-    const bx = m + 95;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(VF);
-    doc.text('REF.CDE', bx, zY + 7);
+    // ── Colonne droite : RÉF. COMMANDE ───────────────────────
+    // Label "RÉF. COMMANDE" aligné à droite + ligne décorative
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(VF);
+    doc.text('RÉF. COMMANDE', PW - m - pad, ibY + 7, { align: 'right' });
+    dc(VF); lw(0.4);
+    doc.line(PW - m - pad - 32, ibY + 9, PW - m - pad, ibY + 9);
+
+    // Numéro commande en grand vert gras aligné à droite
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(15); tc(VF);
+    doc.text(numCmd, PW - m - pad, ibY + 21, { align: 'right' });
+
+    // ════════════════════════════════════════════════════════════
+    // REFS TABLE — Zone, Tél, Échéance, Statut
+    // ════════════════════════════════════════════════════════════
+    const refY   = ibY + ibH + 6;
+    const refH   = 9;
+    const labelW = 50; // largeur colonne label
 
     const refRows = [
-      { label: 'REF', value: numCmd },
-      { label: 'TRANSACTION', value: 'Livraison' },
-      { label: 'ÉCHÉANCE', value: this.formatDate(facture.date_echeance) },
-      { label: 'STATUT', value: this.getStatutLabel(facture.statut_paiement).toUpperCase() },
+      {
+        label: 'ZONE / VILLE',
+        value: facture.commande?.ville_zone || (facture.metadonnees?.pays ?? '—')
+      },
+      {
+        label: 'TÉL. LIVRAISON',
+        value: client.telephone || '—'
+      },
+      // {
+      //   label: 'ÉCHÉANCE',
+      //   value: dateEcheance
+      // },
+      // {
+      //   label: 'STATUT PAIEMENT',
+      //   value: this.getStatutLabel(facture.statut_paiement).toUpperCase()
+      // },
     ];
-    let ry = zY + 14;
+
+    // Bordure extérieure arrondie
+    dc(BDR); lw(0.2);
+    doc.roundedRect(m, refY, CW, refRows.length * refH, 3, 3, 'D');
+
     refRows.forEach((row, idx) => {
-      // fond alterné
-      if (idx % 2 === 0) {
-        fc(F); dc([226, 232, 240]); doc.setLineWidth(0.2);
-        doc.rect(bx, ry - 4, PW - m - bx, 9, 'F');
-      }
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(N);
-      doc.text(row.label, bx + 3, ry + 2);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+      const rowY = refY + idx * refH;
 
-      // Couleur statut pour la valeur STATUT
-      if (row.label === 'STATUT') {
-        const statC: Record<string, [number, number, number]> = {
-          'PAYÉ': VF, 'IMPAYÉ': [185, 28, 28], 'EN ATTENTE': [146, 64, 14]
+      // Fond vert très clair sur la cellule label
+      fc(VT);
+      doc.rect(m + 0.1, rowY + 0.1, labelW, refH - 0.2, 'F');
+
+      // Séparateur horizontal (sauf dernier)
+      if (idx < refRows.length - 1) {
+        dc([232, 232, 232]); lw(0.15);
+        doc.line(m, rowY + refH, m + CW, rowY + refH);
+      }
+
+      // Label vert gras
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(VF);
+      doc.text(row.label, m + 3, rowY + refH / 2 + 2.5);
+
+      // Valeur — couleur selon statut paiement
+      let valColor: [number, number, number] = N;
+      if (row.label === 'STATUT PAIEMENT') {
+        const sc: Record<string, [number, number, number]> = {
+          'PAYÉ':       VF,
+          'IMPAYÉ':     [185, 28, 28],
+          'EN ATTENTE': [146, 64, 14],
         };
-        tc(statC[row.value] ?? S);
-      } else {
-        tc(N);
+        valColor = sc[row.value] ?? S;
       }
-      doc.text(row.value, PW - m - 3, ry + 2, { align: 'right' });
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(valColor);
+      doc.text(row.value, m + CW - 3, rowY + refH / 2 + 2.5, { align: 'right' });
 
-      // Séparateur
-      dc([209, 250, 229]); doc.setLineWidth(0.2);
-      doc.line(bx, ry + 5, PW - m, ry + 5);
-      ry += 10;
+      // Séparateur vertical label | valeur
+      dc([220, 220, 220]); lw(0.15);
+      doc.line(m + labelW, rowY, m + labelW, rowY + refH);
     });
 
-    // ── Séparateur avant tableau produits ────────────────────────
-    const tY = zY + 52;
-    dc([209, 250, 229]); doc.setLineWidth(0.3);
-    doc.line(m, tY - 3, PW - m, tY - 3);
+    // ════════════════════════════════════════════════════════════
+    // TABLEAU PRODUITS
+    // ════════════════════════════════════════════════════════════
+    const tY  = refY + refRows.length * refH + 8;
+    const thH = 9;
 
-    // ── Header tableau produits ───────────────────────────────────
-    fc(VF); doc.rect(m, tY, PW - m * 2, 10, 'F');
+    // Header vert
+    fc(VF); doc.rect(m, tY, CW, thH, 'F');
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(W);
-    doc.text('DÉSIGNATION', m + 8, tY + 6.5);
-    doc.text('QTÉ', m + 112, tY + 6.5, { align: 'center' });
-    doc.text('PRIX UNIT.', m + 140, tY + 6.5, { align: 'center' });
-    doc.text('MONTANT', PW - m - 4, tY + 6.5, { align: 'right' });
+    doc.text('DÉSIGNATION', m + 14,         tY + 6);
+    doc.text('QTÉ',         m + CW * 0.62,  tY + 6, { align: 'center' });
+    doc.text('PRIX UNIT.',  m + CW * 0.77,  tY + 6, { align: 'center' });
+    doc.text('MONTANT',     m + CW - 3,     tY + 6, { align: 'right' });
 
-    // ── Lignes produits ───────────────────────────────────────────
-    let py = tY + 10;
+    // Lignes produits
+    const rowH = 11;
+    let py = tY + thH;
+
     produits.forEach((p, i) => {
-      const rowH = 12;
       const total = p.prix * p.quantite;
 
-      // Fond alterné blanc / vert très clair
-      if (i % 2 === 0) { fc(W); } else { fc(VT); }
-      doc.rect(m, py, PW - m * 2, rowH, 'F');
+      // Fond alterné
+      fc(i % 2 === 0 ? W : VT);
+      doc.rect(m, py, CW, rowH, 'F');
 
-      // Numéro ligne — badge vert
-      fc(VF); doc.roundedRect(m + 2, py + 2.5, 8, 7, 1.5, 1.5, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); tc(W);
-      doc.text(String(i + 1), m + 6, py + 7.5, { align: 'center' });
+      // Séparateur bas
+      dc([236, 236, 236]); lw(0.15);
+      doc.line(m, py + rowH, m + CW, py + rowH);
+
+      // Badge numéro vert
+      fc(VF);
+      doc.roundedRect(m + 2, py + 2, 7, 7, 1, 1, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); tc(W);
+      doc.text(String(i + 1), m + 5.5, py + 7, { align: 'center' });
 
       // Nom produit
       doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(N);
-      doc.text(p.nom, m + 13, py + rowH / 2 + 2.5);
+      doc.text(p.nom, m + 12, py + rowH / 2 + 2.5);
 
-      // Quantité — badge gris clair
+      // Quantité — badge gris
       fc([226, 232, 240]);
-      doc.roundedRect(m + 107, py + 2.5, 10, 7, 1.5, 1.5, 'F');
+      doc.roundedRect(m + CW * 0.62 - 5, py + 2, 10, 7, 1, 1, 'F');
       doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(N);
-      doc.text(String(p.quantite), m + 112, py + rowH / 2 + 2.5, { align: 'center' });
+      doc.text(String(p.quantite), m + CW * 0.62, py + rowH / 2 + 2.5, { align: 'center' });
 
       // Prix unitaire
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); tc(S);
-      doc.text(`${this.formatMontantPdf(p.prix)} F`, m + 140, py + rowH / 2 + 2.5, { align: 'center' });
+      doc.text(`${fmt(p.prix)} F`, m + CW * 0.77, py + rowH / 2 + 2.5, { align: 'center' });
 
-      // Total ligne — en gras vert
+      // Total ligne vert gras
       doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(VF);
-      doc.text(`${this.formatMontantPdf(total)} F`, PW - m - 4, py + rowH / 2 + 2.5, { align: 'right' });
+      doc.text(`${fmt(total)} F`, m + CW - 3, py + rowH / 2 + 2.5, { align: 'right' });
 
-      // Ligne séparatrice
-      dc(VL); doc.setLineWidth(0.2);
-      doc.line(m, py + rowH, PW - m, py + rowH);
       py += rowH;
     });
 
-    // ── Ligne séparatrice après tableau ──────────────────────────
-    dc([209, 250, 229]); doc.setLineWidth(0.4);
-    doc.line(m, py + 4, PW - m, py + 4);
+    // Ligne de fin tableau
+    dc(VL); lw(0.4);
+    doc.line(m, py, m + CW, py);
 
-    // ── Zone total ────────────────────────────────────────────────
-    py += 12;
+    // ════════════════════════════════════════════════════════════
+    // TOTAUX — montant en lettres (gauche) + boîte totaux (droite)
+    // ════════════════════════════════════════════════════════════
+    py += 8;
 
-    // Texte arrêté (gauche)
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); tc(S);
-    const montantEnLettres = `ARRÊTÉE LA PRÉSENTE FACTURE À LA SOMME DE`;
-    doc.text(montantEnLettres, m, py);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(N);
-    doc.text(`FRANCS ${this.formatMontantPdf(montant)} FCFA`, m, py + 6);
+    // ── Montant en lettres ────────────────────────────────────
+    const totalInt = Math.round(montant);
+    const milliers = Math.floor(totalInt / 1000);
+    const reste    = totalInt % 1000;
+    const units    = ['','un','deux','trois','quatre','cinq','six','sept','huit','neuf',
+                      'dix','onze','douze','treize','quatorze','quinze','seize',
+                      'dix-sept','dix-huit','dix-neuf','vingt'];
+    let enLettres = '';
+    if (milliers > 0 && milliers <= 20) {
+      enLettres = milliers === 1 ? 'mille' : `${units[milliers]} mille`;
+      if (reste > 0 && reste <= 20) enLettres += ` ${units[reste]}`;
+    } else {
+      enLettres = fmt(totalInt);
+    }
+    enLettres = enLettres.toUpperCase();
 
-    // Boîte total (droite) — verte
-    const bW = 80; const bH = 28;
-    const bX = PW - m - bW;
-    fc(VF); doc.roundedRect(bX, py - 8, bW, bH, 4, 4, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(SL);
+    doc.text('Arrêtée la présente facture à la somme de francs', m, py);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); tc(N);
+    doc.text(enLettres, m, py + 7);
+
+    // ── Boîte totaux (droite) ────────────────────────────────
+    const bW = 82;
+    const bX = m + CW - bW;
+    const boxH = 38;
+
+    // Fond vert très clair
+    fc(VT); dc(VL); lw(0.2);
+    doc.roundedRect(bX, py - 6, bW, boxH, 3, 3, 'FD');
+
+    // Sous-total
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); tc(S);
+    doc.text('Sous-total', bX + 5, py + 3);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(N);
+    doc.text(`${fmt(sousTotal)} FCFA`, bX + bW - 5, py + 3, { align: 'right' });
+
+    // Séparateur
+    dc([224, 236, 230]); lw(0.2);
+    doc.line(bX + 3, py + 7, bX + bW - 3, py + 7);
+
+    // Frais livraison
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); tc(S);
+    doc.text('Frais de livraison', bX + 5, py + 14);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(N);
+    doc.text(`${fmt(frais)} FCFA`, bX + bW - 5, py + 14, { align: 'right' });
+
+    // Séparateur
+    dc([224, 236, 230]); lw(0.2);
+    doc.line(bX + 3, py + 18, bX + bW - 3, py + 18);
+
+    // TOTAL GRAND — fond vert plein
+    fc(VF);
+    doc.roundedRect(bX, py + 20, bW, 13, 3, 3, 'F');
 
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc([187, 247, 208]);
-    doc.text('TOTAL À PAYER', bX + bW / 2, py - 1, { align: 'center' });
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(22); tc(W);
-    doc.text(this.formatMontantPdf(montant), bX + bW - 14, py + 12, { align: 'right' });
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); tc([187, 247, 208]);
-    doc.text('FCFA', bX + bW - 3, py + 12, { align: 'right' });
+    doc.text('TOTAL À PAYER', bX + 5, py + 27);
 
-    // ── Conditions ────────────────────────────────────────────────
-    py += bH + 6;
+    // Montant + FCFA en une seule chaîne, taille réduite pour tenir
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); tc(W);
+    doc.text(`${fmt(montant)} FCFA`, bX + bW - 4, py + 29, { align: 'right' });
 
-    // Ligne verte séparatrice
-    dc(VF); doc.setLineWidth(0.4);
-    doc.line(m, py, PW - m, py);
+    // ════════════════════════════════════════════════════════════
+    // CONDITIONS
+    // ════════════════════════════════════════════════════════════
+    py += boxH + 10;
 
-    py += 6;
+    // Ligne verte pleine
+    fc(VF); doc.rect(m, py, CW, 1.5, 'F');
+    py += 7;
+
     doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(VF);
     doc.text('CONDITIONS', m, py);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(N);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tc(N);
     doc.text(
       'Échange possible avant utilisation du produit. Aucun retour après utilisation.',
       m, py + 7
     );
 
-    // ── Pied de page ──────────────────────────────────────────────
-    const fY = PH - 16;
-    dc([209, 250, 229]); doc.setLineWidth(0.3);
-    doc.line(m, fY - 3, PW - m, fY - 3);
+    // ════════════════════════════════════════════════════════════
+    // FOOTER
+    // ════════════════════════════════════════════════════════════
+    const fY = PH - 14;
 
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); tc(S);
-    doc.text('RC : SN DKR 2022 A 6647  •  NINEA : 009221079  •  UBA : 309070004683', m, fY + 3);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(6); tc(SL);
-    const nowD = new Date();
-    const heure = `${nowD.getHours()}:${String(nowD.getMinutes()).padStart(2, '0')}`;
+    dc([224, 224, 224]); lw(0.3);
+    doc.line(m, fY - 3, m + CW, fY - 3);
+
+    // Gauche — RC / NINEA / Banque
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(S);
+    doc.text('RC : SN DKR 2022 A 6647   •   NINEA : 009221079', m, fY + 2);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(SL);
+    doc.text('Compte bancaire UBA : 309070004683', m, fY + 7);
+
+    // Droite — marque + remerciement
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); tc(VF);
+    doc.text('BIOSEN100', m + CW, fY + 2, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(SL);
+    doc.text('Merci de votre confiance', m + CW, fY + 7, { align: 'right' });
+
+    // Tampon centré
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); tc(SL);
     doc.text(
-      `Généré le ${this.formatDate(nowD.toISOString())} à ${heure}`,
-      PW - m, fY + 3, { align: 'right' }
+      `Document généré le ${dateGen} — ${facture.numero_facture}`,
+      PW / 2, fY + 12, { align: 'center' }
     );
 
+    // ── Sauvegarde ────────────────────────────────────────────
     doc.save(`facture_${facture.numero_facture}.pdf`);
     this.showSuccess('PDF téléchargé avec succès.');
   }

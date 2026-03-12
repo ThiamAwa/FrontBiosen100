@@ -1,12 +1,11 @@
-// src/app/services/accueil/home.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import {AccueilData} from '../../models/accueilData';
+import { AccueilData } from '../../models/accueilData';
 import { Produit } from '../../models/produit';
-import {Gamme} from '../../models/gamme';
-import {Categorie} from '../../models/categorie';
+import { Gamme } from '../../models/gamme';
+import { Categorie } from '../../models/categorie';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +14,7 @@ export class HomeService {
   private apiUrl = environment.apiUrl;
   private storageUrl = environment.storageUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAccueilData(): Observable<AccueilData> {
     return this.http.get<AccueilData>(`${this.apiUrl}/accueil`);
@@ -33,6 +32,10 @@ export class HomeService {
     return this.http.get(`${this.apiUrl}/accueil/gamme/${gammeId}`);
   }
 
+  filterByTypeCategorie(typeNom: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/produits-sport/type-categorie/${typeNom}`);
+  }
+
   getImageUrl(imagePath?: string): string {
     if (!imagePath) return 'assets/img/biosen/default-product.png';
     if (imagePath.startsWith('http')) return imagePath;
@@ -48,6 +51,8 @@ export class HomeService {
       maximumFractionDigits: 0
     }).format(price).replace('XOF', 'FCFA');
   }
+
+
 
   calculateDiscount(original?: number, promo?: number): number {
     if (!original || !promo || original <= 0) return 0;

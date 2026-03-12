@@ -284,24 +284,104 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
   // ─── Export Excel ─────────────────────────────────────────────────────────
-
+  // ── Construit les données manuellement (ne dépend plus du DOM)
+  // ══════════════════════════════════════════════════════════════════════════
   exportExcel(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
-      const table = document.getElementById('commandesTable') as HTMLTableElement;
-      if (!table) { alert('Erreur: Tableau non trouvé'); return; }
+      if (this.commandes.length === 0) { alert('Aucune commande à exporter.'); return; }
 
-      const clonedTable = table.cloneNode(true) as HTMLTableElement;
-      this.removeColumn(clonedTable, 7); // Actions
-      clonedTable.querySelectorAll('td').forEach(td => {
-        const badge = td.querySelector('.badge');
-        if (badge) td.innerHTML = badge.textContent || '';
+      // ── Feuille principale : une ligne par commande ──────────────────────
+      const dataCommandes = this.commandes.map(c => {
+        const produits = this.getProduits(c);
+        const produitsStr = produits.length
+          ? produits.map(p => `${p.quantite}x ${p.nom} (${p.prix.toLocaleString('fr')} F)`).join(' | ')
+          : '—';
+        const adresse = [
+          c.adresse_client,
+          c.ville_zone,
+          c.region,
+          c.code_postal,
+          c.pays
+        ].filter(Boolean).join(', ') || '—';
+
+        return {
+          'N° Commande': c.numeroCommande,
+          'Client': c.user ? `${c.user.prenom ?? ''} ${c.user.nom ?? ''}`.trim() : '—',
+          'Téléphone': c.user?.telephone ?? '—',
+          'Produits commandés': produitsStr,
+          'Montant (FCFA)': Number(c.montantTotal),
+          'Date commande': this.formatDate(c.created_at),
+          'Adresse livraison': adresse,
+          'Boutique': c.boutique?.nom ?? '—',
+          'Statut': this.getStatusLabel(c.statut),
+          'Note': c.noteCommande ?? '',
+        };
       });
 
-      const ws = XLSX.utils.table_to_sheet(clonedTable);
+      const wsCommandes = XLSX.utils.json_to_sheet(dataCommandes);
+      wsCommandes['!cols'] = [
+        { wch: 18 }, // N° Commande
+        { wch: 26 }, // Client
+        { wch: 18 }, // Téléphone
+        { wch: 55 }, // Produits
+        { wch: 16 }, // Montant
+        { wch: 20 }, // Date
+        { wch: 36 }, // Adresse
+        { wch: 18 }, // Boutique
+        { wch: 14 }, // Statut
+        { wch: 30 }, // Note
+      ];
+
+      // Style header (fond vert)
+      const headerRange = XLSX.utils.decode_range(wsCommandes['!ref'] ?? 'A1');
+      for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
+        const cellAddr = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!wsCommandes[cellAddr]) continue;
+        wsCommandes[cellAddr].s = {
+          fill: { fgColor: { rgb: '287747' } },
+          font: { bold: true, color: { rgb: 'FFFFFF' } },
+          alignment: { horizontal: 'center' }
+        };
+      }
+
+      // ── Feuille détail produits : une ligne par produit ──────────────────
+      const dataProduits: Record<string, any>[] = [];
+      this.commandes.forEach(c => {
+        const produits = this.getProduits(c);
+        if (produits.length === 0) {
+          dataProduits.push({
+            'N° Commande': c.numeroCommande,
+            'Client': c.user ? `${c.user.prenom ?? ''} ${c.user.nom ?? ''}`.trim() : '—',
+            'Produit': '—',
+            'Quantité': 0,
+            'Prix unitaire (F)': 0,
+            'Total ligne (F)': 0,
+          });
+        } else {
+          produits.forEach(p => {
+            dataProduits.push({
+              'N° Commande': c.numeroCommande,
+              'Client': c.user ? `${c.user.prenom ?? ''} ${c.user.nom ?? ''}`.trim() : '—',
+              'Produit': p.nom,
+              'Quantité': p.quantite,
+              'Prix unitaire (F)': p.prix,
+              'Total ligne (F)': p.prix * p.quantite,
+            });
+          });
+        }
+      });
+
+      const wsProduits = XLSX.utils.json_to_sheet(dataProduits);
+      wsProduits['!cols'] = [
+        { wch: 18 }, { wch: 26 }, { wch: 36 }, { wch: 10 }, { wch: 18 }, { wch: 16 }
+      ];
+
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Commandes');
+      XLSX.utils.book_append_sheet(wb, wsCommandes, 'Commandes');
+      XLSX.utils.book_append_sheet(wb, wsProduits, 'Détail Produits');
       XLSX.writeFile(wb, `commandes_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (error) {
       console.error('Erreur export Excel', error);
@@ -309,56 +389,131 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ─── Préparation tableau PDF ──────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
+  // ─── Helpers tableau HTML (partagé PDF + impression) ─────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
 
-  private prepareTableForPdf(source: HTMLTableElement): HTMLTableElement {
-    const cloned = source.cloneNode(true) as HTMLTableElement;
-
-    this.removeColumn(cloned, 7); // Actions
-
-    cloned.querySelectorAll('tbody tr').forEach(tr => {
-      if (tr.querySelector('td[colspan]')) tr.remove();
-    });
-
-    cloned.querySelectorAll('td').forEach(td => {
-      const badge = td.querySelector('.badge');
-      if (badge) td.innerHTML = badge.textContent?.trim() || '';
-    });
-
-    cloned.querySelectorAll('button, .btn, i.fas, i.fa, i.far').forEach(el => el.remove());
-
-    cloned.querySelectorAll('td small').forEach(el => {
-      (el as HTMLElement).setAttribute('style',
-        'font-size:10px;color:#6b7280;display:block;');
-    });
-
-    cloned.setAttribute('style',
-      'width:100%;border-collapse:collapse;font-size:11px;font-family:Arial,sans-serif;');
-
-    cloned.querySelectorAll('th').forEach(th => {
-      (th as HTMLElement).setAttribute('style',
-        'background-color:#287747;color:#fff;padding:10px;text-align:left;' +
-        'border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;letter-spacing:0.3px;');
-    });
-
-    cloned.querySelectorAll('tbody tr').forEach((tr, i) => {
-      const bg = i % 2 === 0 ? '#f0fdf4' : '#ffffff';
-      (tr as HTMLElement).setAttribute('style', `background-color:${bg};`);
-      tr.querySelectorAll('td').forEach(td => {
-        (td as HTMLElement).setAttribute('style',
-          'padding:9px 10px;border:1px solid #d1fae5;font-size:11px;' +
-          'color:#111827;vertical-align:middle;');
-      });
-    });
-
-    return cloned;
+  private buildFilterSummary(): string {
+    const parts: string[] = [];
+    if (this.selectedStatut) parts.push(`Statut: ${this.getStatusLabel(this.selectedStatut)}`);
+    if (this.selectedMonth) {
+      const m = this.months.find(x => x.value === this.selectedMonth);
+      if (m) parts.push(`Mois: ${m.label}`);
+    }
+    if (this.selectedYear) parts.push(`Année: ${this.selectedYear}`);
+    if (this.selectedDate) parts.push(`Date: ${new Date(this.selectedDate).toLocaleDateString('fr-FR')}`);
+    if (this.searchTerm) parts.push(`Recherche: "${this.searchTerm}"`);
+    return parts.join(' | ');
   }
 
-  // ─── Construction élément PDF ─────────────────────────────────────────────
+  /** Construit le tableau HTML des commandes depuis les données (pas depuis le DOM) */
+  private buildCommandesTable(commandes: Commande[]): string {
+    const rows = commandes.map((c, i) => {
+      const produits = this.getProduits(c);
+      const bg = i % 2 === 0 ? '#f0fdf4' : '#ffffff';
 
-  private buildPdfElement(clonedTable: HTMLTableElement): HTMLElement {
+      // Produits HTML
+      const produitsHtml = produits.length
+        ? produits.map(p => `
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+              <span style="background:#287747;color:#fff;border-radius:10px;
+                padding:1px 7px;font-size:9.5px;font-weight:700;white-space:nowrap;">
+                ${p.quantite}x
+              </span>
+              <span style="font-size:10.5px;color:#1a2e25;">${p.nom}</span>
+            </div>
+            <div style="font-size:9px;color:#6b7280;padding-left:30px;margin-bottom:2px;">
+              ${p.prix.toLocaleString('fr')} F × ${p.quantite}
+              = <strong style="color:#287747;">${(p.prix * p.quantite).toLocaleString('fr')} F</strong>
+            </div>`
+        ).join('')
+        : '<span style="color:#9ca3af;font-style:italic;font-size:10px;">Aucun produit</span>';
+
+      // Adresse
+      const adresse = [c.ville_zone, c.region, c.pays].filter(Boolean).join(', ') || '—';
+
+      // Statut badge
+      const statutColors: Record<string, { bg: string; color: string }> = {
+        'en_attente': { bg: '#fef3c7', color: '#92400e' },
+        'en_cours': { bg: '#dbeafe', color: '#1e40af' },
+        'valider': { bg: '#d1fae5', color: '#064e3b' },
+      };
+      const sc = statutColors[c.statut] ?? { bg: '#f1f5f9', color: '#475569' };
+
+      return `<tr style="background:${bg};">
+        <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:11px;
+          color:#065f46;font-weight:700;font-family:monospace;white-space:nowrap;">
+          ${c.numeroCommande}
+        </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;">
+          <div style="font-size:11px;font-weight:600;color:#111827;">
+            ${c.user ? `${c.user.prenom ?? ''} ${c.user.nom ?? ''}`.trim() : '—'}
+          </div>
+          ${c.user?.telephone
+          ? `<div style="font-size:9.5px;color:#94a3b8;margin-top:2px;">${c.user.telephone}</div>`
+          : ''}
+        </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;">${produitsHtml}</td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;text-align:right;
+          font-size:11px;font-weight:700;color:#064e3b;white-space:nowrap;">
+          ${Number(c.montantTotal).toLocaleString('fr')}
+          <span style="font-size:8.5px;color:#94a3b8;font-weight:400;"> FCFA</span>
+        </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:10px;
+          color:#6b7280;font-family:monospace;white-space:nowrap;">
+          ${this.formatDate(c.created_at)}
+        </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:10px;color:#374151;">
+          ${adresse}
+        </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;">
+          ${c.boutique
+          ? `<span style="background:#dbeafe;color:#1e40af;border-radius:12px;
+                padding:2px 9px;font-size:9.5px;font-weight:600;">${c.boutique.nom}</span>`
+          : '<span style="color:#9ca3af;">—</span>'}
+        </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;text-align:center;">
+          <span style="background:${sc.bg};color:${sc.color};border-radius:12px;
+            padding:3px 10px;font-size:9.5px;font-weight:700;display:inline-block;">
+            ${this.getStatusLabel(c.statut).toUpperCase()}
+          </span>
+        </td>
+      </tr>`;
+    }).join('');
+
+    return `<table style="width:100%;border-collapse:collapse;font-size:11px;font-family:Arial,sans-serif;">
+      <thead>
+        <tr>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:left;
+            border:1px solid #1d5c35;font-size:10px;letter-spacing:.3px;">N° COMMANDE</th>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:left;
+            border:1px solid #1d5c35;font-size:10px;">CLIENT</th>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:left;
+            border:1px solid #1d5c35;font-size:10px;">PRODUITS COMMANDÉS</th>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:right;
+            border:1px solid #1d5c35;font-size:10px;">MONTANT</th>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:left;
+            border:1px solid #1d5c35;font-size:10px;">DATE</th>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:left;
+            border:1px solid #1d5c35;font-size:10px;">ADRESSE LIVRAISON</th>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:left;
+            border:1px solid #1d5c35;font-size:10px;">BOUTIQUE</th>
+          <th style="background:#287747;color:#fff;padding:10px 11px;text-align:center;
+            border:1px solid #1d5c35;font-size:10px;">STATUT</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ─── Construction élément PDF ─────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
+
+  private buildPdfElement(commandes: Commande[]): HTMLElement {
     const date = new Date().toLocaleString('fr-FR');
     const filterSummary = this.buildFilterSummary();
+    const tableHtml = this.buildCommandesTable(commandes);
 
     const element = document.createElement('div');
     element.setAttribute('style', 'font-family:Arial,sans-serif;padding:20px;background:#fff;');
@@ -385,14 +540,14 @@ export class CommandeComponent implements OnInit, AfterViewInit {
           <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);
             border-radius:8px;padding:10px 16px;">
             <div style="color:rgba(255,255,255,0.7);font-size:9px;margin-bottom:4px;">📅 ${date}</div>
-            <div style="color:#bbf7d0;font-size:18px;font-weight:800;">${this.total}</div>
-            <div style="color:rgba(255,255,255,0.65);font-size:9px;">commandes</div>
+            <div style="color:#bbf7d0;font-size:18px;font-weight:800;">${commandes.length}</div>
+            <div style="color:rgba(255,255,255,0.65);font-size:9px;">commande(s)</div>
           </div>
         </div>
       </div>
       <div style="height:4px;background:linear-gradient(to right,#287747,#34d399,#6ee7b7);
         margin-bottom:18px;"></div>
-      ${clonedTable.outerHTML}
+      ${tableHtml}
       <div style="margin-top:16px;padding-top:10px;border-top:1.5px solid #d1e7dd;
         display:flex;justify-content:space-between;align-items:center;
         font-size:9px;color:#9ca3af;">
@@ -407,16 +562,13 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     return element;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
   // ─── Export PDF ───────────────────────────────────────────────────────────
-
+  // ══════════════════════════════════════════════════════════════════════════
   exportPDF(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
-      const table = document.getElementById('commandesTable') as HTMLTableElement;
-      if (!table) { alert('Erreur: Tableau non trouvé'); return; }
       if (this.commandes.length === 0) { alert('Aucune commande à exporter.'); return; }
-
-      const clonedTable = this.prepareTableForPdf(table);
       const opt = {
         margin: [8, 8, 8, 8] as any,
         filename: `commandes_${new Date().toISOString().split('T')[0]}.pdf`,
@@ -424,25 +576,25 @@ export class CommandeComponent implements OnInit, AfterViewInit {
         html2canvas: { scale: 2, useCORS: true, allowTaint: true },
         jsPDF: { orientation: 'landscape' as const, unit: 'mm' as const, format: 'a4' }
       };
-      html2pdf().set(opt).from(this.buildPdfElement(clonedTable)).save();
+      html2pdf().set(opt).from(this.buildPdfElement(this.commandes)).save();
     } catch (error) {
       console.error('Erreur export PDF', error);
       alert('Erreur lors de l\'export PDF.');
     }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
   // ─── Impression ───────────────────────────────────────────────────────────
-
+  // ══════════════════════════════════════════════════════════════════════════
   print(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
-      const table = document.getElementById('commandesTable') as HTMLTableElement;
-      if (!table) { alert('Erreur: Tableau non trouvé'); return; }
+      if (this.commandes.length === 0) { alert('Aucune commande à imprimer.'); return; }
 
-      const clonedTable = this.prepareTableForPdf(table);
       const filterSummary = this.buildFilterSummary();
       const date = new Date().toLocaleString('fr-FR');
       const logoHtml = this.getLogoHtml('52px');
+      const tableHtml = this.buildCommandesTable(this.commandes);
 
       const printWindow = window.open('', '_blank');
       if (!printWindow) { alert('Veuillez autoriser les popups pour imprimer.'); return; }
@@ -454,28 +606,31 @@ export class CommandeComponent implements OnInit, AfterViewInit {
         <style>
           * { box-sizing:border-box; margin:0; padding:0; }
           body { font-family:Arial,sans-serif;background:#fff;padding:22px;font-size:11px; }
-          .pdf-header { display:flex;justify-content:space-between;align-items:center;
+          .pdf-header {
+            display:flex;justify-content:space-between;align-items:center;
             background:linear-gradient(135deg,#287747 0%,#1a5230 100%);
-            border-radius:10px;padding:16px 22px;margin-bottom:0; }
+            border-radius:10px;padding:16px 22px;margin-bottom:0;
+          }
           .pdf-header-left { display:flex;align-items:center;gap:14px; }
-          .pdf-title { color:white;font-size:17px;font-weight:800; }
-          .pdf-subtitle { color:rgba(255,255,255,0.65);font-size:9.5px;margin-top:2px; }
-          .pdf-stripe { height:4px;background:linear-gradient(to right,#287747,#34d399,#6ee7b7);margin-bottom:18px; }
-          .pdf-meta-box { background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);
-            border-radius:8px;padding:10px 16px;text-align:right; }
-          .pdf-meta-count { color:#bbf7d0;font-size:18px;font-weight:800; }
-          .pdf-meta-label { color:rgba(255,255,255,0.65);font-size:9px; }
-          table { width:100%;border-collapse:collapse;font-size:10.5px; }
-          thead th { background:#287747;color:white;padding:10px;text-align:left;
-            border:1px solid #1d5c35;font-weight:700;font-size:10px; }
-          tbody td { padding:9px 10px;border:1px solid #d1fae5;color:#1a2e25;vertical-align:middle; }
-          tbody tr:nth-child(even) td { background:#f0fdf4; }
-          tbody tr:nth-child(odd)  td { background:#ffffff; }
-          .pdf-footer { margin-top:16px;padding-top:10px;border-top:1.5px solid #d1e7dd;
-            display:flex;justify-content:space-between;font-size:9px;color:#9ca3af; }
+          .pdf-title       { color:white;font-size:17px;font-weight:800; }
+          .pdf-subtitle    { color:rgba(255,255,255,0.65);font-size:9.5px;margin-top:2px; }
+          .pdf-stripe      { height:4px;background:linear-gradient(to right,#287747,#34d399,#6ee7b7);margin-bottom:18px; }
+          .pdf-meta-box    {
+            background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);
+            border-radius:8px;padding:10px 16px;text-align:right;
+          }
+          .pdf-meta-count  { color:#bbf7d0;font-size:18px;font-weight:800; }
+          .pdf-meta-label  { color:rgba(255,255,255,0.65);font-size:9px; }
+          .pdf-footer {
+            margin-top:16px;padding-top:10px;border-top:1.5px solid #d1e7dd;
+            display:flex;justify-content:space-between;font-size:9px;color:#9ca3af;
+          }
           .pdf-badge { background:#287747;color:white;padding:2px 9px;border-radius:20px;
             font-size:8.5px;font-weight:700; }
-          @page { size:A4 landscape;margin:10mm; }
+          @media print {
+            @page { size:A4 landscape;margin:10mm; }
+            body { padding:0; }
+          }
         </style></head>
         <body>
           <div class="pdf-header">
@@ -491,12 +646,12 @@ export class CommandeComponent implements OnInit, AfterViewInit {
             </div>
             <div class="pdf-meta-box">
               <div style="color:rgba(255,255,255,0.7);font-size:9px;">📅 ${date}</div>
-              <div class="pdf-meta-count">${this.total}</div>
-              <div class="pdf-meta-label">commandes</div>
+              <div class="pdf-meta-count">${this.commandes.length}</div>
+              <div class="pdf-meta-label">commande(s)</div>
             </div>
           </div>
           <div class="pdf-stripe"></div>
-          ${clonedTable.outerHTML}
+          ${tableHtml}
           <div class="pdf-footer">
             <div style="display:flex;align-items:center;gap:8px;">
               <span class="pdf-badge">CONFIDENTIEL</span>
@@ -515,28 +670,6 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
-
-  private buildFilterSummary(): string {
-    const parts: string[] = [];
-    if (this.selectedStatut) parts.push(`Statut: ${this.getStatusLabel(this.selectedStatut)}`);
-    if (this.selectedMonth) {
-      const m = this.months.find(x => x.value === this.selectedMonth);
-      if (m) parts.push(`Mois: ${m.label}`);
-    }
-    if (this.selectedYear) parts.push(`Année: ${this.selectedYear}`);
-    if (this.selectedDate) parts.push(`Date: ${new Date(this.selectedDate).toLocaleDateString('fr-FR')}`);
-    if (this.searchTerm) parts.push(`Recherche: "${this.searchTerm}"`);
-    return parts.join(' | ');
-  }
-
-  private removeColumn(table: HTMLTableElement, columnIndex: number): void {
-    const rows = table.rows;
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].cells[columnIndex]) {
-        rows[i].deleteCell(columnIndex);
-      }
-    }
-  }
 
   getStatusClass(statut: string): string {
     switch (statut) {

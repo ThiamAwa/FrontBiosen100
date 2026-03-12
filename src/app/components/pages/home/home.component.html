@@ -92,60 +92,190 @@
 }
 
 <!-- ═══════════════════════════════════════════════════
-     GAMMES SWIPER
+     CATALOGUE BIOSEN 100
 ═══════════════════════════════════════════════════ -->
-<div class="container-fluid py-5" id="products">
+<div class="catalogue-section" id="products">
   <div class="container">
-    <div class="col-lg-12 text-center mb-4" data-aos="fade-up">
-      <h4 class="fw-semibold" style="color:#287747">Nos Gammes</h4>
-      <h1 class="display-5 fw-bold">Produits Biologiques</h1>
-      <p class="text-muted mb-4">Sélection de nos meilleures gammes naturelles</p>
+
+    <!-- En-tête -->
+    <div class="catalogue-header" data-aos="fade-up">
+      <div class="catalogue-badge">
+        <img src="/logo-biosen.jpeg" alt="Logo BioSen" class="catalogue-badge-logo">
+        Notre sélection
+      </div>
+      <h2 class="catalogue-title">Catalogue <span>BioSen 100</span></h2>
+      <p class="catalogue-subtitle">Gammes bio authentiques & produits sport de qualité</p>
     </div>
-    <div class="col-lg-12 text-center mb-4" data-aos="fade-up">
-      <ul class="nav nav-pills d-inline-flex text-center shadow-sm bg-white rounded-pill p-2 flex-wrap">
-        <li class="nav-item">
-          <a class="d-flex m-2 py-2 rounded-pill" [class.active]="activeGammeTab === 'all'"
-            (click)="setActiveGammeTab('all')" style="cursor: pointer;">
-            <span class="fw-semibold" style="width: 130px;">Tous</span>
-          </a>
-        </li>
-        @for (categorie of categories; track categorie.id) {
-        <li class="nav-item">
-          <a class="d-flex py-2 m-2 rounded-pill" [class.active]="activeGammeTab === categorie.id.toString()"
-            (click)="setActiveGammeTab(categorie.id.toString())" style="cursor: pointer;">
-            <span style="width: 130px;" class="fw-semibold">{{ categorie.nom }}</span>
-          </a>
-        </li>
+
+    <!-- ✅ FIX MENU : position relative + z-index élevé pour que les boutons restent cliquables -->
+    <div class="catalogue-tabs" data-aos="fade-up" style="position: relative; z-index: 10;">
+      <div class="tabs-wrapper">
+        <button class="tab-btn" [class.tab-active]="activeGammeTab === 'all'" (click)="setActiveGammeTab('all')">
+          <i class="fas fa-th-large"></i>
+          <span>Tous</span>
+        </button>
+        @for (type of typeCategories; track type.id) {
+        <button class="tab-btn" [class.tab-active]="activeGammeTab === type.id.toString()"
+          (click)="setActiveGammeTab(type.id.toString())">
+          <i class="fas fa-leaf"></i>
+          <span>{{ type.nom }}</span>
+        </button>
         }
-      </ul>
+      </div>
     </div>
-    @if (getFilteredGammes().length > 0) {
-    <div class="swiper gammes-swiper" data-aos="fade-up">
-      <div class="swiper-wrapper">
-        @for (gamme of getFilteredGammes(); track gamme.id) {
-        <div class="swiper-slide">
-          <div class="category-item">
-            <img [src]="getImageUrl(gamme.image ?? '')" [alt]="gamme.nom" loading="lazy">
-            <div class="category-overlay">
-              <h4>{{ gamme.nom }}</h4>
-              @if (gamme.description) { <p>{{ limitText(gamme.description, 60) }}</p> }
-              <button class="btn" (click)="openGammeModal(gamme)">
-                <i class="fas fa-arrow-right me-2"></i> Découvrir
-              </button>
+
+    @let content = getFilteredContent();
+
+    <!-- ── GAMMES BIO ── -->
+    @if ((content.type === 'all' || content.type === 'gammes') && content.gammes.length > 0) {
+    <div class="section-block" data-aos="fade-up">
+      <div class="section-block-header">
+        <div class="section-block-icon bio-icon">
+          <i class="fas fa-seedling"></i>
+        </div>
+        <h5 class="section-block-title">Gammes Bio</h5>
+        <div class="section-block-line"></div>
+        <span class="section-block-count">{{ content.gammes.length }} produit(s)</span>
+      </div>
+
+      <div class="products-grid">
+        @for (gamme of content.gammes; track gamme.id) {
+        <div class="product-item" data-aos="fade-up" (click)="openGammeModal(gamme)">
+          <div class="product-card">
+
+            <!-- Image -->
+            <div class="product-img-wrap">
+              <img [src]="getImageUrl(gamme.image ?? '')" [alt]="gamme.nom" loading="lazy" class="product-img">
+              <div class="product-overlay">
+                <span class="product-overlay-btn"><i class="fas fa-eye me-2"></i>Voir détails</span>
+              </div>
+              <span class="product-badge bio-badge"><i class="fas fa-leaf me-1"></i>Bio</span>
+              @if (gamme.enPromotion && gamme.prixPromo) {
+              <span class="product-promo-badge">
+                -{{ calculateDiscount(gamme.prix, gamme.prixPromo) }}%
+              </span>
+              }
             </div>
+
+            <!-- Corps -->
+            <div class="product-body">
+              <h6 class="product-name">{{ gamme.nom }}</h6>
+              @if (gamme.description) {
+              <p class="product-desc">{{ limitText(gamme.description, 65) }}</p>
+              }
+
+              <div class="product-footer">
+                <div class="product-price-block">
+                  @if (gamme.enPromotion && gamme.prixPromo) {
+                  <div class="promo-wrap">
+                    <span class="promo-tag">PROMO</span>
+                    <span class="product-price promo">{{ formatPrice(gamme.prixPromo) }} <small></small></span>
+                    <span class="product-price-old">{{ formatPrice(gamme.prix) }}</span>
+                  </div>
+                  } @else if (gamme.prix && gamme.prix > 0) {
+                  <span class="product-price">{{ formatPrice(gamme.prix) }} <small></small></span>
+                  } @else {
+                  <span class="product-price-empty">Prix sur demande</span>
+                  }
+                </div>
+                <button class="add-to-cart-btn bio-cart-btn" [class.in-cart]="isInCart(gamme.id)"
+                  (click)="addToCart(gamme, $event)">
+                  <i class="fas" [class.fa-cart-plus]="!isInCart(gamme.id)" [class.fa-check]="isInCart(gamme.id)"></i>
+                  <span>{{ isInCart(gamme.id) ? 'Ajoutez au Panier' : 'Ajouter' }}</span>
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
         }
       </div>
-      <div class="swiper-pagination"></div>
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
-    </div>
-    } @else {
-    <div class="col-12 text-center py-4">
-      <div class="alert alert-info d-inline-block"><i class="fas fa-info-circle me-2"></i>Aucune gamme disponible.</div>
     </div>
     }
+
+    <!-- ── PRODUITS SPORT ── -->
+    @if ((content.type === 'all' || content.type === 'sport') && content.produitsSport.length > 0) {
+    <div class="section-block" data-aos="fade-up">
+      <div class="section-block-header">
+        <div class="section-block-icon sport-icon">
+          <i class="fas fa-dumbbell"></i>
+        </div>
+        <h5 class="section-block-title">Produits Sport</h5>
+        <div class="section-block-line sport-line"></div>
+        <span class="section-block-count">{{ content.produitsSport.length }} produit(s)</span>
+      </div>
+
+      <div class="products-grid">
+        @for (produit of content.produitsSport; track produit.id) {
+        <div class="product-item" data-aos="fade-up">
+          <div class="product-card sport-card" (click)="openSportModal(produit)">
+
+            <!-- Image -->
+            <div class="product-img-wrap">
+              @let imageUrl = produit.imageUrls?.[0] || 'assets/img/biosen/default-product.png';
+              <img [src]="imageUrl" [alt]="produit.nom" loading="lazy" class="product-img">
+              <div class="product-overlay">
+                <span class="product-overlay-btn" (click)="openSportModal(produit); $event.stopPropagation()">
+                  <i class="fas fa-eye me-2"></i>Voir détails
+                </span>
+              </div>
+              @if (produit.typeCategorie) {
+              <span class="product-badge sport-badge">
+                <i class="fas fa-tag me-1"></i>{{ produit.typeCategorie.nom }}
+              </span>
+              }
+              @if (produit.enPromotion && produit.prixPromo) {
+              <span class="product-promo-badge">
+                -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
+              </span>
+              }
+            </div>
+
+            <!-- Corps -->
+            <div class="product-body">
+              <h6 class="product-name">{{ produit.nom }}</h6>
+              @if (produit.description) {
+              <p class="product-desc">{{ limitText(produit.description, 65) }}</p>
+              }
+
+              <div class="product-footer">
+                <div class="product-price-block">
+                  @if (produit.enPromotion && produit.prixPromo) {
+                  <div class="promo-wrap">
+                    <span class="promo-tag">PROMO</span>
+                    <span class="product-price promo">{{ formatPrice(produit.prixPromo) }}</span>
+                    <span class="product-price-old">{{ formatPrice(produit.prix) }}</span>
+                  </div>
+                  } @else {
+                  <span class="product-price">{{ formatPrice(produit.prix) }}</span>
+                  }
+                </div>
+                <button class="add-to-cart-btn sport-cart-btn" [class.in-cart]="isInCart(produit.id)"
+                  (click)="addToCart(produit, $event)">
+                  <i class="fas" [class.fa-cart-plus]="!isInCart(produit.id)"
+                    [class.fa-check]="isInCart(produit.id)"></i>
+                  <span>{{ isInCart(produit.id) ? 'Ajouter au panier' : 'Ajouter' }}</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Empty state -->
+    @if (content.gammes.length === 0 && content.produitsSport.length === 0) {
+    <div class="catalogue-empty" data-aos="fade-up">
+      <div class="catalogue-empty-icon">
+        <i class="fas fa-box-open"></i>
+      </div>
+      <p>Aucun contenu disponible pour cette catégorie.</p>
+    </div>
+    }
+
   </div>
 </div>
 
@@ -182,16 +312,12 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     TÉMOIGNAGES — juste après les gammes
+     TÉMOIGNAGES
 ═══════════════════════════════════════════════════ -->
 <div class="temoignages-section">
-
-  <!-- Fond décoratif -->
   <div class="temoignages-bg-deco"></div>
-
   <div class="container py-5" style="position:relative;z-index:2;">
 
-    <!-- En-tête -->
     <div class="text-center mx-auto mb-5" style="max-width:680px;" data-aos="fade-up">
       <span class="temo-label">
         <i class="fas fa-star me-1"></i>Avis clients
@@ -202,25 +328,19 @@
       </p>
     </div>
 
-    <!-- Spinner -->
     @if (loadingTemoignages) {
     <div class="text-center py-4">
       <div class="spinner-border text-success" role="status"><span class="visually-hidden">Chargement...</span></div>
     </div>
     }
 
-    <!-- Grille témoignages -->
     @if (!loadingTemoignages && temoignages.length > 0) {
     <div class="row g-4">
       @for (t of temoignages; track t.id; let i = $index) {
       <div class="col-lg-4 col-md-6" data-aos="fade-up" [attr.data-aos-delay]="i * 80">
         <div class="temo-card">
-
-          <!-- ── Blocs MÉDIA : vidéo + photo côte à côte si les deux existent ── -->
           @if (t.video_url || (t.images && t.images.length > 0)) {
           <div [class]="(t.video_url && t.images && t.images.length > 0) ? 'temo-media-dual' : ''">
-
-            <!-- VIDÉO -->
             @if (t.video_url) {
             <div class="temo-media temo-video-thumb" [class.temo-media-half]="t.images && t.images.length > 0"
               (click)="openVideoModal(t.video_url!)">
@@ -235,8 +355,6 @@
               <span class="temo-badge-yt"><i class="fab fa-youtube me-1"></i>Vidéo</span>
             </div>
             }
-
-            <!-- PHOTO -->
             @if (t.images && t.images.length > 0) {
             <div class="temo-media temo-photo-thumb" [class.temo-media-half]="t.video_url"
               (click)="openLightbox(t.images[0])">
@@ -249,32 +367,20 @@
               }
             </div>
             }
-
           </div>
           }
 
-          <!-- ── Corps de la card ── -->
           <div class="temo-body">
-
-            <!-- Quote décorative -->
             <i class="fas fa-quote-right temo-quote-deco"></i>
-
-            <!-- Badge gamme -->
             @if (t.gamme) {
             <span class="temo-gamme-badge">
               <i class="fas fa-layer-group me-1"></i>{{ t.gamme.nom }}
             </span>
             }
-
-            <!-- Description -->
             @if (t.description) {
             <p class="temo-desc">"{{ t.description }}"</p>
             }
-
-            <!-- Séparateur -->
             <div class="temo-sep"></div>
-
-            <!-- Auteur -->
             <div class="temo-author">
               <div class="temo-avatar">{{ getInitials(t) }}</div>
               <div>
@@ -285,20 +391,17 @@
                 </p>
                 }
               </div>
-              <!-- Étoiles -->
               <div class="temo-stars ms-auto">
                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 <i class="fas fa-star"></i><i class="fas fa-star"></i>
               </div>
             </div>
           </div>
-
         </div>
       </div>
       }
     </div>
 
-    <!-- CTA -->
     <div class="text-center mt-5" data-aos="fade-up">
       <a routerLink="/temoignages" class="btn temo-cta-btn">
         <i class="fas fa-comments me-2"></i>Voir tous les témoignages
@@ -306,7 +409,6 @@
     </div>
     }
 
-    <!-- Empty state -->
     @if (!loadingTemoignages && temoignages.length === 0) {
     <div class="text-center py-5">
       <div class="temo-empty-icon"><i class="fas fa-comment-slash fa-2x" style="color:#287747;"></i></div>
@@ -316,168 +418,8 @@
 
   </div>
 </div>
-<!-- ═══════════════════════════════════════════════════
-     FIN TÉMOIGNAGES
-═══════════════════════════════════════════════════ -->
 
 @if (!loading && !error) {
-
-
-
-<!-- Products Shop -->
-<!-- <div class="container-fluid fruite py-5" style="background-color: #F9F9F9;">
-  <div class="container py-5">
-    <div class="tab-class text-center">
-      <div class="row g-4">
-        <div class="col-lg-12 text-center" data-aos="fade-up">
-          <h4 class="fw-semibold" style="color:#287747">Nos Produits</h4>
-          <h1 class="display-5 fw-bold">Produits Biologiques</h1>
-          <p class="text-muted mb-4">Sélection de nos meilleurs produits naturels</p>
-        </div>
-        <div class="col-lg-12 text-center">
-          <ul class="nav nav-pills d-inline-flex text-center mb-5 shadow-sm bg-white rounded-pill p-2 flex-wrap">
-            <li class="nav-item">
-              <a class="d-flex m-2 py-2 rounded-pill" [class.active]="activeTab === 'all'" (click)="setActiveTab('all')"
-                style="cursor: pointer;">
-                <span class="fw-semibold" style="width: 130px;">Tous</span>
-              </a>
-            </li>
-            @for (categorie of categories; track categorie.id) {
-            <li class="nav-item">
-              <a class="d-flex py-2 m-2 rounded-pill" [class.active]="activeTab === categorie.id.toString()"
-                (click)="setActiveTab(categorie.id.toString())" style="cursor: pointer;">
-                <span style="width: 130px;" class="fw-semibold">{{ categorie.nom }}</span>
-              </a>
-            </li>
-            }
-          </ul>
-        </div>
-      </div>
-      @if (activeTab === 'all') {
-      <div class="tab-pane fade show p-0 active">
-        <div class="row g-4">
-          <div class="col-lg-12">
-            <div class="row g-4">
-              @for (produit of produits | slice:0:8; track produit.id; let index = $index) {
-              <div class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up" [attr.data-aos-delay]="(index + 1) * 100">
-                <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
-                  <div class="fruite-img overflow-hidden">
-                    <img [src]="getImageUrl(produit.image ?? '')" class="img-fluid w-100 rounded-top"
-                      [alt]="produit.nom" style="height: 250px; object-fit: cover;">
-                  </div>
-                  <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
-                    style="top: 15px; left: 15px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-                    <i class="fas fa-leaf me-1"></i> {{ produit.categorie?.nom ?? 'Bio' }}
-                  </div>
-                  @if (produit.prix && produit.enPromotion && produit.prixPromo) {
-                  <div class="badge bg-danger position-absolute fw-semibold" style="top: 15px; right: 15px;">
-                    <i class="fas fa-fire me-1"></i> -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
-                  </div>
-                  }
-                  <div class="p-4 border-top-0">
-                    <h5 class="fw-bold mb-2">{{ produit.nom }}</h5>
-                    @if (produit.description) { <p class="text-muted small mb-3">{{ limitText(produit.description, 60)
-                      }}</p> }
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        @if (produit.prix) {
-                        @if (produit.enPromotion && produit.prixPromo) {
-                        <p class="text-success fw-bold mb-0">{{ formatPrice(produit.prixPromo) }}</p>
-                        <p class="text-muted small text-decoration-line-through mb-0">{{ formatPrice(produit.prix) }}
-                        </p>
-                        } @else {
-                        <p class="text-dark fw-bold mb-0">{{ formatPrice(produit.prix) }}</p>
-                        }
-                        } @else {
-                        <p class="text-muted fst-italic small mb-0">Sur demande</p>
-                        }
-                      </div>
-                      <a [routerLink]="['/produit', produit.id]" class="btn btn-sm rounded-pill px-3"
-                        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); color: white;">
-                        <i class="fas fa-eye me-1"></i> Voir
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              } @empty {
-              <div class="col-12">
-                <div class="alert alert-info text-center"><i class="fas fa-info-circle me-2"></i>Aucun produit
-                  disponible.</div>
-              </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-      }
-      @for (categorie of categories; track categorie.id) {
-      @if (activeTab === categorie.id.toString()) {
-      <div class="tab-pane fade show p-0 active">
-        <div class="row g-4">
-          <div class="col-lg-12">
-            <div class="row g-4">
-              @for (produit of getProduitsByCategory(categorie.id); track produit.id; let index = $index) {
-              <div class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up" [attr.data-aos-delay]="(index + 1) * 100">
-                <div class="rounded position-relative fruite-item bg-white h-100 shadow-sm">
-                  <div class="fruite-img overflow-hidden">
-                    <img [src]="getImageUrl(produit.image ?? '')" class="img-fluid w-100 rounded-top"
-                      [alt]="produit.nom" style="height: 250px; object-fit: cover;">
-                  </div>
-                  <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
-                    style="top: 15px; left: 15px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-                    <i class="fas fa-leaf me-1"></i> {{ categorie.nom }}
-                  </div>
-                  @if (produit.prix && produit.enPromotion && produit.prixPromo) {
-                  <div class="badge bg-danger position-absolute fw-semibold" style="top: 15px; right: 15px;">
-                    <i class="fas fa-fire me-1"></i> -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
-                  </div>
-                  }
-                  <div class="p-4 border-top-0">
-                    <h5 class="fw-bold mb-2">{{ produit.nom }}</h5>
-                    @if (produit.description) { <p class="text-muted small mb-3">{{ limitText(produit.description, 60)
-                      }}</p> }
-                    <div class="d-flex justify-content-between align-items-center">
-                      @if (!isProduitBio(produit)) {
-                      <div>
-                        @if (produit.prix) {
-                        @if (produit.enPromotion && produit.prixPromo) {
-                        <p class="text-success fw-bold mb-0">{{ formatPrice(produit.prixPromo) }}</p>
-                        <p class="text-muted small text-decoration-line-through mb-0">{{ formatPrice(produit.prix) }}
-                        </p>
-                        } @else {
-                        <p class="text-dark fw-bold mb-0">{{ formatPrice(produit.prix) }}</p>
-                        }
-                        } @else {
-                        <p class="text-muted fst-italic small mb-0">Sur demande</p>
-                        }
-                      </div>
-                      }
-                      <a [routerLink]="['/produit', produit.id]" class="btn btn-sm rounded-pill px-3"
-                        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); color: white;">
-                        <i class="fas fa-eye me-1"></i> Voir
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              } @empty {
-              <div class="col-12">
-                <div class="alert alert-info text-center"><i class="fas fa-info-circle me-2"></i>Aucun produit dans
-                  cette catégorie.</div>
-              </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-      }
-      }
-    </div>
-  </div>
-</div> -->
-
-
 
 <!-- Pourquoi BioSen -->
 <div class="container-fluid py-5" style="background-color: #F9F9F9;">
@@ -669,72 +611,250 @@
   }
 </div>
 
-<!-- MODALE GAMME -->
+<!-- ═══════════════════════════════════════════════════
+     MODALE GAMME BIO
+═══════════════════════════════════════════════════ -->
 <div class="modal fade" id="gammeModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header border-0" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-        <h5 class="modal-title text-white fw-bold"><i class="fas fa-leaf me-2"></i>{{ selectedGamme?.nom }}</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+
+      <!-- Header bio : vert -->
+      <div class="modal-header border-0 py-4" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+        <h5 class="modal-title text-white fw-bold">
+          <i class="fas fa-leaf me-2"></i>{{ selectedGamme?.nom }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body p-4">
         @if (selectedGamme) {
         <div class="row">
           <div class="col-md-5 mb-3 mb-md-0">
-            <img [src]="getGammeImageUrl(selectedGamme)" class="img-fluid rounded shadow-sm w-100"
-              [alt]="selectedGamme.nom" style="height: 300px; object-fit: cover;">
-            <div class="mt-3 p-3 bg-light rounded">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted small"><i class="fas fa-box me-1"></i>Produits</span>
-                <span class="badge bg-info">{{ getProduitsCountByGamme(selectedGamme.id) }}</span>
+
+            <!-- Image avec badge promo -->
+            <div class="position-relative">
+              <img [src]="getGammeImageUrl(selectedGamme)" class="img-fluid rounded-3 shadow-sm w-100"
+                [alt]="selectedGamme.nom" style="height: 300px; object-fit: cover;">
+              @if (selectedGamme.enPromotion && selectedGamme.prixPromo) {
+              <span class="position-absolute top-0 end-0 m-3 badge rounded-pill fw-bold px-3 py-2"
+                style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.9rem;">
+                -{{ calculateDiscount(selectedGamme.prix, selectedGamme.prixPromo) }}%
+              </span>
+              }
+              <span class="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2"
+                style="background: linear-gradient(135deg, #287747, #1a5230);">
+                <i class="fas fa-leaf me-1"></i>Bio
+              </span>
+            </div>
+
+            <!-- Bloc prix -->
+            <div class="mt-3 p-3 rounded-3" style="background: #f8f9fa;">
+              @if (selectedGamme.enPromotion && selectedGamme.prixPromo) {
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge rounded-pill px-3 py-2 fw-bold"
+                  style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.75rem; letter-spacing: 1px;">
+                  PROMO
+                </span>
+                <span class="badge rounded-pill px-3 py-1"
+                  style="background: rgba(229,62,62,0.1); color: #e53e3e; font-size: 0.78rem; font-weight: 700;">
+                  -{{ calculateDiscount(selectedGamme.prix, selectedGamme.prixPromo) }}% de réduction
+                </span>
               </div>
-              @if (selectedGamme.prix && selectedGamme.prix > 0) {
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix promo</span>
+                <span class="fw-bold fs-5" style="color: #e53e3e;">
+                  {{ formatPrice(selectedGamme.prixPromo) }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted small"><i class="fas fa-history me-1"></i>Prix initial</span>
+                <span class="text-decoration-line-through text-muted">
+                  {{ formatPrice(selectedGamme.prix) }}
+                </span>
+              </div>
+              } @else if (selectedGamme.prix && selectedGamme.prix > 0) {
               <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix</span>
-                <span class="fw-bold" style="color:#287747">{{ formatPrice(selectedGamme.prix) }}</span>
+                <span class="fw-bold fs-5" style="color:#287747">
+                  {{ formatPrice(selectedGamme.prix) }}
+                </span>
               </div>
               }
             </div>
           </div>
+
           <div class="col-md-7">
-            <h6 class="fw-bold mb-3" style="color:#287747"><i class="fas fa-info-circle me-2"></i>Description</h6>
+            <h6 class="fw-bold mb-3" style="color:#287747">
+              <i class="fas fa-info-circle me-2"></i>Description
+            </h6>
             @if (selectedGamme.description) {
             <p class="text-muted" style="text-align: justify; line-height: 1.8;">{{ selectedGamme.description }}</p>
             } @else {
             <p class="text-muted fst-italic">Aucune description disponible.</p>
             }
-            @if (getProduitsCountByGamme(selectedGamme.id) > 0) {
-            <div class="mt-4">
-              <h6 class="fw-bold mb-3" style="color:#287747"><i class="fas fa-box-open me-2"></i>Produits disponibles
-                ({{ getProduitsCountByGamme(selectedGamme.id) }})</h6>
-              <div class="d-flex flex-wrap gap-2">
-                @for (produit of produits | slice:0:5; track produit.id) {
-                @if (produitAppartientAGamme(produit, selectedGamme.id)) {
-                <span class="badge bg-light text-dark border px-3 py-2">
-                  <i class="fas fa-check-circle me-1" style="color:#287747"></i>{{ produit.nom }}
-                </span>
-                }
-                }
-              </div>
-            </div>
-            } @else {
-            <div class="mt-4 p-3 bg-light rounded text-center">
-              <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-              <p class="text-muted mb-0 small">Aucun produit dans cette gamme.</p>
-            </div>
-            }
           </div>
         </div>
         }
       </div>
-      <div class="modal-footer border-0 bg-light">
-        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal"><i
-            class="fas fa-times me-2"></i>Fermer</button>
+
+      <div class="modal-footer border-0 bg-light p-4">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Fermer
+        </button>
+        <button type="button" class="btn rounded-pill px-4 text-white fw-bold"
+          style="background: linear-gradient(135deg, #287747, #1a5230);" (click)="addToCart(selectedGamme, undefined)"
+          data-bs-dismiss="modal">
+          <i class="fas fa-cart-plus me-2"></i>Ajouter au panier
+        </button>
         <a routerLink="/boutique" class="btn rounded-pill px-4 text-white"
-          style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+          style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);" data-bs-dismiss="modal">
           <i class="fas fa-shopping-bag me-2"></i>Voir la boutique
         </a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODALE PRODUIT SPORT — MÊME STRUCTURE QUE BIO
+     Couleurs : #287747 / #1a5230 (identique produits bio)
+═══════════════════════════════════════════════════ -->
+<div class="modal fade" id="sportModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+
+      <!-- Header sport : bleu nuit -->
+      <div class="modal-header border-0 py-4" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+        <h5 class="modal-title text-white fw-bold">
+          <i class="fas fa-dumbbell me-2"></i>{{ selectedSport?.nom }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        @if (selectedSport) {
+        <div class="row">
+
+          <!-- Colonne gauche : Image + Prix -->
+          <div class="col-md-5 mb-3 mb-md-0">
+
+            <!-- Image avec badges — identique à la modale bio -->
+            <div class="position-relative">
+              <img [src]="selectedSport.imageUrls?.[0] || 'assets/img/biosen/default-product.png'"
+                class="img-fluid rounded-3 shadow-sm w-100" [alt]="selectedSport.nom"
+                style="height: 300px; object-fit: cover;">
+
+              <!-- Badge % promo (coin haut droit) -->
+              @if (selectedSport.enPromotion && selectedSport.prixPromo) {
+              <span class="position-absolute top-0 end-0 m-3 badge rounded-pill fw-bold px-3 py-2"
+                style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.9rem;">
+                -{{ calculateDiscount(selectedSport.prix, selectedSport.prixPromo) }}%
+              </span>
+              }
+
+              <!-- Badge catégorie (coin haut gauche) — couleurs sport -->
+              @if (selectedSport.typeCategorie) {
+              <span class="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2"
+                style="background: linear-gradient(135deg, #287747, #1a5230);">
+                <i class="fas fa-tag me-1"></i>{{ selectedSport.typeCategorie.nom }}
+              </span>
+              } @else {
+              <span class="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2"
+                style="background: linear-gradient(135deg, #287747, #1a5230);">
+                <i class="fas fa-dumbbell me-1"></i>Sport
+              </span>
+              }
+            </div>
+
+            <!-- Bloc prix — identique à la modale bio, couleur sport pour le prix normal -->
+            <div class="mt-3 p-3 rounded-3" style="background: #f8f9fa;">
+              @if (selectedSport.enPromotion && selectedSport.prixPromo) {
+              <!-- Prix promo -->
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge rounded-pill px-3 py-2 fw-bold"
+                  style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.75rem; letter-spacing: 1px;">
+                  PROMO
+                </span>
+                <span class="badge rounded-pill px-3 py-1"
+                  style="background: rgba(229,62,62,0.1); color: #e53e3e; font-size: 0.78rem; font-weight: 700;">
+                  -{{ calculateDiscount(selectedSport.prix, selectedSport.prixPromo) }}% de réduction
+                </span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix promo</span>
+                <span class="fw-bold fs-5" style="color: #e53e3e;">
+                  {{ formatPrice(selectedSport.prixPromo) }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted small"><i class="fas fa-history me-1"></i>Prix initial</span>
+                <span class="text-decoration-line-through text-muted">
+                  {{ formatPrice(selectedSport.prix) }}
+                </span>
+              </div>
+              } @else {
+              <!-- Prix normal — couleur sport -->
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix</span>
+                <span class="fw-bold fs-5" style="color: #287747;">
+                  {{ formatPrice(selectedSport.prix) }}
+                </span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Colonne droite : Description + Galerie — identique à la modale bio -->
+          <div class="col-md-7">
+            <h6 class="fw-bold mb-3" style="color: #287747;">
+              <i class="fas fa-info-circle me-2"></i>Description
+            </h6>
+            @if (selectedSport.description) {
+            <p class="text-muted" style="text-align: justify; line-height: 1.8;">
+              {{ selectedSport.description }}
+            </p>
+            } @else {
+            <p class="text-muted fst-italic">Aucune description disponible.</p>
+            }
+
+            <!-- Galerie images supplémentaires -->
+            @if (selectedSport.imageUrls && selectedSport.imageUrls.length > 1) {
+            <h6 class="fw-bold mb-2 mt-4" style="color: #287747;">
+              <i class="fas fa-images me-2"></i>Galerie
+            </h6>
+            <div class="d-flex flex-wrap gap-2">
+              @for (img of selectedSport.imageUrls; track img; let i = $index) {
+              @if (i > 0) {
+              <img [src]="img" [alt]="selectedSport.nom + ' ' + (i+1)" class="rounded-2 shadow-sm sport-gallery-thumb"
+                (click)="openLightbox(img)">
+              }
+              }
+            </div>
+            }
+          </div>
+
+        </div>
+        }
+      </div>
+
+      <!-- Footer — identique à la modale bio, couleurs sport -->
+      <div class="modal-footer border-0 bg-light p-4">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Fermer
+        </button>
+        @if (selectedSport) {
+        <button type="button" class="btn rounded-pill px-4 text-white fw-bold"
+          style="background: linear-gradient(135deg, #287747, #1a5230);" (click)="addToCart(selectedSport, undefined)"
+          data-bs-dismiss="modal">
+          <i class="fas fa-cart-plus me-2"></i>Ajouter au panier
+        </button>
+        <a [routerLink]="['/produit-sport', selectedSport.id]" class="btn rounded-pill px-4 text-white fw-bold"
+          style="background: linear-gradient(135deg, #287747, #1a5230);" data-bs-dismiss="modal">
+          <i class="fas fa-external-link-alt me-2"></i>Page complète
+        </a>
+        }
+      </div>
+
     </div>
   </div>
 </div>

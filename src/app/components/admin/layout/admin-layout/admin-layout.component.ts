@@ -15,7 +15,6 @@ import { AdminSidebarComponent } from '../admin-sidebar/admin-sidebar.component'
   ],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css']
-
 })
 export class AdminLayoutComponent {
   sidebarCollapsed = signal(false);

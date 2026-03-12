@@ -26,7 +26,7 @@ export interface PaginatedResponse<T> {
 })
 export class CategorieService {
 
-  private apiUrl = `${environment.apiUrl}/admin/categories`;
+  private apiUrl = `${environment.apiUrl}/categories`;
 
   constructor(private http: HttpClient) { }
 

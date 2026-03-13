@@ -59,7 +59,7 @@ export interface MediasResponse {
 export class ProduitSportService {
 
   private apiUrl = environment.apiUrl;
-  private adminUrl = `${environment.apiUrl}/admin/produits-sport`;
+  private adminUrl = `${environment.apiUrl}/produits-sport`;
   private storageUrl = environment.storageUrl;
 
   constructor(private http: HttpClient) { }

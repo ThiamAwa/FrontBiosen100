@@ -26,7 +26,7 @@ export interface PaginatedResponse<T> {
   providedIn: 'root'
 })
 export class TypeCategorieService {
-  private apiUrl = `${environment.apiUrl}/typecategories`;
+  private apiUrl = `${environment.apiUrl}/admin/typecategories`;
 
   constructor(private http: HttpClient) { }
 
@@ -51,7 +51,7 @@ export class TypeCategorieService {
 
   /**
    * Crée un nouveau type de catégorie.
-   * @param data Objet contenant le nom
+   * @param data Objet contenant le nom 
    */
   createTypeCategorie(data: { nom: string }): Observable<TypeCategorie> {
     return this.http.post<TypeCategorie>(this.apiUrl, data);

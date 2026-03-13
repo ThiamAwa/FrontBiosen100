@@ -20,7 +20,7 @@
 }
 
 /* ══════════════════════════════════════════
-   OVERRIDE BOOTSTRAP — texte sombre sur fond blanc
+   OVERRIDE BASE
 ══════════════════════════════════════════ */
 .sb-topnav,
 .sb-topnav * {
@@ -28,7 +28,7 @@
 }
 
 /* ══════════════════════════════════════════
-   NAVBAR
+   NAVBAR — CRITIQUE : z-index le plus haut
 ══════════════════════════════════════════ */
 .sb-topnav {
     background: #ffffff !important;
@@ -41,14 +41,16 @@
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 1030;
+    /* CRITIQUE : doit être au-dessus de la sidebar (1040) et du backdrop (1038) */
+    z-index: 1050;
     display: flex;
     align-items: center;
     gap: 12px;
+    /* CRITIQUE : on dépasse le clip pour le dropdown user */
     overflow: visible;
 }
 
-/* Barre animée verte en haut */
+/* Barre animée verte */
 .sb-topnav::before {
     content: '';
     position: absolute;
@@ -64,9 +66,11 @@
             transparent);
     animation: shimmer 4s linear infinite;
     z-index: 10;
+    /* Ne doit pas bloquer les clics */
+    pointer-events: none;
 }
 
-/* Glow blob décoratif */
+/* Glow décoratif */
 .sb-topnav::after {
     content: '';
     position: absolute;
@@ -149,6 +153,10 @@
     padding: 0;
     transition: all 0.22s ease;
     flex-shrink: 0;
+    /* CRITIQUE : toujours cliquable */
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
 }
 
 .btn-toggle:hover {
@@ -232,6 +240,7 @@
     padding: 0;
     position: relative;
     transition: all 0.22s ease;
+    cursor: pointer;
 }
 
 .btn-notif:hover {
@@ -252,6 +261,7 @@
     border: 1.5px solid #ffffff;
     animation: pulse-dot 2.5s ease-in-out infinite;
     box-shadow: 0 0 6px rgba(40, 119, 71, 0.5);
+    pointer-events: none;
 }
 
 @keyframes pulse-dot {
@@ -274,6 +284,8 @@
 .user-dropdown {
     position: relative;
     flex-shrink: 0;
+    /* CRITIQUE : z-index pour que le menu passe au-dessus de tout */
+    z-index: 1055;
 }
 
 .user-trigger {
@@ -302,6 +314,7 @@
             rgba(40, 119, 71, 0.06),
             transparent);
     transition: left 0.4s ease;
+    pointer-events: none;
 }
 
 .user-trigger:hover::before {
@@ -314,6 +327,7 @@
     box-shadow: 0 0 20px rgba(40, 119, 71, 0.1);
 }
 
+/* Avatar */
 .user-avatar {
     width: 32px;
     height: 32px;
@@ -337,6 +351,7 @@
     border-radius: 50%;
     border: 1.5px solid rgba(40, 119, 71, 0.4);
     animation: avatar-ring 3s ease-in-out infinite;
+    pointer-events: none;
 }
 
 @keyframes avatar-ring {
@@ -385,6 +400,7 @@
 
 /* ══════════════════════════════════════════
    USER MENU PANEL
+   CRITIQUE : z-index 9999 pour passer au-dessus de tout
 ══════════════════════════════════════════ */
 .user-menu {
     position: absolute;
@@ -403,6 +419,7 @@
     transform: translateY(-10px) scale(0.96);
     pointer-events: none;
     transition: opacity 0.22s ease, transform 0.22s ease;
+    /* CRITIQUE : au-dessus de la sidebar et du backdrop */
     z-index: 9999;
 }
 
@@ -412,7 +429,7 @@
     pointer-events: all;
 }
 
-/* Ligne décorative verte en haut */
+/* Ligne décorative verte */
 .user-menu::before {
     content: '';
     position: absolute;
@@ -426,6 +443,7 @@
             var(--green-light),
             transparent);
     border-radius: 0 0 2px 2px;
+    pointer-events: none;
 }
 
 /* ── Header ── */
@@ -635,4 +653,34 @@
 
 .navbar-brand:hover .brand-logo-img {
     transform: rotate(-5deg) scale(1.08);
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE MOBILE
+══════════════════════════════════════════ */
+@media (max-width: 992px) {
+    .sb-topnav {
+        padding: 0 12px;
+        gap: 8px;
+    }
+
+    /* Cacher la recherche sur mobile */
+    .search-wrapper {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .user-info {
+        display: none !important;
+    }
+
+    .user-trigger {
+        padding: 5px;
+        border-radius: 50%;
+    }
+
+    .brand-text {
+        font-size: 15px;
+    }
 }

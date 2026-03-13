@@ -20,7 +20,7 @@ export interface VendeurResponse {
   providedIn: 'root'
 })
 export class VendeurService {
-  private apiUrl = `${environment.apiUrl}/vendeurs`;
+  private apiUrl = `${environment.apiUrl}/admin/vendeurs`;
 
   constructor(private http: HttpClient) { }
 

@@ -6,7 +6,7 @@ import { GammeService, GammePagination } from '../../../services/gamme/gamme.ser
 import { TypeCategorieService } from '../../../services/type-categorie/type-categorie.service';
 import { TypeCategorie } from '../../../models/type-categorie';
 import { Gamme } from '../../../models/gamme';
-
+import { environment } from '../../../../environments/environment';
 declare var bootstrap: any;
 
 @Component({
@@ -18,7 +18,8 @@ declare var bootstrap: any;
 })
 export class GammeComponent implements OnInit, AfterViewInit {
 
-  private readonly baseStorageUrl = 'http://localhost:8000/storage/';
+  private readonly baseStorageUrl = environment.storageUrl;  // http://46.225.136.79/storage
+
 
   gammes: Gamme[] = [];
   typeCategories: TypeCategorie[] = [];
@@ -100,11 +101,18 @@ export class GammeComponent implements OnInit, AfterViewInit {
   // UTILITAIRE IMAGE
   // ============================================================
 
-  getImageUrl(path: string): string {
+  // getImageUrl(path: string): string {
+  //   if (!path) return '';
+  //   if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  //   const cleanPath = path.startsWith('storage/') ? path.replace('storage/', '') : path;
+  //   return `${this.baseStorageUrl}${cleanPath}`;
+  // }
+    getImageUrl(path: string): string {
     if (!path) return '';
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    const cleanPath = path.startsWith('storage/') ? path.replace('storage/', '') : path;
-    return `${this.baseStorageUrl}${cleanPath}`;
+    // ajoute /gammes/ si nécessaire
+    const cleanPath = path.startsWith('gammes/') ? path : 'gammes/' + path;
+    return `${this.baseStorageUrl}/${cleanPath}`;
   }
 
   handleImageError(event: Event): void {

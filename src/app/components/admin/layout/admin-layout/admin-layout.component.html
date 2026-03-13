@@ -1,3 +1,8 @@
+<!-- ============================================================
+   admin-layout.component.html — CORRIGÉ
+   Ajouter le backdrop et initialiser la sidebar collapsed sur mobile
+   ============================================================ -->
+
 <div class="sb-nav-fixed admin-shell admin-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
 
     <!-- ① Navbar admin -->
@@ -10,7 +15,10 @@
         <app-admin-sidebar [collapsed]="sidebarCollapsed()">
         </app-admin-sidebar>
 
-        <!-- ③ Contenu des pages admin -->
+        <!-- ③ BACKDROP MOBILE — ferme la sidebar en cliquant à côté -->
+        <div class="sidebar-backdrop" (click)="toggleSidebar()"></div>
+
+        <!-- ④ Contenu des pages admin -->
         <div id="layoutSidenav_content">
             <main>
                 <router-outlet></router-outlet>
@@ -32,3 +40,45 @@
 
     </div>
 </div>
+
+
+<!-- ============================================================
+   admin-layout.component.ts — CORRIGÉ
+   Initialiser la sidebar en mode "collapsed" sur mobile
+   ============================================================
+
+import { Component, signal, OnInit, HostListener } from '@angular/core';
+
+@Component({
+  selector: 'app-admin-layout',
+  templateUrl: './admin-layout.component.html',
+  styleUrls: ['./admin-layout.component.css']
+})
+export class AdminLayoutComponent implements OnInit {
+
+  currentYear = new Date().getFullYear();
+
+  // CRITIQUE : sur mobile la sidebar est cachée par défaut (collapsed = true)
+  // Sur desktop elle est visible par défaut (collapsed = false)
+  sidebarCollapsed = signal(window.innerWidth <= 992);
+
+  ngOnInit(): void {}
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed.set(!this.sidebarCollapsed());
+  }
+
+  // Gestion du redimensionnement de la fenêtre
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    const width = (event.target as Window).innerWidth;
+    if (width <= 992) {
+      // Sur mobile : fermer la sidebar si on redimensionne
+      this.sidebarCollapsed.set(true);
+    } else {
+      // Sur desktop : ouvrir la sidebar
+      this.sidebarCollapsed.set(false);
+    }
+  }
+}
+-->

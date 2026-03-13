@@ -21,15 +21,17 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
   // État des carrousels
   carouselStates: Map<number, { currentIndex: number; timer: any }> = new Map();
 
+  // Modal vidéo
+  showVideoModal = false;
+  currentVideoUrl: SafeResourceUrl | null = null;
+  currentVideoExternalUrl = '';
+
   // Lightbox
   showLightbox = false;
   currentImageUrl = '';
 
-  // Cache des URLs embed sécurisées
-  private safeUrlCache: Map<string, SafeResourceUrl> = new Map();
-
   private subscriptions: Subscription[] = [];
-  private autoDelay = 4000; // 4 secondes (plus long car vidéo en premier)
+  private autoDelay = 3000; // 3 secondes
 
   constructor(
     private temoignageService: TemoignageService,
@@ -41,6 +43,7 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Nettoyer tous les timers
     this.carouselStates.forEach(state => {
       if (state.timer) clearInterval(state.timer);
     });
@@ -52,12 +55,9 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.temoignageService.getTemoignagesPublics().subscribe({
         next: (data) => {
-          this.temoignages = Array.isArray(data) ? data : [];
+          this.temoignages = data;
           this.loading = false;
-          // Pré-cacher les URL embed sécurisées
-          this.temoignages.forEach(t => {
-            if (t.video_url) this.getSafeEmbedUrl(t.video_url);
-          });
+          // Initialiser les carrousels après le chargement
           setTimeout(() => this.initCarousels(), 100);
         },
         error: (err) => {
@@ -69,79 +69,42 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ─── Embed URL sécurisée (avec cache) ───────────────────────────────────────
-  getSafeEmbedUrl(videoUrl: string): SafeResourceUrl {
-    if (this.safeUrlCache.has(videoUrl)) {
-      return this.safeUrlCache.get(videoUrl)!;
-    }
-    const embedUrl = this.temoignageService.getYoutubeEmbedUrl(videoUrl) || videoUrl;
-    // Ajouter autoplay=0 pour ne pas lancer automatiquement
-    const finalUrl = embedUrl.includes('?')
-      ? `${embedUrl}&rel=0&modestbranding=1`
-      : `${embedUrl}?rel=0&modestbranding=1`;
-    const safe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
-    this.safeUrlCache.set(videoUrl, safe);
-    return safe;
-  }
-
-  // ─── Nombre total de slides (vidéo + photos) ────────────────────────────────
-  getTotalSlides(t: Temoignage): number {
-    let count = 0;
-    if (t.video_url) count += 1;
-    if (t.images) count += t.images.length;
-    return count;
-  }
-
-  // ─── Vérifier si un slide est actif ─────────────────────────────────────────
-  isSlideActive(id: number, index: number): boolean {
-    return this.getCurrentIndex(id) === index;
-  }
-
-  // ─── Initialiser les carrousels ──────────────────────────────────────────────
+  // Initialiser les carrousels
   initCarousels(): void {
-    this.temoignages.forEach(t => {
-      if (t.id && this.getTotalSlides(t) > 1) {
-        // Démarrer à l'index 0 (la vidéo si elle existe)
-        this.carouselStates.set(t.id, { currentIndex: 0, timer: null });
-        this.startCarousel(t.id);
-      } else if (t.id) {
-        this.carouselStates.set(t.id, { currentIndex: 0, timer: null });
+    this.temoignages.forEach(temoignage => {
+      if (temoignage.id && temoignage.images && temoignage.images.length > 1) {
+        this.startCarousel(temoignage.id);
       }
     });
   }
 
-  // ─── Auto-défilement ─────────────────────────────────────────────────────────
+  // Démarrer l'auto-défilement
   startCarousel(id: number): void {
-    const temoignage = this.temoignages.find(t => t.id === id);
-    if (!temoignage) return;
-    const total = this.getTotalSlides(temoignage);
-    if (total <= 1) return;
+    const images = this.getTemoignageImages(id);
+    if (!images || images.length <= 1) return;
 
     const state = this.carouselStates.get(id) || { currentIndex: 0, timer: null };
+
     if (state.timer) clearInterval(state.timer);
 
-    // Délai plus long pour le slide vidéo (index 0)
-    const delay = state.currentIndex === 0 && temoignage.video_url
-      ? this.autoDelay * 2  // 8s pour la vidéo
-      : this.autoDelay;     // 4s pour les photos
-
-    state.timer = setTimeout(() => {
-      const next = (state.currentIndex + 1) % total;
+    state.timer = setInterval(() => {
+      const next = (state.currentIndex + 1) % images.length;
       this.goToSlide(id, next);
-      this.startCarousel(id); // relancer pour adapter le délai
-    }, delay);
+    }, this.autoDelay);
 
     this.carouselStates.set(id, state);
   }
 
+  // Arrêter l'auto-défilement
   stopCarousel(id: number): void {
     const state = this.carouselStates.get(id);
     if (state?.timer) {
-      clearTimeout(state.timer);
+      clearInterval(state.timer);
       state.timer = null;
     }
   }
 
+  // Aller à un slide spécifique
   goToSlide(id: number, index: number): void {
     const state = this.carouselStates.get(id);
     if (state) {
@@ -150,52 +113,69 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Slide suivant
   nextSlide(id: number, event?: Event): void {
-    if (event) { event.preventDefault(); event.stopPropagation(); }
-    const temoignage = this.temoignages.find(t => t.id === id);
-    if (!temoignage) return;
-    const total = this.getTotalSlides(temoignage);
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const images = this.getTemoignageImages(id);
+    if (!images || images.length === 0) return;
+
     const state = this.carouselStates.get(id) || { currentIndex: 0, timer: null };
-    const next = Math.min(state.currentIndex + 1, total - 1);
+    const next = (state.currentIndex + 1) % images.length;
     this.goToSlide(id, next);
     this.pauseAndResume(id);
   }
 
+  // Slide précédent
   prevSlide(id: number, event?: Event): void {
-    if (event) { event.preventDefault(); event.stopPropagation(); }
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const images = this.getTemoignageImages(id);
+    if (!images || images.length === 0) return;
+
     const state = this.carouselStates.get(id) || { currentIndex: 0, timer: null };
-    const prev = Math.max(state.currentIndex - 1, 0);
+    const prev = (state.currentIndex - 1 + images.length) % images.length;
     this.goToSlide(id, prev);
     this.pauseAndResume(id);
   }
 
+  // Pause puis reprise
   pauseAndResume(id: number): void {
     this.stopCarousel(id);
     setTimeout(() => this.startCarousel(id), this.autoDelay);
   }
 
+  // Obtenir l'index courant
   getCurrentIndex(id: number): number {
     return this.carouselStates.get(id)?.currentIndex || 0;
   }
 
-  // ─── Helpers images (gardés pour compatibilité) ──────────────────────────────
+  // Obtenir les images d'un témoignage
   getTemoignageImages(id: number): string[] | undefined {
-    return this.temoignages.find(t => t.id === id)?.images;
+    const t = this.temoignages.find(t => t.id === id);
+    return t?.images;
   }
 
+  // Vérifier si une image est active
   isImageActive(id: number, index: number): boolean {
     return this.getCurrentIndex(id) === index;
   }
 
+  // Compter les images
   getImageCount(id: number): number {
     return this.getTemoignageImages(id)?.length || 0;
   }
 
+  // Vérifier si plusieurs images
   hasMultipleImages(id: number): boolean {
     return (this.getTemoignageImages(id)?.length || 0) > 1;
   }
 
-  // ─── Avatar ──────────────────────────────────────────────────────────────────
+  // Obtenir l'initiale pour l'avatar
   getInitials(temoignage: Temoignage): string {
     if (temoignage.nom_complet) {
       return temoignage.nom_complet.substring(0, 2).toUpperCase();
@@ -206,26 +186,48 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
     return 'CL';
   }
 
-  // ─── Lightbox ────────────────────────────────────────────────────────────────
+  // Ouvrir la modal vidéo
+  openVideoModal(videoUrl: string): void {
+    const embedUrl = this.temoignageService.getYoutubeEmbedUrl(videoUrl);
+    this.currentVideoUrl = embedUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl) : null;
+    this.currentVideoExternalUrl = videoUrl;
+    this.showVideoModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Fermer la modal vidéo
+  closeVideoModal(): void {
+    this.showVideoModal = false;
+    this.currentVideoUrl = null;
+    document.body.style.overflow = '';
+  }
+
+  // Ouvrir la lightbox
   openLightbox(imageUrl: string): void {
     this.currentImageUrl = imageUrl;
     this.showLightbox = true;
     document.body.style.overflow = 'hidden';
   }
 
+  // Fermer la lightbox
   closeLightbox(): void {
     this.showLightbox = false;
     document.body.style.overflow = '';
   }
 
+  // Fermer les modals avec Echap
   @HostListener('document:keydown.escape')
   onEscapePress(): void {
+    if (this.showVideoModal) this.closeVideoModal();
     if (this.showLightbox) this.closeLightbox();
   }
 
+  // Formater la date
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString('fr-FR', {
-      year: 'numeric', month: 'long', day: 'numeric'
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   }
 }

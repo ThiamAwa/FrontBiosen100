@@ -1,12 +1,12 @@
 /* ============================================================
-   ADMIN SIDEBAR — avec gestion de l'état COLLAPSED
+   ADMIN SIDEBAR — avec gestion de l'état COLLAPSED + MOBILE FIX
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
 /* ══════════════════════════════════════════
-         VARIABLES
-      ══════════════════════════════════════════ */
+      VARIABLES
+   ══════════════════════════════════════════ */
 :host {
     --green: #287747;
     --green-dark: #1a5230;
@@ -18,11 +18,12 @@
     --font: 'Nunito', sans-serif;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
+    --navbar-height: 66px;
 }
 
 /* ══════════════════════════════════════════
-         SHELL (état normal)
-      ══════════════════════════════════════════ */
+      SHELL — état normal (desktop)
+   ══════════════════════════════════════════ */
 nav#layoutSidenav_nav {
     width: var(--sidebar-width);
     min-height: 100vh;
@@ -30,49 +31,50 @@ nav#layoutSidenav_nav {
     display: flex;
     flex-direction: column;
     position: fixed;
-    top: 56px;
-    /* hauteur de la navbar */
+    top: var(--navbar-height);
     left: 0;
     bottom: 0;
-    z-index: 1020;
+    z-index: 1035;
     font-family: var(--font);
     overflow: hidden;
     border-right: 1px solid var(--border);
     box-shadow: inset -3px 0 0 var(--green);
-    transition: width 0.25s ease;
+    /* Desktop : on anime la largeur */
+    transition: width 0.25s ease, transform 0.3s ease;
+    /* CRITIQUE : toujours cliquable */
+    pointer-events: auto;
 }
 
 /* ══════════════════════════════════════════
-         ÉTAT COLLAPSED
-      ══════════════════════════════════════════ */
+      ÉTAT COLLAPSED — Desktop (icônes seulement)
+   ══════════════════════════════════════════ */
 nav#layoutSidenav_nav.collapsed {
     width: var(--sidebar-collapsed-width);
 }
 
 nav#layoutSidenav_nav.collapsed .nav-link-text {
     display: none;
-    /* masquer le texte des liens */
 }
 
 nav#layoutSidenav_nav.collapsed .sb-sidenav-menu-heading {
     justify-content: center;
     padding-left: 0;
     padding-right: 0;
+    overflow: hidden;
+}
+
+nav#layoutSidenav_nav.collapsed .sb-sidenav-menu-heading span,
+nav#layoutSidenav_nav.collapsed .sb-sidenav-menu-heading {
+    font-size: 0;
+    letter-spacing: 0;
 }
 
 nav#layoutSidenav_nav.collapsed .sb-sidenav-menu-heading::before {
     width: 32px;
-    /* garder un trait décoratif */
 }
 
 nav#layoutSidenav_nav.collapsed .sb-sidenav-footer>div:not(.small) {
     display: none;
-    /* masquer le nom dans le footer */
-}
-
-nav#layoutSidenav_nav.collapsed .sb-sidenav-footer::before {
-    margin: 0 auto;
-    /* centrer l'avatar */
 }
 
 nav#layoutSidenav_nav.collapsed .sb-sidenav-footer {
@@ -80,9 +82,67 @@ nav#layoutSidenav_nav.collapsed .sb-sidenav-footer {
     padding: 16px 0;
 }
 
+nav#layoutSidenav_nav.collapsed .sb-sidenav-footer::before {
+    margin: 0 auto;
+}
+
 /* ══════════════════════════════════════════
-         SCROLLBAR VERTE (identique pour les deux états)
-      ══════════════════════════════════════════ */
+      RESPONSIVE MOBILE (≤ 992px)
+      Sur mobile : collapsed = caché hors écran
+                  pas collapsed = visible en overlay
+   ══════════════════════════════════════════ */
+@media (max-width: 992px) {
+
+    nav#layoutSidenav_nav {
+        /* Toujours pleine largeur sur mobile */
+        width: var(--sidebar-width) !important;
+        /* Par défaut : VISIBLE (le composant parent gère l'état) */
+        transform: translateX(0);
+        z-index: 1040;
+        /* Transition uniquement sur transform pour mobile */
+        transition: transform 0.3s ease;
+    }
+
+    /* Sur mobile, .collapsed = hors écran à gauche */
+    nav#layoutSidenav_nav.collapsed {
+        width: var(--sidebar-width) !important;
+        transform: translateX(-100%);
+        /* Désactiver les événements quand caché */
+        pointer-events: none;
+    }
+
+    /* Sur mobile, quand ouvert = toujours cliquable */
+    nav#layoutSidenav_nav:not(.collapsed) {
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+
+    /* Réafficher le texte des liens sur mobile (sidebar pleine largeur) */
+    nav#layoutSidenav_nav .nav-link-text {
+        display: inline !important;
+    }
+
+    nav#layoutSidenav_nav .sb-sidenav-menu-heading {
+        justify-content: flex-start !important;
+        padding-left: 28px !important;
+        padding-right: 20px !important;
+        font-size: 11px !important;
+        letter-spacing: 2px !important;
+    }
+
+    nav#layoutSidenav_nav .sb-sidenav-footer>div:not(.small) {
+        display: flex !important;
+    }
+
+    nav#layoutSidenav_nav .sb-sidenav-footer {
+        justify-content: flex-start !important;
+        padding: 16px 22px !important;
+    }
+}
+
+/* ══════════════════════════════════════════
+      SCROLLBAR VERTE
+   ══════════════════════════════════════════ */
 nav#layoutSidenav_nav .sb-sidenav-menu {
     flex: 1;
     overflow-y: auto;
@@ -111,8 +171,8 @@ nav#layoutSidenav_nav .sb-sidenav-menu::-webkit-scrollbar-thumb:hover {
 }
 
 /* ══════════════════════════════════════════
-         SECTION HEADINGS
-      ══════════════════════════════════════════ */
+      SECTION HEADINGS
+   ══════════════════════════════════════════ */
 nav#layoutSidenav_nav .sb-sidenav-menu-heading {
     display: flex;
     align-items: center;
@@ -140,14 +200,14 @@ nav#layoutSidenav_nav .sb-sidenav-menu-heading::before {
 }
 
 /* ══════════════════════════════════════════
-         NAV LINKS
-      ══════════════════════════════════════════ */
+      NAV LINKS — CRITIQUE : pointer-events forcés
+   ══════════════════════════════════════════ */
 nav#layoutSidenav_nav .sb-sidenav-menu .nav-link {
     display: flex !important;
     align-items: center !important;
     gap: 16px !important;
     padding: 12px 16px 12px 20px !important;
-    margin: 2px 14px 2px 14px;
+    margin: 2px 14px;
     border-radius: 14px;
     text-decoration: none !important;
     color: var(--text-dark) !important;
@@ -158,9 +218,14 @@ nav#layoutSidenav_nav .sb-sidenav-menu .nav-link {
     transition: background 0.18s ease, color 0.18s ease, padding 0.25s ease;
     background: transparent;
     white-space: nowrap;
+    /* CRITIQUE : liens toujours cliquables */
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
 }
 
-/* Animation d'apparition (optionnelle) */
+/* Animation d'entrée */
 nav#layoutSidenav_nav .sb-sidenav-menu .nav-link {
     animation: sidebarIn 0.3s ease forwards;
     opacity: 0;
@@ -174,7 +239,29 @@ nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(2) {
     animation-delay: 0.06s;
 }
 
-/* ... ajouter autant de délais que de liens ... */
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(3) {
+    animation-delay: 0.09s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(4) {
+    animation-delay: 0.12s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(5) {
+    animation-delay: 0.15s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(6) {
+    animation-delay: 0.18s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(7) {
+    animation-delay: 0.21s;
+}
+
+nav#layoutSidenav_nav .sb-sidenav-menu .nav-link:nth-child(8) {
+    animation-delay: 0.24s;
+}
 
 @keyframes sidebarIn {
     from {
@@ -207,8 +294,8 @@ nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active {
 }
 
 /* ══════════════════════════════════════════
-         ICÔNE BOX
-      ══════════════════════════════════════════ */
+      ICÔNE BOX
+   ══════════════════════════════════════════ */
 nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon {
     width: 44px !important;
     height: 44px !important;
@@ -222,13 +309,11 @@ nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon {
     transition: all 0.18s ease;
 }
 
-/* Icônes toujours vertes (sauf active) */
 nav#layoutSidenav_nav .sb-sidenav-menu .nav-link .sb-nav-link-icon i {
     color: #287747 !important;
     font-size: 18px !important;
 }
 
-/* Lien actif : icône blanche sur fond vert */
 nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
     background: linear-gradient(135deg, #287747 0%, #1a5230 100%) !important;
     box-shadow: 0 4px 12px rgba(40, 119, 71, 0.32) !important;
@@ -239,8 +324,8 @@ nav#layoutSidenav_nav .sb-sidenav-menu .nav-link.active .sb-nav-link-icon i {
 }
 
 /* ══════════════════════════════════════════
-         FOOTER
-      ══════════════════════════════════════════ */
+      FOOTER
+   ══════════════════════════════════════════ */
 nav#layoutSidenav_nav .sb-sidenav-footer {
     padding: 16px 22px;
     border-top: 1px solid var(--border);

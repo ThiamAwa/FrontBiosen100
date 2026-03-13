@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HomeService } from '../../../services/home/home.service';
@@ -81,6 +81,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private produitSportService: ProduitSportService,
     private cartService: CartService,
     private sanitizer: DomSanitizer,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
@@ -171,7 +172,26 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ══════════════════════════════════════════════════════════
-  // Panier
+  // Panier — Getters réactifs
+  // ══════════════════════════════════════════════════════════
+
+  /** Retourne tous les articles du panier en temps réel */
+  get cartItems(): CartItem[] {
+    return this.cartService.getCart();
+  }
+
+  /** Calcule le sous-total du panier */
+  get cartSubtotal(): number {
+    return this.cartService.getCartTotal();
+  }
+
+  /** Retourne le nombre total d'articles (somme des quantités) */
+  get cartCount(): number {
+    return this.cartService.getCartCount();
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Panier — Actions
   // ══════════════════════════════════════════════════════════
 
   addToCart(produit: any, event?: Event): void {
@@ -184,14 +204,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       name: produit.nom,
       price: isPromo ? produit.prixPromo : (produit.prix ?? 0),
       quantity: 1,
-      image: produit.image ?? produit.imageUrls?.[0] ?? '',
+      // ✅ On stocke correctement l'image selon le type de produit
+      image: produit.image
+        ? this.getImageUrl(produit.image)
+        : (produit.imageUrls?.[0] ?? ''),
       category: produit.typeCategorie?.nom ?? 'Bio',
       description: produit.description ?? ''
     };
 
     this.cartService.addToCart(item);
 
-    // Fermer la modale ouverte avant d'ouvrir le panier
     if (isPlatformBrowser(this.platformId)) {
       setTimeout(() => {
         if (typeof bootstrap !== 'undefined') {
@@ -214,12 +236,55 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /** Augmente la quantité d'un article */
+  increaseQuantity(item: CartItem): void {
+    this.cartService.incrementQuantity(item.id);
+  }
+
+  /** Diminue la quantité d'un article (supprime automatiquement si quantité = 1) */
+  decreaseQuantity(item: CartItem): void {
+    this.cartService.decrementQuantity(item.id);
+  }
+
+  /** Supprime un article du panier */
+  removeFromCart(id: number): void {
+    this.cartService.removeFromCart(id);
+  }
+
+  /** Vide complètement le panier */
+  clearCart(): void {
+    this.cartService.clearCart();
+  }
+
+  /** Redirige vers la page de commande */
+  goToCheckout(): void {
+    if (isPlatformBrowser(this.platformId) && typeof bootstrap !== 'undefined') {
+      const cartModalEl = document.getElementById('cartModal');
+      if (cartModalEl) {
+        const instance = bootstrap.Modal.getInstance(cartModalEl);
+        if (instance) instance.hide();
+      }
+    }
+    this.router.navigate(['/checkout']);
+  }
+
   isInCart(id: number): boolean {
     return this.cartService.isInCart(id);
   }
 
   getItemQuantity(id: number): number {
     return this.cartService.getItemQuantity(id);
+  }
+
+  /**
+   * ✅ NOUVEAU — Retourne l'URL de l'image d'un CartItem
+   * Gère les deux types de produits : Bio (image) et Sport (imageUrls)
+   */
+  getCartItemImage(item: CartItem): string {
+    if (item.image && item.image.trim() !== '') {
+      return item.image;
+    }
+    return 'assets/img/biosen/default-product.png';
   }
 
   // ══════════════════════════════════════════════════════════

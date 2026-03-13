@@ -22,7 +22,7 @@ export interface PaginatedResponse<T> {
 
 @Injectable({ providedIn: 'root' })
 export class ProduitService {
-  private apiUrl = `${environment.apiUrl}/produits`;
+  private apiUrl = `${environment.apiUrl}/admin/produits`;
 
   constructor(private http: HttpClient) { }
 

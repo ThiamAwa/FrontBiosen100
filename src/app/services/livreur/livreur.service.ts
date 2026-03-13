@@ -8,7 +8,7 @@ import { Livreur, LivreurResponse } from '../../models/livreur';
   providedIn: 'root'
 })
 export class LivreurService {
-  private apiUrl = `${environment.apiUrl}/livreurs`;
+  private apiUrl = `${environment.apiUrl}/admin/livreurs`;
 
   constructor(private http: HttpClient) { }
 

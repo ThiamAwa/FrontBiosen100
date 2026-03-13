@@ -8,7 +8,7 @@ import { Boutique, BoutiqueResponse } from '../../models/boutique';
   providedIn: 'root'
 })
 export class BoutiqueService {
-  private apiUrl = `${environment.apiUrl}/boutiques`;
+  private apiUrl = `${environment.apiUrl}/admin/boutiques`;
 
   constructor(private http: HttpClient) { }
 

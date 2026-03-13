@@ -13,15 +13,16 @@ export class TemoignageService {
 
   constructor(private http: HttpClient) { }
 
-
+  // Récupérer tous les témoignages publics (pour la page témoignages)
   getTemoignagesPublics(): Observable<Temoignage[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/temoignages-public`).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}/temoignages`).pipe(
       map(temoignages => temoignages.map(t => this.normalizeTemoignage(t)))
     );
   }
 
+  // Pour l'admin 
   getTemoignagesAdmin(page: number = 1): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/temoignages?page=${page}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/admin/temoignages?page=${page}`).pipe(
       map(response => ({
         ...response,
         temoignages: {
@@ -34,7 +35,7 @@ export class TemoignageService {
 
   // Créer un témoignage (admin)
   createTemoignage(formData: FormData): Observable<Temoignage> {
-    return this.http.post<Temoignage>(`${this.apiUrl}/temoignages`, formData).pipe(
+    return this.http.post<Temoignage>(`${this.apiUrl}/admin/temoignages`, formData).pipe(
       map(t => this.normalizeTemoignage(t))
     );
   }
@@ -43,14 +44,14 @@ export class TemoignageService {
   updateTemoignage(id: number, formData: FormData): Observable<Temoignage> {
     // Important: utiliser POST avec _method=PUT pour Laravel
     formData.append('_method', 'PUT');
-    return this.http.post<Temoignage>(`${this.apiUrl}/temoignages/${id}`, formData).pipe(
+    return this.http.post<Temoignage>(`${this.apiUrl}/admin/temoignages/${id}`, formData).pipe(
       map(t => this.normalizeTemoignage(t))
     );
   }
 
   // Supprimer un témoignage (admin)
   deleteTemoignage(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/temoignages/${id}`);
+    return this.http.delete(`${this.apiUrl}/admin/temoignages/${id}`);
   }
 
   // Obtenir les gammes pour le formulaire admin
@@ -60,7 +61,7 @@ export class TemoignageService {
 
   // Obtenir les clients pour le formulaire admin
   getClients(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/clients`);
+    return this.http.get<any[]>(`${this.apiUrl}/admin/clients`);
   }
 
   // Normaliser un témoignage

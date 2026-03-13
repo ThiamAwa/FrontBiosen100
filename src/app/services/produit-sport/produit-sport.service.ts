@@ -3,8 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-// ─── INTERFACES alignées sur la migration ────────────────────────────────────
-
 export interface TypeCategorie {
   id: number;
   nom: string;
@@ -21,13 +19,11 @@ export interface ProduitSport {
   noteProduit: number | null;
   ordre: number;
   type_categorie_id: number | null;
-  image: string[];        // JSON array de chemins relatifs
-  video: string | null;   // une seule URL vidéo
+  image: string[];
+  video: string | null;
   typeCategorie?: TypeCategorie;
-  created_at?: string;          // ✅ optionnel — pas toujours retourné
+  created_at?: string;
   updated_at?: string;
-
-  // Champs calculés côté front (non en BDD)
   imageUrls: string[];
   embedUrl: string | null;
   thumbnail: string | null;
@@ -55,16 +51,15 @@ export interface MediasResponse {
   medias: {
     type: 'image' | 'video';
     url: string;
-    path?: string; // chemin brut (images uniquement) — utile pour images_a_supprimer
+    path?: string;
   }[];
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
 export class ProduitSportService {
 
   private apiUrl = environment.apiUrl;
+  private adminUrl = `${environment.apiUrl}/produits-sport`;
   private storageUrl = environment.storageUrl;
 
   constructor(private http: HttpClient) { }
@@ -106,48 +101,31 @@ export class ProduitSportService {
 
   // ─── MÉDIAS ───────────────────────────────────────────────────────────────
 
-  /**
-   * Retourne la liste des images (URLs publiques + chemin brut)
-   * et la vidéo s'il y en a une.
-   */
   getMedias(id: number): Observable<MediasResponse> {
     return this.http.get<MediasResponse>(`${this.apiUrl}/produits-sport/${id}/medias`);
   }
 
   // ─── ADMIN CRUD ───────────────────────────────────────────────────────────
 
-  /**
-   * Création — FormData attendu :
-   *   nom, description, prix, prixPromo, stock, enPromotion,
-   *   type_categorie_id, video (optionnel),
-   *   images[]  (fichiers image, optionnel)
-   */
   createProduit(formData: FormData): Observable<ProduitSport> {
     return this.http
-      .post<any>(`${this.apiUrl}/produits-sport`, formData)
+      .post<any>(this.adminUrl, formData)
       .pipe(map(p => this.normalizeProduit(p)));
   }
 
-  /**
-   * Mise à jour — FormData attendu :
-   *   mêmes champs que create +
-   *   images_a_supprimer[]  (chemins bruts à retirer du JSON)
-   *   _method = PUT  (ajouté automatiquement)
-   */
   updateProduit(id: number, formData: FormData): Observable<ProduitSport> {
     formData.append('_method', 'PUT');
     return this.http
-      .post<any>(`${this.apiUrl}/produits-sport/${id}`, formData)
+      .post<any>(`${this.adminUrl}/${id}`, formData)
       .pipe(map(p => this.normalizeProduit(p)));
   }
 
   deleteProduit(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/produits-sport/${id}`);
+    return this.http.delete<{ message: string }>(`${this.adminUrl}/${id}`);
   }
 
   // ─── HELPERS ──────────────────────────────────────────────────────────────
 
-  /** Normalise la réponse paginée */
   private normalizeResponse(res: any): ProduitSportResponse {
     return {
       produits: {
@@ -158,13 +136,6 @@ export class ProduitSportService {
     };
   }
 
-  /**
-   * Normalise un produit brut reçu de l'API.
-   *
-   * Colonnes BDD :
-   *   image  → json  (string[])  — chemins relatifs
-   *   video  → string|null       — URL directe YouTube / Vimeo / autre
-   */
   private normalizeProduit(produit: any): ProduitSport {
     const images: string[] = Array.isArray(produit.image) ? produit.image : [];
 
@@ -174,19 +145,24 @@ export class ProduitSportService {
       imageUrls: images.map(chemin => this.getImageUrl(chemin)),
       embedUrl: produit.video ? this.getEmbedUrl(produit.video) : null,
       thumbnail: produit.video ? this.getYouTubeThumbnail(produit.video) : null,
-      // ✅ Correction : on mappe la propriété 'type_categorie' (venant de l'API) vers 'typeCategorie' (attendu par le template)
       typeCategorie: produit.type_categorie,
     };
   }
 
-  /** Construit l'URL publique d'une image stockée en local */
+  // ✅ CORRECTION — gère tous les formats de chemins possibles
   getImageUrl(chemin: string): string {
-    if (!chemin) return 'assets/images/placeholder.jpg';
+    if (!chemin) return 'assets/img/placeholder.jpeg';
     if (chemin.startsWith('http')) return chemin;
-    return `${this.storageUrl}/${chemin.replace('storage/', '')}`;
+
+    // Nettoie le chemin : supprime storage/, public/, public/storage/
+    const cleanPath = chemin
+      .replace(/^public\/storage\//, '')
+      .replace(/^public\//, '')
+      .replace(/^storage\//, '');
+
+    return `${this.storageUrl}/${cleanPath}`;
   }
 
-  /** Transforme une URL YouTube/Vimeo en URL embed */
   getEmbedUrl(url: string): string | null {
     if (!url) return null;
     if (url.includes('/embed/') || url.includes('player.vimeo.com')) return url;
@@ -197,7 +173,6 @@ export class ProduitSportService {
     return null;
   }
 
-  /** Retourne la miniature HQ d'une vidéo YouTube */
   getYouTubeThumbnail(url: string): string | null {
     const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
     return yt ? `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg` : null;

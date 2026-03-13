@@ -51,7 +51,7 @@ export class TypeCategorieService {
 
   /**
    * Crée un nouveau type de catégorie.
-   * @param data Objet contenant le nom
+   * @param data Objet contenant le nom 
    */
   createTypeCategorie(data: { nom: string }): Observable<TypeCategorie> {
     return this.http.post<TypeCategorie>(this.apiUrl, data);

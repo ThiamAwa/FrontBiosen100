@@ -174,6 +174,44 @@ export class CheckoutComponent implements OnInit {
   /**
    * Soumettre la commande
    */
+  // async onSubmit(): Promise<void> {
+  // if (!this.validateForm()) {
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  //   return;
+  // }
+
+  // this.isLoading = true;
+  // this.errors = {};
+
+  // try {
+  //   const orderData = {
+  //     ...this.formData,
+  //     cart_data: JSON.stringify(this.cart),
+  //     shipping_cost: this.shippingCost
+  //   };
+
+  //   const response = await this.checkoutService.submitOrder(orderData).toPromise();
+
+  //   if (response && response.order_number) {
+  //     this.cartService.clearCart();
+  //     this.router.navigate(['/checkout/confirmation', response.order_number]);
+  //   } else {
+  //     throw new Error('Réponse invalide du serveur');
+  //   }
+
+  // } catch (error: any) {
+  //   console.error('Erreur lors de la commande:', error);
+
+  //   if (error.status === 422 && error.error?.errors) {
+  //     this.errors = error.error.errors;
+  //   } else {
+  //     this.errors.general = error.error?.message || error.message || 'Une erreur est survenue';
+  //   }
+
+  // } finally {
+  //   this.isLoading = false;
+  // }
+  // }
   async onSubmit(): Promise<void> {
   if (!this.validateForm()) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -194,25 +232,92 @@ export class CheckoutComponent implements OnInit {
 
     if (response && response.order_number) {
       this.cartService.clearCart();
+
+      // ✅ 1. Ouvrir WhatsApp avec la facture
+      this.redirectToWhatsApp(response.order_number);
+
+      // ✅ 2. Rediriger vers la confirmation
       this.router.navigate(['/checkout/confirmation', response.order_number]);
     } else {
       throw new Error('Réponse invalide du serveur');
     }
 
   } catch (error: any) {
-    console.error('Erreur lors de la commande:', error);
-
     if (error.status === 422 && error.error?.errors) {
       this.errors = error.error.errors;
     } else {
       this.errors.general = error.error?.message || error.message || 'Une erreur est survenue';
     }
-
   } finally {
     this.isLoading = false;
   }
 }
 
+redirectToWhatsApp(orderNumber: string): void {
+  const vendeurTel = '221782904830';
+
+  // Construire la liste des produits
+  let lignesProduits = '';
+  this.cart.forEach((item, index) => {
+    lignesProduits += `\n${index + 1}. ${item.name}`;
+    lignesProduits += `\n   Qté: ${item.quantity}  |  Prix: ${this.formatPrice(item.price)}`;
+    lignesProduits += `\n   Sous-total: *${this.formatPrice(item.price * item.quantity)}*`;
+    lignesProduits += '\n';
+  });
+
+  // Zone de livraison formatée
+  const zoneParts = this.formData.zone_livraison?.split('|') || [];
+  const zoneLabel = zoneParts.length >= 2
+    ? `${zoneParts[0]} - ${zoneParts[1]}`
+    : this.formData.pays;
+
+  const message =
+`╔══════════════════════╗
+  *BIOSEN 100 — COMMANDE*  
+ ╚══════════════════════╝
+
+*N° Commande :* ${orderNumber}
+*Date :* ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
+
+━━━━━━━━━━━━━━━━━━━━━━
+*INFORMATIONS CLIENT*
+━━━━━━━━━━━━━━━━━━━━━━
+- Nom complet : *${this.formData.prenom} ${this.formData.nom}*
+- Téléphone : *${this.formData.telephone}*
+- Adresse : ${this.formData.adresse}
+- Pays : ${this.formData.pays}
+- Zone : ${zoneLabel}
+${this.formData.notes ? `• Note : _${this.formData.notes}_` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━
+*PRODUITS COMMANDÉS*
+━━━━━━━━━━━━━━━━━━━━━━
+${lignesProduits}
+━━━━━━━━━━━━━━━━━━━━━━
+*RÉCAPITULATIF*
+━━━━━━━━━━━━━━━━━━━━━━
+- Sous-total : ${this.formatPrice(this.subtotal)}
+- Livraison  : ${this.formatPrice(this.shippingCost)}
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+*TOTAL À PAYER : ${this.formatPrice(this.total)}*
+
+━━━━━━━━━━━━━━━━━━━━━━
+*PAIEMENT*
+━━━━━━━━━━━━━━━━━━━━━━
+Veuillez effectuer le paiement via :
+- *Wave*
+- *Orange Money*
+- *Free Money*
+
+Puis envoyez la capture de paiement ici 
+
+_— BioSen 100_`;
+
+  const whatsappUrl = `https://wa.me/${vendeurTel}?text=${encodeURIComponent(message)}`;
+
+  // Ouvrir WhatsApp dans un nouvel onglet
+  window.open(whatsappUrl, '_blank');
+}
   /**
    * Formater le prix
    */

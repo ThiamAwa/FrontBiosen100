@@ -254,7 +254,7 @@ export class CheckoutComponent implements OnInit {
 }
 
 redirectToWhatsApp(orderNumber: string): void {
-  const vendeurTel = '221782904830';
+  const vendeurTel = '221761449216';
 
   // Construire la liste des produits
   let lignesProduits = '';

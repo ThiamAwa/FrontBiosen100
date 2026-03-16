@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemoignageService } from '../../../services/temoignage/temoignage.service';
 import { Temoignage } from '../../../models/temoignage';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-temoignage',
@@ -42,7 +43,6 @@ export class TemoignageComponent implements OnInit {
     gamme_id: '',
     description: '',
     video_url: '',
-    afficher: true,
     images: [] as File[]
   };
 
@@ -54,7 +54,6 @@ export class TemoignageComponent implements OnInit {
     gamme_id: '',
     description: '',
     video_url: '',
-    afficher: true,
     images: [] as File[],
     supprimer_images: false,
     existingImages: [] as string[]
@@ -69,7 +68,10 @@ export class TemoignageComponent implements OnInit {
   errorMessage: string | null = null;
   validationErrors: string[] = [];
 
-  constructor(private temoignageService: TemoignageService) { }
+  constructor(
+      private temoignageService: TemoignageService,
+      private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.loadTemoignages();
@@ -133,7 +135,6 @@ export class TemoignageComponent implements OnInit {
       gamme_id: '',
       description: '',
       video_url: '',
-      afficher: true,
       images: []
     };
     this.createPreviews = [];
@@ -148,25 +149,31 @@ export class TemoignageComponent implements OnInit {
   }
 
   onFileSelected(event: Event, type: 'create' | 'edit'): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-      const files = Array.from(input.files);
-      if (type === 'create') {
-        this.createForm.images.push(...files);
-        files.forEach(file => {
-          const reader = new FileReader();
-          reader.onload = (e: any) => this.createPreviews.push({ file, url: e.target.result });
-          reader.readAsDataURL(file);
-        });
-      } else {
-        this.editForm.images.push(...files);
-        files.forEach(file => {
-          const reader = new FileReader();
-          reader.onload = (e: any) => this.editPreviews.push({ file, url: e.target.result });
-          reader.readAsDataURL(file);
-        });
-      }
+  const input = event.target as HTMLInputElement;
+  if (input.files) {
+    const files = Array.from(input.files);
+    if (type === 'create') {
+      this.createForm.images.push(...files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.createPreviews.push({ file, url: e.target.result });
+          this.cdr.detectChanges(); // 👈 forcer la détection de changement
+        };
+        reader.readAsDataURL(file);
+      });
+    } else {
+      this.editForm.images.push(...files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.editPreviews.push({ file, url: e.target.result });
+          this.cdr.detectChanges(); // 👈 idem
+        };
+        reader.readAsDataURL(file);
+      });
     }
+  }
   }
 
   removePreview(index: number, type: 'create' | 'edit'): void {
@@ -189,7 +196,7 @@ export class TemoignageComponent implements OnInit {
     if (this.createForm.gamme_id) formData.append('gamme_id', this.createForm.gamme_id);
     if (this.createForm.description) formData.append('description', this.createForm.description);
     if (this.createForm.video_url) formData.append('video_url', this.createForm.video_url);
-    formData.append('afficher', this.createForm.afficher ? '1' : '0');
+    formData.append('afficher', '1');
     this.createForm.images.forEach(file => formData.append('images[]', file));
 
     this.temoignageService.createTemoignage(formData).subscribe({
@@ -219,7 +226,6 @@ export class TemoignageComponent implements OnInit {
       gamme_id: temoignage.gamme_id?.toString() || '',
       description: temoignage.description || '',
       video_url: temoignage.video_url || '',
-      afficher: temoignage.afficher,
       images: [],
       supprimer_images: false,
       existingImages: temoignage.images || []
@@ -246,7 +252,7 @@ export class TemoignageComponent implements OnInit {
     if (this.editForm.gamme_id) formData.append('gamme_id', this.editForm.gamme_id);
     if (this.editForm.description) formData.append('description', this.editForm.description);
     if (this.editForm.video_url) formData.append('video_url', this.editForm.video_url);
-    formData.append('afficher', this.editForm.afficher ? '1' : '0');
+    formData.append('afficher', '1');
     if (this.editForm.supprimer_images) formData.append('supprimer_images', '1');
     this.editForm.images.forEach(file => formData.append('images[]', file));
 

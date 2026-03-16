@@ -125,8 +125,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.produitsPromo = response.produitsPromo || [];
         this.gammes = response.gammes || [];
         this.categories = response.categories || [];
-        this.typeCategories = response.typeCategories || [];
         this.vendeurs = response.vendeurs || [];
+        console.log('Vendeurs chargés:', this.vendeurs); 
         this.stats = response.stats || this.stats;
         this.loading = false;
         this.loadProduitsSport();
@@ -575,8 +575,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // ══════════════════════════════════════════════════════════
 
   getWhatsAppLink(vendeur: Vendeur): string {
-    const message = encodeURIComponent('Bonjour, je suis intéressé(e) par vos produits BioSen.');
-    return `https://wa.me/${vendeur.telephone}?text=${message}`;
+    let tel = (vendeur.telephone || '').toString().replace(/[\s\-\(\)]/g, '');
+    if (!tel.startsWith('+') && !tel.startsWith('221')) {
+      tel = '221' + tel;
+    }
+    tel = tel.replace('+', '');
+    const message = encodeURIComponent('Bonjour, je suis intéressé(e) par vos produits BioSen 100 🌿');
+    return `https://wa.me/${tel}?text=${message}`;
   }
 
   getImageUrl(imagePath?: string): string {
@@ -617,5 +622,26 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isProduitBio(produit: any): boolean {
     return produit.categorie?.type_categorie_id === 1;
+  }
+  getVendeurInitials(vendeur: Vendeur): string {
+  const p = vendeur.prenom?.[0] || '';
+  const n = vendeur.nom?.[0] || '';
+  return (p + n).toUpperCase() || 'V';
+}
+  maskPhone(telephone: string): string {
+    if (!telephone) return '';
+    let tel = telephone.toString().replace(/[\s\-\(\)]/g, '');
+    
+    // Retirer l'indicatif si présent
+    if (tel.startsWith('221')) tel = tel.substring(3);
+    if (tel.startsWith('+221')) tel = tel.substring(4);
+
+    if (tel.length >= 7) {
+      const debut = tel.substring(0, 2);
+      const fin = tel.substring(tel.length - 2);
+      return `+221 ${debut} *** ** ${fin}`;
+    }
+    
+    return `+221 ${tel.substring(0, 2)}***`;
   }
 }

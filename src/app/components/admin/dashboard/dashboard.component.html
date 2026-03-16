@@ -1,1 +1,338 @@
-<p>dashboard works!</p>
+<div class="dashboard-container" *ngIf="!loading && !error && stats">
+
+    <!-- ═══════════════════════════════════════════
+         EN-TÊTE
+    ═══════════════════════════════════════════ -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <div class="page-header-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h1>Tableau de bord</h1>
+                <p class="text-muted">Bienvenue sur votre espace d'administration</p>
+            </div>
+        </div>
+        <div class="page-header-badge">
+            <i class="fas fa-circle-dot me-1"></i> En direct
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         LIGNE 1 — Statistiques principales
+    ═══════════════════════════════════════════ -->
+    <div class="row stats-row g-4">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-green">
+                <div class="stat-card-inner">
+                    <div class="stat-icon-wrap">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Commandes totales</span>
+                        <h3 class="stat-value">{{ stats.stats.total_commandes }}</h3>
+                        <span class="stat-sub">
+                            <i class="fas fa-calendar-day me-1"></i>{{ stats.stats.commandes_mois }} ce mois
+                        </span>
+                    </div>
+                </div>
+                <div class="stat-wave"></div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-teal">
+                <div class="stat-card-inner">
+                    <div class="stat-icon-wrap">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Revenus totaux</span>
+                        <h3 class="stat-value">{{ formatCurrency(stats.stats.revenus_total) }}</h3>
+                        <span class="stat-sub">
+                            <i class="fas fa-calendar-day me-1"></i>{{ formatCurrency(stats.stats.revenus_mois) }} ce
+                            mois
+                        </span>
+                    </div>
+                </div>
+                <div class="stat-wave"></div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-blue">
+                <div class="stat-card-inner">
+                    <div class="stat-icon-wrap">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Clients</span>
+                        <h3 class="stat-value">{{ stats.stats.total_clients }}</h3>
+                        <span class="stat-sub">
+                            <i class="fas fa-user-plus me-1"></i>{{ stats.stats.clients_mois }} nouveaux
+                        </span>
+                    </div>
+                </div>
+                <div class="stat-wave"></div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-orange">
+                <div class="stat-card-inner">
+                    <div class="stat-icon-wrap">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Taux de conversion</span>
+                        <h3 class="stat-value">{{ stats.stats.taux_conversion }}%</h3>
+                        <span class="stat-sub">
+                            <i class="fas fa-arrow-trend-up me-1"></i>Performance globale
+                        </span>
+                    </div>
+                </div>
+                <div class="stat-wave"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         LIGNE 2 — Produits & Personnel
+    ═══════════════════════════════════════════ -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <div class="card-header-left">
+                        <div class="card-header-icon icon-green">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <span>Produits &amp; Stocks</span>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="stats-grid">
+                        <div class="stats-item">
+                            <span class="stats-label">Total produits</span>
+                            <span class="stats-value">{{ stats.stats_produits.total_produits }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Gammes</span>
+                            <span class="stats-value">{{ stats.stats_produits.total_gammes }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Catégories</span>
+                            <span class="stats-value">{{ stats.stats_produits.total_categories }}</span>
+                        </div>
+                        <!-- ✅ BUG CORRIGÉ : < remplacé par &lt; et balise fermée correctement -->
+                        <div class="stats-item">
+                            <span class="stats-label">Stock bas (&lt;10)</span>
+                            <span class="stats-value text-danger">{{ stats.stats_produits.produits_stock_bas }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <div class="card-header-left">
+                        <div class="card-header-icon icon-blue">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <span>Personnel &amp; Boutiques</span>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="stats-grid">
+                        <div class="stats-item">
+                            <span class="stats-label">Boutiques</span>
+                            <span class="stats-value">{{ stats.stats_personnel.total_boutiques }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Vendeurs</span>
+                            <span class="stats-value">{{ stats.stats_personnel.total_vendeurs }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Commerciaux</span>
+                            <span class="stats-value">{{ stats.stats_personnel.total_commerciaux }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Responsables</span>
+                            <span class="stats-value">{{ stats.stats_personnel.total_responsables }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         LIGNE 3 — Graphique ventes & Répartition
+    ═══════════════════════════════════════════ -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-8">
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <div class="card-header-left">
+                        <div class="card-header-icon icon-teal">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <span>Ventes mensuelles <small class="text-muted fw-normal">(12 derniers mois)</small></span>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="chart-container">
+                        <div class="bar-chart">
+                            <div *ngFor="let vente of stats.ventes_mensuelles; let i = index" class="bar-item">
+                                <div class="bar-label">{{ vente.mois }}</div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-fill" [style.width.%]="vente.montant / getMaxVente() * 100"
+                                        [style.animation-delay]="i * 0.05 + 's'">
+                                        <span class="bar-value" *ngIf="vente.montant / getMaxVente() * 100 > 20">
+                                            {{ formatCurrency(vente.montant) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="bar-amount-outside" *ngIf="vente.montant / getMaxVente() * 100 <= 20">
+                                    {{ formatCurrency(vente.montant) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-custom h-100">
+                <div class="card-header-custom">
+                    <div class="card-header-left">
+                        <div class="card-header-icon icon-orange">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <span>Répartition des commandes</span>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="pie-legend">
+                        <div *ngFor="let item of stats.repartition_statuts" class="legend-item">
+                            <span class="legend-dot" [style.background]="getStatusColor(item.statut)"></span>
+                            <span class="legend-label">{{ getStatutLabel(item.statut) }}</span>
+                            <span class="legend-pill" [style.background]="getStatusColor(item.statut) + '22'"
+                                [style.color]="getStatusColor(item.statut)">
+                                {{ item.total }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         LIGNE 4 — Commandes récentes
+    ═══════════════════════════════════════════ -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <div class="card-header-left">
+                        <div class="card-header-icon icon-purple">
+                            <i class="fas fa-clock-rotate-left"></i>
+                        </div>
+                        <span>Commandes récentes</span>
+                    </div>
+                    <span class="card-header-count">{{ stats.commandes_recentes.length }} entrées</span>
+                </div>
+                <div class="card-body-custom p-0">
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>N° commande</th>
+                                    <th>Client</th>
+                                    <th>Montant</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let cmd of stats.commandes_recentes; let odd = odd" [class.row-odd]="odd">
+                                    <td>
+                                        <span class="order-number">
+                                            <i class="fas fa-hashtag me-1 text-muted" style="font-size:11px;"></i>
+                                            {{ cmd.numeroCommande }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="client-cell">
+                                            <div class="client-avatar">
+                                                {{ (cmd.user?.prenom || '?')[0] }}{{ (cmd.user?.nom || '')[0] }}
+                                            </div>
+                                            <span>{{ cmd.user?.prenom }} {{ cmd.user?.nom }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="amount-cell">{{ formatCurrency(cmd.montantTotal) }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="date-cell">
+                                            <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                                            {{ cmd.created_at | date:'dd/MM/yyyy' }}
+                                            <small class="text-muted ms-1">{{ cmd.created_at | date:'HH:mm' }}</small>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge" [ngClass]="getStatutClass(cmd.statut)">
+                                            <span class="status-dot"></span>
+                                            {{ getStatutLabel(cmd.statut) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="stats.commandes_recentes.length === 0">
+                                    <td colspan="5" class="empty-row">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block text-muted"></i>
+                                        Aucune commande récente
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+       CHARGEMENT
+  ═══════════════════════════════════════════ -->
+<div class="loading-container" *ngIf="loading">
+    <div class="loader-ring">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <p class="loading-text">Chargement du tableau de bord...</p>
+</div>
+
+<!-- ═══════════════════════════════════════════
+       ERREUR
+  ═══════════════════════════════════════════ -->
+<div class="error-container" *ngIf="error">
+    <div class="error-icon">
+        <i class="fas fa-triangle-exclamation"></i>
+    </div>
+    <h5 class="mt-3 text-danger">Une erreur est survenue</h5>
+    <p class="text-muted">{{ error }}</p>
+</div>

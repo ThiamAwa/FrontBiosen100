@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Gamme } from '../../models/gamme';
 import { environment } from '../../../environments/environment';
-import {PaginatedResponse} from '../produit/produit.service';
+import { PaginatedResponse } from '../produit/produit.service';
 
 export interface TypeCategorie {
   id: number;
@@ -20,7 +20,6 @@ export interface GammePagination {
   to: number;
 }
 
-// ===== NOUVELLES INTERFACES POUR LA BOUTIQUE =====
 export interface Categorie {
   id: number;
   nom: string;
@@ -37,13 +36,12 @@ export interface Stats {
 @Injectable({ providedIn: 'root' })
 export class GammeService {
   private apiUrl = 'http://localhost:8000/api/gammes';
-  // ===== AJOUT POUR LA BOUTIQUE =====
-  private publicApiUrl = environment.apiUrl; // http://localhost:8000/api
+  private publicApiUrl = environment.apiUrl;    // http://localhost:8000/api
   private storageUrl = environment.storageUrl; // http://localhost:8000/storage
 
   constructor(private http: HttpClient) { }
 
-  // ========== MÉTHODES EXISTANTES (À NE PAS TOUCHER) ==========
+  // ========== MÉTHODES EXISTANTES ==========
 
   getAll(page: number = 1, search: string = ''): Observable<GammePagination> {
     let params = new HttpParams().set('page', page);
@@ -83,25 +81,33 @@ export class GammeService {
     return fd;
   }
 
-  // ========== NOUVELLES MÉTHODES POUR LA BOUTIQUE (À AJOUTER) ==========
+  // ========== MÉTHODES BOUTIQUE ==========
 
   /**
-   * Récupérer toutes les gammes pour la boutique avec pagination et filtres
+   * Récupérer les gammes pour la boutique avec pagination et filtres.
+   *
+   * @param page           - numéro de page
+   * @param search         - recherche textuelle
+   * @param type_categorie - identifiant du type de catégorie
+   * @param prix_max       - prix maximum (0 = pas de filtre)
+   * @param tri            - ordre de tri
+   * @param promo          - si true, ne retourner que les produits en promotion  ← NOUVEAU
    */
   getGammesBoutique(
     page: number = 1,
     search: string = '',
-    type_categorie: string = '1',
+    type_categorie: string = '',
     prix_max: number = 0,
-    tri: string = 'default'
+    tri: string = 'default',
+    promo: boolean = false      // ← paramètre ajouté
   ): Observable<GammePagination> {
-    let params = new HttpParams()
-      .set('page', page.toString());
+    let params = new HttpParams().set('page', page.toString());
 
     if (search) params = params.set('search', search);
-    if (type_categorie) params = params.set('type_categorie', type_categorie); // 👈 Ajouter ce filtre
+    if (type_categorie) params = params.set('type_categorie', type_categorie);
     if (prix_max > 0) params = params.set('prix_max', prix_max.toString());
     if (tri !== 'default') params = params.set('tri', tri);
+    if (promo) params = params.set('en_promotion', '1'); // ← envoyé à l'API
 
     return this.http.get<any>(`${this.publicApiUrl}/gammes`, { params }).pipe(
       map(response => ({
@@ -115,53 +121,36 @@ export class GammeService {
       }))
     );
   }
-  /**
-   * Récupérer toutes les catégories
-   */
+
   getCategories(page: number = 1): Observable<PaginatedResponse<Categorie>> {
     const params = new HttpParams().set('page', page.toString());
-    return this.http.get<PaginatedResponse<Categorie>>(`${this.publicApiUrl}/categories`,{ params });
+    return this.http.get<PaginatedResponse<Categorie>>(`${this.publicApiUrl}/categories`, { params });
   }
 
-  /**
-   * Récupérer les statistiques pour la boutique
-   */
   getStats(): Observable<Stats> {
     return this.http.get<Stats>(`${this.publicApiUrl}/stats`);
   }
 
-  /**
-   * Récupérer les gammes en promotion
-   */
   getGammesPromo(): Observable<Gamme[]> {
     return this.http.get<any[]>(`${this.publicApiUrl}/gammes/promo`).pipe(
       map(gammes => gammes.map(g => this.normalizeGamme(g)))
     );
   }
 
-  /**
-   * Récupérer les gammes récentes
-   */
   getGammesRecentes(limit: number = 6): Observable<Gamme[]> {
     return this.http.get<any[]>(`${this.publicApiUrl}/gammes/recentes?limit=${limit}`).pipe(
       map(gammes => gammes.map(g => this.normalizeGamme(g)))
     );
   }
 
-  /**
-   * Récupérer une gamme par son ID pour la boutique
-   */
   getGammeById(id: number): Observable<Gamme> {
     return this.http.get<Gamme>(`${this.publicApiUrl}/gammes/${id}`).pipe(
       map(gamme => this.normalizeGamme(gamme))
     );
   }
 
-  // ========== MÉTHODES UTILITAIRES ==========
+  // ========== UTILITAIRES ==========
 
-  /**
-   * Normaliser une gamme (ajouter l'URL complète de l'image)
-   */
   private normalizeGamme(gamme: any): Gamme {
     return {
       ...gamme,
@@ -169,34 +158,22 @@ export class GammeService {
     };
   }
 
-  /**
-   * Obtenir l'URL complète de l'image
-   */
   getImageUrl(imagePath?: string | null): string {
     if (!imagePath) return 'assets/img/biosen/default-product.png';
     if (imagePath.startsWith('http')) return imagePath;
     return `${this.storageUrl}/${imagePath.replace('storage/', '')}`;
   }
 
-  /**
-   * Formater le prix (ex: 15000 → 15 000 FCFA)
-   */
   formatPrice(price?: number | null): string {
     if (!price) return 'Sur demande';
     return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
   }
 
-  /**
-   * Calculer le pourcentage de réduction
-   */
   calculateDiscount(original: number, promo: number): number {
     if (!original || !promo || original <= 0) return 0;
     return Math.round(((original - promo) / original) * 100);
   }
 
-  /**
-   * Limiter la longueur d'un texte
-   */
   limitText(text?: string | null, limit: number = 60): string {
     if (!text) return '';
     return text.length > limit ? text.substring(0, limit) + '...' : text;

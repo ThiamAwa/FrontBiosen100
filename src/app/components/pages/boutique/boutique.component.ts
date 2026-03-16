@@ -57,6 +57,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   prixMaxValue = 50000;
 
   private searchSubject = new Subject<string>();
+  private prixSubject = new Subject<number>();
 
   constructor(
     private gammeService: GammeService,
@@ -65,13 +66,11 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    this.searchSubject.pipe(
-      debounceTime(500),
-      distinctUntilChanged()
-    ).subscribe(() => {
-      this.filters.page = 1;
-      this.loadProducts();
-    });
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged())
+      .subscribe(() => { this.filters.page = 1; this.loadProducts(); });
+
+    this.prixSubject.pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe(() => { this.filters.page = 1; this.loadProducts(); });
   }
 
   ngOnInit(): void {
@@ -81,6 +80,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.searchSubject.complete();
+    this.prixSubject.complete();
   }
 
   // ══════════════════════════════════════════════════════════
@@ -93,31 +93,18 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   get isSportSelected(): boolean {
     if (this.isAllSelected) return false;
-    const selected = this.typeCategories.find(
+    return this.typeCategories.find(
       t => t.id.toString() === this.filters.type_categorie
-    );
-    return selected?.isSport ?? false;
+    )?.isSport ?? false;
   }
 
   get isBioSelected(): boolean {
     return !this.isAllSelected && !this.isSportSelected;
   }
 
-  // ══════════════════════════════════════════════════════════
-  // Panier — Getters réactifs
-  // ══════════════════════════════════════════════════════════
-
-  get cartItems(): CartItem[] {
-    return this.cartService.getCart();
-  }
-
-  get cartSubtotal(): number {
-    return this.cartService.getCartTotal();
-  }
-
-  get cartCount(): number {
-    return this.cartService.getCartCount();
-  }
+  get cartItems(): CartItem[] { return this.cartService.getCart(); }
+  get cartSubtotal(): number { return this.cartService.getCartTotal(); }
+  get cartCount(): number { return this.cartService.getCartCount(); }
 
   // ══════════════════════════════════════════════════════════
   // Chargement principal
@@ -126,6 +113,16 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   loadProducts(): void {
     this.loading = true;
     this.error = '';
+
+    /**
+     * Règle : si "En promotion" est coché, on charge TOUJOURS
+     * les deux sources (gammes + sport) pour ne rien manquer,
+     * quelle que soit la catégorie sélectionnée.
+     */
+    if (this.filters.promo) {
+      this.loadPromo();
+      return;
+    }
 
     if (this.isAllSelected) {
       this.loadAll();
@@ -138,6 +135,48 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ──────────────────────────────────────────────────────────
+  // loadPromo — charge les deux sources en promotion
+  // ──────────────────────────────────────────────────────────
+  loadPromo(): void {
+    forkJoin({
+      gammes: this.gammeService.getGammesBoutique(
+        this.filters.page,
+        this.filters.search,
+        '',                        // toutes catégories
+        this.filters.prix_max,
+        this.filters.tri,
+        true                       // en_promotion = true
+      ),
+      sport: this.produitSportService.getProduitsWithFilters({
+        page: this.filters.page,
+        en_promotion: true,
+        ...(this.filters.search && { search: this.filters.search }),
+        ...(this.filters.prix_max < this.prixMaxValue && { prix_max: this.filters.prix_max }),
+        ...(this.filters.tri !== 'default' && { sort: this.filters.tri })
+      })
+    }).subscribe({
+      next: ({ gammes, sport }) => {
+        this.gammes = gammes.data;
+        this.produitsSport = sport.produits?.data || [];
+        this.pagination = {
+          current_page: gammes.current_page,
+          last_page: gammes.last_page,
+          per_page: gammes.per_page,
+          total: gammes.total + (sport.produits?.total || 0)
+        };
+        this.updatePrixMaxValue();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement promo:', err);
+        this.error = 'Erreur lors du chargement des promotions';
+        this.loading = false;
+      }
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────
   loadAll(): void {
     forkJoin({
       gammes: this.gammeService.getGammesBoutique(
@@ -145,10 +184,14 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
         this.filters.search,
         '',
         this.filters.prix_max,
-        this.filters.tri
+        this.filters.tri,
+        false
       ),
       sport: this.produitSportService.getProduitsWithFilters({
-        page: this.filters.page
+        page: this.filters.page,
+        ...(this.filters.search && { search: this.filters.search }),
+        ...(this.filters.prix_max < this.prixMaxValue && { prix_max: this.filters.prix_max }),
+        ...(this.filters.tri !== 'default' && { sort: this.filters.tri })
       })
     }).subscribe({
       next: ({ gammes, sport }) => {
@@ -177,7 +220,8 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
       this.filters.search,
       this.filters.type_categorie,
       this.filters.prix_max,
-      this.filters.tri
+      this.filters.tri,
+      false
     ).subscribe({
       next: (response) => {
         this.gammes = response.data;
@@ -209,9 +253,9 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
       sort?: string;
     } = { page: this.filters.page };
 
+    if (this.filters.search) params.search = this.filters.search;
     if (this.filters.categorie_sport) params.categorie = parseInt(this.filters.categorie_sport);
-    if (this.filters.prix_max && this.filters.prix_max < this.prixMaxValue) params.prix_max = this.filters.prix_max;
-    if (this.filters.promo) params.en_promotion = true;
+    if (this.filters.prix_max < this.prixMaxValue) params.prix_max = this.filters.prix_max;
     if (this.filters.tri !== 'default') params.sort = this.filters.tri;
 
     this.produitSportService.getProduitsWithFilters(params).subscribe({
@@ -244,6 +288,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
       next: (response) => {
         const categoriesData = response.data;
         const totalCounts = new Map<number, number>();
+
         categoriesData.forEach((cat: any) => {
           if (cat.type_categorie) {
             const typeId = cat.type_categorie.id;
@@ -315,6 +360,8 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   get displayedItems(): any[] {
+    // En mode promo, on mélange toujours les deux sources
+    if (this.filters.promo) return [...this.gammes, ...this.produitsSport];
     if (this.isAllSelected) return [...this.gammes, ...this.produitsSport];
     if (this.isSportSelected) return this.produitsSport;
     return this.gammes;
@@ -356,7 +403,9 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     if (items.length > 0) {
       const maxPrix = Math.max(...items.map(item => item.prix ?? 0));
       this.prixMaxValue = maxPrix > 0 ? maxPrix : 50000;
-      if (this.filters.prix_max > this.prixMaxValue) this.filters.prix_max = this.prixMaxValue;
+      if (this.filters.prix_max > this.prixMaxValue) {
+        this.filters.prix_max = this.prixMaxValue;
+      }
     }
   }
 
@@ -367,6 +416,11 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   onSearchChange(search: string): void {
     this.filters.search = search;
     this.searchSubject.next(search);
+  }
+
+  updatePrixMax(event: any): void {
+    this.filters.prix_max = parseInt(event.target.value, 10);
+    this.prixSubject.next(this.filters.prix_max);
   }
 
   applyFilters(): void {
@@ -401,10 +455,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
-  updatePrixMax(event: any): void {
-    this.filters.prix_max = parseInt(event.target.value);
-  }
-
   // ══════════════════════════════════════════════════════════
   // Pagination
   // ══════════════════════════════════════════════════════════
@@ -413,6 +463,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     const pages: (number | string)[] = [];
     const total = this.pagination.last_page;
     const current = this.pagination.current_page;
+
     if (total <= 5) {
       for (let i = 1; i <= total; i++) pages.push(i);
     } else {
@@ -491,21 +542,10 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     }
   }
 
-  increaseQuantity(item: CartItem): void {
-    this.cartService.incrementQuantity(item.id);
-  }
-
-  decreaseQuantity(item: CartItem): void {
-    this.cartService.decrementQuantity(item.id);
-  }
-
-  removeFromCart(id: number): void {
-    this.cartService.removeFromCart(id);
-  }
-
-  clearCart(): void {
-    this.cartService.clearCart();
-  }
+  increaseQuantity(item: CartItem): void { this.cartService.incrementQuantity(item.id); }
+  decreaseQuantity(item: CartItem): void { this.cartService.decrementQuantity(item.id); }
+  removeFromCart(id: number): void { this.cartService.removeFromCart(id); }
+  clearCart(): void { this.cartService.clearCart(); }
 
   goToCheckout(): void {
     if (isPlatformBrowser(this.platformId) && typeof bootstrap !== 'undefined') {

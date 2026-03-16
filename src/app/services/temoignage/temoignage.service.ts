@@ -53,14 +53,15 @@ export class TemoignageService {
     return this.http.delete(`${this.apiUrl}/temoignages/${id}`);
   }
 
-  // Obtenir les gammes pour le formulaire admin
   getGammes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/gammes`);
+  return this.http.get<any>(`${this.apiUrl}/gammes`).pipe(
+    map(response => Array.isArray(response) ? response : (response.data || []))
+  );
   }
-
-  // Obtenir les clients pour le formulaire admin
   getClients(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/clients`);
+  return this.http.get<any>(`${this.apiUrl}/clients`).pipe(
+    map(response => Array.isArray(response) ? response : (response.data || response.clients?.data || []))
+  );
   }
 
   // Normaliser un témoignage

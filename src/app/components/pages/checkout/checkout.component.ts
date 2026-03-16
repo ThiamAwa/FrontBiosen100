@@ -174,83 +174,44 @@ export class CheckoutComponent implements OnInit {
   /**
    * Soumettre la commande
    */
-
   async onSubmit(): Promise<void> {
-    if (!this.validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    this.isLoading = true;
-    this.errors = {};
-
-    try {
-      const orderData = {
-        ...this.formData,
-        cart_data: JSON.stringify(this.cart),
-        shipping_cost: this.shippingCost
-      };
-
-      // Appeler le nouvel endpoint init-checkout (pas process)
-      const response = await this.checkoutService.initCheckout(orderData).toPromise();
-
-      if (response && response.success) {
-        // Stocker le payment_token pour plus tard (optionnel)
-        sessionStorage.setItem('payment_token', response.payment_token);
-
-        // Rediriger vers PayDunya
-        window.location.href = response.payment_url;
-      } else {
-        this.errors.general = response?.message || 'Erreur lors de l\'initialisation du paiement';
-      }
-    } catch (error: any) {
-      console.error('Erreur:', error);
-      this.errors.general = error.error?.message || 'Une erreur est survenue';
-    } finally {
-      this.isLoading = false;
-    }
+  if (!this.validateForm()) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
   }
-  // async onSubmit(): Promise<void> {
-  //   if (!this.validateForm()) {
-  //     window.scrollTo({ top: 0, behavior: 'smooth' });
-  //     return;
-  //   }
-  //
-  //   this.isLoading = true;
-  //   this.errors = {};
-  //
-  //   try {
-  //     const orderData = {
-  //       ...this.formData,
-  //       cart_data: JSON.stringify(this.cart),
-  //       shipping_cost: this.shippingCost
-  //     };
-  //
-  //     const response = await this.checkoutService.submitOrder(orderData).toPromise();
-  //
-  //     if (response && response.order_number) {
-  //       // Vider le panier après commande réussie
-  //       this.cartService.clearCart();
-  //
-  //       // Rediriger vers la page de confirmation
-  //       this.router.navigate(['/checkout/confirmation', response.order_number]);
-  //     } else {
-  //       throw new Error('Réponse invalide du serveur');
-  //     }
-  //
-  //   } catch (error: any) {
-  //     console.error('Erreur lors de la commande:', error);
-  //
-  //     if (error.status === 422 && error.error?.errors) {
-  //       this.errors = error.error.errors;
-  //     } else {
-  //       this.errors.general = error.error?.message || error.message || 'Une erreur est survenue';
-  //     }
-  //
-  //   } finally {
-  //     this.isLoading = false;
-  //   }
-  // }
+
+  this.isLoading = true;
+  this.errors = {};
+
+  try {
+    const orderData = {
+      ...this.formData,
+      cart_data: JSON.stringify(this.cart),
+      shipping_cost: this.shippingCost
+    };
+
+    const response = await this.checkoutService.submitOrder(orderData).toPromise();
+
+    if (response && response.order_number) {
+      this.cartService.clearCart();
+      this.router.navigate(['/checkout/confirmation', response.order_number]);
+    } else {
+      throw new Error('Réponse invalide du serveur');
+    }
+
+  } catch (error: any) {
+    console.error('Erreur lors de la commande:', error);
+
+    if (error.status === 422 && error.error?.errors) {
+      this.errors = error.error.errors;
+    } else {
+      this.errors.general = error.error?.message || error.message || 'Une erreur est survenue';
+    }
+
+  } finally {
+    this.isLoading = false;
+  }
+}
 
   /**
    * Formater le prix

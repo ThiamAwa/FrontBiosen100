@@ -26,6 +26,8 @@ export interface CommandeResponse {
   message: string;
   order_number: string;
   commande_id: number;
+  facture_id: number;
+  numero_facture: string;
   token?: string;
   whatsapp_message: string;
 }
@@ -38,49 +40,25 @@ export class CheckoutService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Soumettre une commande
-   */
   submitOrder(data: CheckoutData): Observable<CommandeResponse> {
-    return this.http.post<CommandeResponse>(`${this.apiUrl}/checkout`, data);
+  return this.http.post<CommandeResponse>(`${this.apiUrl}/checkout`, data);
   }
 
-  /**
-   * Récupérer les informations d'une commande
-   */
   getOrder(orderNumber: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/checkout/confirmation/${orderNumber}`);
   }
 
-  /**
-   * Vérifier le statut d'une commande
-   */
   checkOrderStatus(orderNumber: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/checkout/status/${orderNumber}`);
   }
 
-  /**
-   * Obtenir le message WhatsApp pour une commande
-   */
   getWhatsAppMessage(orderNumber: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/checkout/whatsapp/${orderNumber}`);
   }
 
-  /**
-   * Télécharger la facture PDF
-   */
   downloadInvoice(orderNumber: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/checkout/pdf/${orderNumber}`, {
       responseType: 'blob'
     });
-  }
-  initCheckout(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/checkout/init`, data);
-  }
-  /**
-   * Confirmer le paiement et créer la commande après retour de PayDunya
-   */
-  confirmPaymentAndCreateOrder(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/checkout/confirm-payment`, data);
   }
 }

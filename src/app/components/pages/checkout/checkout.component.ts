@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CartService } from '../../../services/cart/cart.service';
 import { CheckoutService } from '../../../services/checkout/checkout.service';
 import { AuthService } from '../../../services/auth/auth.service';
+
 interface CartItem {
   id: number;
   name: string;
@@ -83,6 +84,31 @@ export class CheckoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCart();
+    this.prefillUserData(); // ✅ Nouvelle méthode pour pré-remplir
+  }
+
+  /**
+   * Pré-remplir les données utilisateur s'il est connecté
+   */
+  prefillUserData(): void {
+    const currentUser = this.authService.currentUser();
+    
+    if (currentUser) {
+      console.log('Utilisateur connecté, pré-remplissage des champs:', currentUser);
+      
+      // Pré-remplir avec les données de l'utilisateur
+      this.formData.nom = currentUser.nom || '';
+      this.formData.prenom = currentUser.prenom || '';
+      this.formData.email = currentUser.email || '';
+      this.formData.telephone = currentUser.telephone || '';
+      // this.formData.adresse = currentUser.adresse || '';
+      
+      // Désactiver la case "créer un compte" car déjà connecté
+      this.formData.create_account = false;
+      
+      // Si l'utilisateur a déjà une adresse enregistrée, on peut suggérer le pays
+      // Mais on laisse l'utilisateur choisir
+    }
   }
 
   /**
@@ -91,6 +117,11 @@ export class CheckoutComponent implements OnInit {
   loadCart(): void {
     this.cart = this.cartService.getCart();
     this.calculateTotals();
+    
+    // Si panier vide, rediriger vers boutique
+    if (this.cart.length === 0) {
+      this.router.navigate(['/boutique']);
+    }
   }
 
   /**
@@ -161,9 +192,16 @@ export class CheckoutComponent implements OnInit {
       if (!this.formData.region) this.errors.region = 'La région est requise';
     }
 
-    if (this.formData.create_account) {
-      if (!this.formData.email) this.errors.email = 'L\'email est requis pour créer un compte';
-      if (!this.formData.password) this.errors.password = 'Le mot de passe est requis';
+    // Validation conditionnelle selon que l'utilisateur est connecté ou non
+    if (!this.authService.currentUser()) {
+      // Uniquement pour les guests
+      if (this.formData.create_account) {
+        if (!this.formData.email) this.errors.email = 'L\'email est requis pour créer un compte';
+        if (!this.formData.password) this.errors.password = 'Le mot de passe est requis';
+      }
+    } else {
+      // Utilisateur connecté : l'email est déjà dans le profil
+      // Pas besoin de valider l'email dans le formulaire
     }
 
     if (!this.formData.terms) this.errors.terms = 'Vous devez accepter les conditions';
@@ -174,114 +212,81 @@ export class CheckoutComponent implements OnInit {
   /**
    * Soumettre la commande
    */
-  // async onSubmit(): Promise<void> {
-  // if (!this.validateForm()) {
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  //   return;
-  // }
-
-  // this.isLoading = true;
-  // this.errors = {};
-
-  // try {
-  //   const orderData = {
-  //     ...this.formData,
-  //     cart_data: JSON.stringify(this.cart),
-  //     shipping_cost: this.shippingCost
-  //   };
-
-  //   const response = await this.checkoutService.submitOrder(orderData).toPromise();
-
-  //   if (response && response.order_number) {
-  //     this.cartService.clearCart();
-  //     this.router.navigate(['/checkout/confirmation', response.order_number]);
-  //   } else {
-  //     throw new Error('Réponse invalide du serveur');
-  //   }
-
-  // } catch (error: any) {
-  //   console.error('Erreur lors de la commande:', error);
-
-  //   if (error.status === 422 && error.error?.errors) {
-  //     this.errors = error.error.errors;
-  //   } else {
-  //     this.errors.general = error.error?.message || error.message || 'Une erreur est survenue';
-  //   }
-
-  // } finally {
-  //   this.isLoading = false;
-  // }
-  // }
   async onSubmit(): Promise<void> {
-  if (!this.validateForm()) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  this.isLoading = true;
-  this.errors = {};
-
-  try {
-    const orderData = {
-      ...this.formData,
-      cart_data: JSON.stringify(this.cart),
-      shipping_cost: this.shippingCost
-    };
-
-    const response = await this.checkoutService.submitOrder(orderData).toPromise();
-
-    if (response && response.order_number) {
-      this.cartService.clearCart();
-
-      // ✅ 1. Ouvrir WhatsApp avec la facture
-      this.redirectToWhatsApp(response.order_number);
-
-      // ✅ 2. Rediriger vers la confirmation
-      this.router.navigate(['/checkout/confirmation', response.order_number]);
-    } else {
-      throw new Error('Réponse invalide du serveur');
+    if (!this.validateForm()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
 
-  } catch (error: any) {
-    if (error.status === 422 && error.error?.errors) {
-      this.errors = error.error.errors;
-    } else {
-      this.errors.general = error.error?.message || error.message || 'Une erreur est survenue';
+    this.isLoading = true;
+    this.errors = {};
+
+    try {
+      // Préparer les données pour l'API
+      const orderData: any = {
+        ...this.formData,
+        cart_data: JSON.stringify(this.cart),
+        shipping_cost: this.shippingCost
+      };
+
+      // Si l'utilisateur est connecté, on n'envoie pas le mot de passe
+      if (this.authService.currentUser()) {
+        delete orderData.password;
+        // On peut aussi ne pas envoyer create_account
+        orderData.create_account = false;
+      }
+
+      const response = await this.checkoutService.submitOrder(orderData).toPromise();
+
+      if (response && response.order_number) {
+        this.cartService.clearCart();
+
+        // ✅ Ouvrir WhatsApp avec la facture
+        this.redirectToWhatsApp(response.order_number);
+
+        // ✅ Rediriger vers la confirmation
+        this.router.navigate(['/checkout/confirmation', response.order_number]);
+      } else {
+        throw new Error('Réponse invalide du serveur');
+      }
+
+    } catch (error: any) {
+      if (error.status === 422 && error.error?.errors) {
+        this.errors = error.error.errors;
+      } else {
+        this.errors.general = error.error?.message || error.message || 'Une erreur est survenue';
+      }
+    } finally {
+      this.isLoading = false;
     }
-  } finally {
-    this.isLoading = false;
   }
-}
 
-redirectToWhatsApp(orderNumber: string): void {
-  const vendeurTel = '221782904830';
+  redirectToWhatsApp(orderNumber: string): void {
+    const vendeurTel = '221782904830';
 
-  // Construire la liste des produits
-  let lignesProduits = '';
-  this.cart.forEach((item, index) => {
-    lignesProduits += `\n${index + 1}. ${item.name}`;
-    lignesProduits += `\n   Qté: ${item.quantity}  |  Prix: ${this.formatPrice(item.price)}`;
-    lignesProduits += `\n   Sous-total: *${this.formatPrice(item.price * item.quantity)}*`;
-    lignesProduits += '\n';
-  });
+    // Construire la liste des produits
+    let lignesProduits = '';
+    this.cart.forEach((item, index) => {
+      lignesProduits += `\n${index + 1}. ${item.name}`;
+      lignesProduits += `\n   Qté: ${item.quantity}  |  Prix: ${this.formatPrice(item.price)}`;
+      lignesProduits += `\n   Sous-total: *${this.formatPrice(item.price * item.quantity)}*`;
+      lignesProduits += '\n';
+    });
 
-  // Zone de livraison formatée
-  const zoneParts = this.formData.zone_livraison?.split('|') || [];
-  const zoneLabel = zoneParts.length >= 2
-    ? `${zoneParts[0]} - ${zoneParts[1]}`
-    : this.formData.pays;
+    // Zone de livraison formatée
+    const zoneParts = this.formData.zone_livraison?.split('|') || [];
+    const zoneLabel = zoneParts.length >= 2
+      ? `${zoneParts[0]} - ${zoneParts[1]}`
+      : this.formData.pays;
 
-  const message =
-`╔══════════════════════╗
-  *BIOSEN 100 — COMMANDE*  
- ╚══════════════════════╝
+    const message =
+` *BIOSEN 100 — COMMANDE* 
 
 *N° Commande :* ${orderNumber}
 *Date :* ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
 
-━━━━━━━━━━━━━━━━━━━━━━
 *INFORMATIONS CLIENT*
-━━━━━━━━━━━━━━━━━━━━━━
+
 - Nom complet : *${this.formData.prenom} ${this.formData.nom}*
 - Téléphone : *${this.formData.telephone}*
 - Adresse : ${this.formData.adresse}
@@ -289,21 +294,19 @@ redirectToWhatsApp(orderNumber: string): void {
 - Zone : ${zoneLabel}
 ${this.formData.notes ? `• Note : _${this.formData.notes}_` : ''}
 
-━━━━━━━━━━━━━━━━━━━━━━
 *PRODUITS COMMANDÉS*
-━━━━━━━━━━━━━━━━━━━━━━
+
 ${lignesProduits}
-━━━━━━━━━━━━━━━━━━━━━━
+
 *RÉCAPITULATIF*
-━━━━━━━━━━━━━━━━━━━━━━
+
 - Sous-total : ${this.formatPrice(this.subtotal)}
 - Livraison  : ${this.formatPrice(this.shippingCost)}
-┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
 *TOTAL À PAYER : ${this.formatPrice(this.total)}*
 
-━━━━━━━━━━━━━━━━━━━━━━
 *PAIEMENT*
-━━━━━━━━━━━━━━━━━━━━━━
+
 Veuillez effectuer le paiement via :
 - *Wave*
 - *Orange Money*
@@ -313,11 +316,12 @@ Puis envoyez la capture de paiement ici
 
 _— BioSen 100_`;
 
-  const whatsappUrl = `https://wa.me/${vendeurTel}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${vendeurTel}?text=${encodeURIComponent(message)}`;
 
-  // Ouvrir WhatsApp dans un nouvel onglet
-  window.open(whatsappUrl, '_blank');
-}
+    // Ouvrir WhatsApp dans un nouvel onglet
+    window.open(whatsappUrl, '_blank');
+  }
+
   /**
    * Formater le prix
    */

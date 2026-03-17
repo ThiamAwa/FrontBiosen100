@@ -169,13 +169,13 @@
 }
 
 .tc-badge-gamme {
-    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    background: linear-gradient(135deg, #198754, #157347);
     color: white;
     box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
 }
 
 .tc-badge-images {
-    background: linear-gradient(135deg, #6610f2, #520dc2);
+    background: linear-gradient(135deg, #198754, #157347);
     color: white;
     box-shadow: 0 2px 5px rgba(102, 16, 242, 0.2);
 }

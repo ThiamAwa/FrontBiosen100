@@ -51,7 +51,6 @@
                                     <th>Gamme</th>
                                     <th>Description</th>
                                     <th class="text-center">Médias</th>
-                                    <th class="text-center">Statut</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -86,7 +85,7 @@
                                         }
                                     </td>
 
-                                    <td class="desc-cell">
+                                    <td class="desc-cell" style="color:black ;" >
                                         @if (t.description) {
                                         <p class="mb-0 small text-secondary desc-text">
                                             {{ t.description | slice:0:80 }}{{ t.description.length > 80 ? '...' : '' }}
@@ -112,18 +111,6 @@
                                             <span class="text-muted fst-italic small">Aucun</span>
                                             }
                                         </div>
-                                    </td>
-
-                                    <td class="text-center">
-                                        @if (t.afficher) {
-                                        <span class="tc-badge tc-badge-affiche">
-                                            <i class="fas fa-eye"></i>Affiché
-                                        </span>
-                                        } @else {
-                                        <span class="tc-badge tc-badge-masque">
-                                            <i class="fas fa-eye-slash"></i>Masqué
-                                        </span>
-                                        }
                                     </td>
 
                                     <td class="text-center">

@@ -12,6 +12,7 @@ import { CheckoutComponent } from './components/pages/checkout/checkout.componen
 import {
     CheckoutConfirmationComponent
 } from './components/pages/checkout-confirmation/checkout-confirmation.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
 
@@ -37,6 +38,7 @@ export const routes: Routes = [
     {
         path: 'admin',
         component: AdminLayoutComponent,
+        canActivate: [authGuard],
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             {

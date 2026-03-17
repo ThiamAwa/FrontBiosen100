@@ -1,75 +1,55 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { CommonModule , isPlatformBrowser } from '@angular/common';
 import {CartItem, CartService} from '../../services/cart/cart.service';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
+
+declare var bootstrap: any;
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
-  cartItems: CartItem[] = [];
-  totalItems = 0;
-  totalAmount = 0;
 
-  constructor(private cartService: CartService) {}
+  constructor( 
+      public cartService: CartService,
+      private router: Router,
+      @Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
-    // S'abonner aux changements du panier
-    this.cartService.cartItems$.subscribe(items => {
-      this.cartItems = items;
-      this.calculateTotals();
-    });
+    
   }
-
-  calculateTotals(): void {
-    this.totalItems = this.cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    this.totalAmount = this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  getCartItemImage(item: CartItem): string {
+    return item.image?.trim() ? item.image : '';
   }
+  clearCart(): void { this.cartService.clearCart(); }
 
-  updateQuantity(itemId: number, change: number): void {
-    const item = this.cartItems.find(i => i.id === itemId);
-    if (item) {
-      const newQuantity = item.quantity + change;
-      if (newQuantity > 0) {
-        this.cartService.updateQuantity(itemId, newQuantity);
-      } else {
-        this.removeItem(itemId);
-      }
-    }
-  }
+  get cartItems(): CartItem[] { return this.cartService.getCart(); }
 
-  removeItem(itemId: number): void {
-    this.cartService.removeFromCart(itemId);
-  }
+  get cartSubtotal(): number { return this.cartService.getCartTotal(); }
 
-  clearCart(): void {
-    this.cartService.clearCart();
-  }
+  get cartCount(): number { return this.cartService.getCartCount(); }
 
-  formatPrice(price: number): string {
-    return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
-  }
+  increaseQuantity (item: CartItem): void { this.cartService.incrementQuantity(item.id); }
+  decreaseQuantity(item: CartItem): void { this.cartService.decrementQuantity(item.id); }
+  removeFromCart(id: number): void { this.cartService.removeFromCart(id); }
 
-  // Fermer le modal
-  closeModal(): void {
-    const modal = document.getElementById('cartModal');
-    if (modal) {
-      // @ts-ignore
-      const modalInstance = bootstrap.Modal.getInstance(modal);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
-    }
-  }
-
-  // Aller au checkout
   goToCheckout(): void {
-    this.closeModal();
-    // Navigation vers la page checkout
-    window.location.href = '/checkout';
+    if (isPlatformBrowser(this.platformId) && typeof bootstrap !== 'undefined') {
+      const cartModalEl = document.getElementById('cartModal');
+      if (cartModalEl) {
+        const instance = bootstrap.Modal.getInstance(cartModalEl);
+        if (instance) instance.hide();
+      }
+    }
+    this.router.navigate(['/checkout']);
   }
+  formatPrice(price: number): string {
+    return new Intl.NumberFormat('fr-FR').format(price);
+  }
+
 }

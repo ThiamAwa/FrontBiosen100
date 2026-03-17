@@ -1,11 +1,13 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit, OnDestroy, HostListener,Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { TemoignageService } from '../../../services/temoignage/temoignage.service';
 import { Temoignage } from '../../../models/temoignage';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { CartService, CartItem  } from '../../../services/cart/cart.service';
 
+declare var bootstrap: any;
 @Component({
   selector: 'app-temoignages',
   standalone: true,
@@ -33,7 +35,10 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
 
   constructor(
     private temoignageService: TemoignageService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    public cartService: CartService,
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
@@ -227,5 +232,37 @@ export class TemoignagesComponent implements OnInit, OnDestroy {
     return new Date(date).toLocaleDateString('fr-FR', {
       year: 'numeric', month: 'long', day: 'numeric'
     });
+  }
+
+  
+  /////Ajout card
+
+  getCartItemImage(item: CartItem): string {
+    return item.image?.trim() ? item.image : '';
+  }
+  clearCart(): void { this.cartService.clearCart(); }
+
+  get cartItems(): CartItem[] { return this.cartService.getCart(); }
+
+  get cartSubtotal(): number { return this.cartService.getCartTotal(); }
+
+  get cartCount(): number { return this.cartService.getCartCount(); }
+
+  increaseQuantity (item: CartItem): void { this.cartService.incrementQuantity(item.id); }
+  decreaseQuantity(item: CartItem): void { this.cartService.decrementQuantity(item.id); }
+  removeFromCart(id: number): void { this.cartService.removeFromCart(id); }
+
+  goToCheckout(): void {
+    if (isPlatformBrowser(this.platformId) && typeof bootstrap !== 'undefined') {
+      const cartModalEl = document.getElementById('cartModal');
+      if (cartModalEl) {
+        const instance = bootstrap.Modal.getInstance(cartModalEl);
+        if (instance) instance.hide();
+      }
+    }
+    this.router.navigate(['/checkout']);
+  }
+  formatPrice(price: number): string {
+    return new Intl.NumberFormat('fr-FR').format(price);
   }
 }

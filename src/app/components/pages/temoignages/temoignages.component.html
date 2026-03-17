@@ -213,3 +213,132 @@
     </div>
   </div>
 }
+<!-- ═══════════════════════════════════════════════════
+     MODAL PANIER
+═══════════════════════════════════════════════════ -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-end modal-dialog-scrollable"
+    style="max-width:520px; margin-right:0; margin-top:0; margin-bottom:0; height:100%;">
+    <div class="modal-content border-0 h-100" style="border-radius:20px 0 0 20px; overflow:hidden;">
+
+      <div class="modal-header border-0 py-4 px-4"
+        style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded-circle"
+            style="width:44px; height:44px;">
+            <i class="fas fa-shopping-cart text-white fs-5"></i>
+          </div>
+          <div>
+            <h5 class="modal-title text-white fw-bold mb-0" id="cartModalLabel">Mon Panier</h5>
+            <small class="text-white text-opacity-75">{{ cartItems.length }} article(s)</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-0" style="background:#f8faf8; overflow-y:auto;">
+        <div *ngIf="cartItems.length === 0"
+          class="d-flex flex-column align-items-center justify-content-center py-5 px-4 text-center"
+          style="min-height:350px;">
+          <div class="mb-4 d-flex align-items-center justify-content-center rounded-circle"
+            style="width:100px; height:100px; background:rgba(40,119,71,0.08);">
+            <i class="fas fa-shopping-basket fa-2x" style="color:#287747;"></i>
+          </div>
+          <h6 class="fw-bold text-dark mb-2">Votre panier est vide</h6>
+          <p class="text-muted small mb-4">Parcourez notre catalogue et ajoutez vos produits préférés</p>
+          <button class="btn rounded-pill px-4 py-2 text-white fw-semibold"
+            style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);" data-bs-dismiss="modal">
+            <i class="fas fa-leaf me-2"></i>Découvrir les produits
+          </button>
+        </div>
+
+        <div *ngIf="cartItems.length > 0" class="px-3 pt-3 pb-1">
+          <div *ngFor="let item of cartItems"
+            class="cart-item-card d-flex align-items-center gap-3 bg-white rounded-3 shadow-sm mb-3 p-3"
+            style="border:1px solid rgba(40,119,71,0.1);">
+            <div class="flex-shrink-0 position-relative">
+              <img [src]="getCartItemImage(item)" [alt]="item.name" class="rounded-2"
+                style="width:72px; height:72px; object-fit:cover; border:2px solid rgba(40,119,71,0.15);"
+                onerror="this.onerror=null; this.src='assets/img/placeholder.jpeg'">
+              <span class="position-absolute bottom-0 start-0 ms-1 badge rounded-pill"
+                style="font-size:0.6rem; background:linear-gradient(135deg,#287747,#1a5230); transform:translateY(50%);">
+                {{ item.category }}
+              </span>
+            </div>
+            <div class="flex-grow-1 min-w-0">
+              <h6 class="mb-1 fw-bold text-dark text-truncate" style="font-size:0.9rem;">{{ item.name }}</h6>
+              <p *ngIf="item.description" class="mb-2 text-muted text-truncate" style="font-size:0.75rem;">
+                {{ item.description }}
+              </p>
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                <span class="fw-bold" style="color:#287747; font-size:0.95rem;">
+                  {{ formatPrice(item.price * item.quantity) }} FCFA
+                </span>
+                <div class="d-flex align-items-center gap-1 rounded-pill px-1 py-1"
+                  style="background:#f0f7f2; border:1px solid rgba(40,119,71,0.2);">
+                  <button class="btn btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
+                    style="width:26px; height:26px; background:rgba(40,119,71,0.12); border:none; color:#287747;"
+                    (click)="decreaseQuantity(item)">
+                    <i class="fas fa-minus" style="font-size:0.65rem;"></i>
+                  </button>
+                  <span class="fw-bold mx-1"
+                    style="min-width:20px; text-align:center; font-size:0.9rem; color:#287747;">
+                    {{ item.quantity }}
+                  </span>
+                  <button class="btn btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
+                    style="width:26px; height:26px; background:rgba(40,119,71,0.12); border:none; color:#287747;"
+                    (click)="increaseQuantity(item)">
+                    <i class="fas fa-plus" style="font-size:0.65rem;"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button class="btn flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle p-0"
+              style="width:32px; height:32px; background:rgba(220,53,69,0.08); border:1px solid rgba(220,53,69,0.2); color:#dc3545;"
+              (click)="removeFromCart(item.id)" title="Supprimer">
+              <i class="fas fa-trash-alt" style="font-size:0.75rem;"></i>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="cartItems.length > 0" class="px-3 pb-3 mt-1">
+          <div class="rounded-3 p-3" style="background:white; border:1px solid rgba(40,119,71,0.15);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted small">Sous-total</span>
+              <span class="fw-semibold">{{ formatPrice(cartSubtotal) }} FCFA</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted small">
+                <i class="fas fa-truck me-1" style="color:#287747"></i>Livraison
+              </span>
+              <span class="text-success small fw-semibold">Calculée à la commande</span>
+            </div>
+            <hr class="my-2" style="border-color:rgba(40,119,71,0.15);">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold">Total</span>
+              <span class="fw-bold fs-5" style="color:#287747;">{{ formatPrice(cartSubtotal) }} FCFA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="cartItems.length > 0" class="modal-footer border-0 px-3 pb-4 pt-2 flex-column gap-2"
+        style="background:white; box-shadow:0 -4px 20px rgba(0,0,0,0.06);">
+        <button type="button" class="btn w-100 rounded-pill py-3 text-white fw-bold shadow-sm"
+          style="background:linear-gradient(135deg,#287747 0%,#1a5230 100%); font-size:1rem;" (click)="goToCheckout()">
+          <i class="fas fa-lock me-2"></i>Commander — {{ formatPrice(cartSubtotal) }} FCFA
+        </button>
+        <button type="button" class="btn w-100 rounded-pill py-2 text-danger fw-semibold"
+          style="background:rgba(220,53,69,0.06); border:1px solid rgba(220,53,69,0.2); font-size:0.85rem;"
+          (click)="clearCart()">
+          <i class="fas fa-trash me-2"></i>Vider le panier
+        </button>
+        <button type="button" class="btn w-100 rounded-pill py-2 text-muted fw-semibold"
+          style="background:transparent; border:1px solid #dee2e6; font-size:0.85rem;" data-bs-dismiss="modal">
+          <i class="fas fa-arrow-left me-2"></i>Continuer mes achats
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

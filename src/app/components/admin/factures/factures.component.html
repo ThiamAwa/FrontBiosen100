@@ -71,10 +71,7 @@
                     <i class="fas fa-sliders-h me-2 text-success"></i>
                     <strong style="color: #10b981;">Filtres de recherche</strong>
                 </div>
-
                 <div class="row g-3">
-
-                    <!-- Statut -->
                     <div class="col-md-2 col-sm-6">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-tag me-1 text-success"></i>Statut
@@ -86,8 +83,6 @@
                             <option value="en_attente">En attente</option>
                         </select>
                     </div>
-
-                    <!-- Période rapide -->
                     <div class="col-md-2 col-sm-6">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-bolt me-1 text-success"></i>Période rapide
@@ -103,8 +98,6 @@
                             <option value="custom">Personnalisé</option>
                         </select>
                     </div>
-
-                    <!-- Mois -->
                     <div class="col-md-2 col-sm-6">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-calendar-alt me-1 text-success"></i>Mois
@@ -117,8 +110,6 @@
                             }
                         </select>
                     </div>
-
-                    <!-- Année -->
                     <div class="col-md-2 col-sm-6">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-calendar me-1 text-success"></i>Année
@@ -131,8 +122,6 @@
                             }
                         </select>
                     </div>
-
-                    <!-- Date début -->
                     <div class="col-md-2 col-sm-6">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-calendar-day me-1 text-success"></i>Du
@@ -140,8 +129,6 @@
                         <input type="date" class="form-control form-control-sm" [(ngModel)]="selectedDateDebut"
                             [disabled]="selectedPeriode !== '' && selectedPeriode !== 'custom'">
                     </div>
-
-                    <!-- Date fin -->
                     <div class="col-md-2 col-sm-6">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-calendar-day me-1 text-success"></i>Au
@@ -149,8 +136,6 @@
                         <input type="date" class="form-control form-control-sm" [(ngModel)]="selectedDateFin"
                             [disabled]="selectedPeriode !== '' && selectedPeriode !== 'custom'">
                     </div>
-
-                    <!-- Recherche -->
                     <div class="col-12">
                         <label class="form-label fw-semibold">
                             <i class="fas fa-search me-1 text-success"></i>Recherche
@@ -158,10 +143,8 @@
                         <input type="text" class="form-control form-control-sm" [(ngModel)]="searchTerm"
                             placeholder="N° facture, nom client">
                     </div>
-
                 </div>
 
-                <!-- Résumé filtres actifs -->
                 @if (hasActiveFilters) {
                 <div class="mt-3 p-2 rounded" style="background:#e8f5ed; border:1px solid #c3e6cb;">
                     <small class="text-success fw-semibold">
@@ -214,7 +197,6 @@
                                     <th>Client</th>
                                     <th>Montant</th>
                                     <th>Date Émission</th>
-                                    <!-- <th>Date Échéance</th> -->
                                     <th>Statut Paiement</th>
                                     <th class="text-center action-column">Actions</th>
                                 </tr>
@@ -222,10 +204,8 @@
                             <tbody>
                                 @for (facture of factures; track facture.id) {
                                 <tr>
-                                    <!-- N° Facture -->
                                     <td><strong>{{ facture.numero_facture }}</strong></td>
 
-                                    <!-- N° Commande -->
                                     <td>
                                         @if (facture.commande?.numeroCommande) {
                                         <span class="badge bg-success" style="font-size:11px;">
@@ -236,43 +216,27 @@
                                         }
                                     </td>
 
-                                    <!-- Client -->
                                     <td>
                                         <div>
                                             <strong>{{ getClientInfo(facture).nomComplet }}</strong>
                                         </div>
                                         @if (getClientInfo(facture).telephone) {
                                         <small class="text-muted d-block">
-                                            <i class="fas fa-phone fa-xs me-1"></i>
                                             {{ getClientInfo(facture).telephone }}
                                         </small>
                                         }
                                     </td>
 
-                                    <!-- Montant -->
                                     <td><strong>{{ getMontant(facture) | number:'1.0-0':'fr' }} F</strong></td>
 
-                                    <!-- Date émission -->
                                     <td><small>{{ formatDate(facture.date_emission) }}</small></td>
 
-                                    <!-- Date échéance -->
-                                    <!-- <td>
-                                        <small [class.text-danger]="isOverdue(facture)">
-                                            {{ formatDate(facture.date_echeance) }}
-                                        </small>
-                                        @if (isOverdue(facture)) {
-                                        <span class="badge bg-danger ms-1" style="font-size:10px;">Dépassée</span>
-                                        }
-                                    </td> -->
-
-                                    <!-- Statut -->
                                     <td>
                                         <span class="badge {{ getStatutClass(facture.statut_paiement) }}">
                                             {{ getStatutLabel(facture.statut_paiement) }}
                                         </span>
                                     </td>
 
-                                    <!-- Actions -->
                                     <td class="text-center action-column">
                                         <button type="button" class="btn btn-sm btn-light me-1"
                                             style="background-color:#d4edda;color:#155724;border-color:#c3e6cb;"
@@ -297,15 +261,14 @@
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="8" class="text-center py-5">
+                                    <td colspan="7" class="text-center py-5">
                                         <i class="fas fa-inbox fa-2x text-muted mb-3 d-block"></i>
                                         <p class="text-muted mb-1">Aucune facture trouvée</p>
                                         @if (hasActiveFilters) {
                                         <small class="text-muted">
                                             Essayez de modifier ou
-                                            <a href="javascript:void(0)" (click)="resetFilters()" class="text-success">
-                                                réinitialiser les filtres
-                                            </a>
+                                            <a href="javascript:void(0)" (click)="resetFilters()"
+                                                class="text-success">réinitialiser les filtres</a>
                                         </small>
                                         } @else {
                                         <small class="text-muted">Les factures apparaîtront ici</small>
@@ -326,12 +289,11 @@
                         <span class="fw-medium">{{ lastItem }}</span> sur
                         <span class="fw-medium">{{ total }}</span> factures
                     </div>
-                    <nav aria-label="Page navigation">
+                    <nav>
                         <ul class="pagination mb-0">
                             <li class="page-item" [class.disabled]="currentPage === 1">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage - 1)">&laquo;</a>
                             </li>
                             @for (page of [].constructor(lastPage); track $index) {
                             <li class="page-item" [class.active]="currentPage === $index + 1">
@@ -340,9 +302,8 @@
                             </li>
                             }
                             <li class="page-item" [class.disabled]="currentPage === lastPage">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage + 1)">&raquo;</a>
                             </li>
                         </ul>
                     </nav>
@@ -366,6 +327,8 @@
             </div>
             <div class="modal-body">
                 <div class="row mb-4">
+
+                    <!-- Infos Client -->
                     <div class="col-md-6">
                         <h6 class="fw-bold mb-3">
                             <i class="fas fa-user me-2 text-success"></i>Informations Client
@@ -387,13 +350,13 @@
                         </p>
                         }
                     </div>
+
+                    <!-- Infos Facture -->
                     <div class="col-md-6">
                         <h6 class="fw-bold mb-3">
                             <i class="fas fa-file-invoice me-2 text-success"></i>Informations Facture
                         </h6>
                         <p class="mb-2"><strong>N° Facture :</strong> {{ selectedFacture.numero_facture }}</p>
-
-                        <!-- N° Commande dans le modal -->
                         <p class="mb-2">
                             <strong>N° Commande :</strong>
                             @if (selectedFacture.commande?.numeroCommande) {
@@ -404,17 +367,10 @@
                             <span class="text-muted">—</span>
                             }
                         </p>
-
                         <p class="mb-2">
                             <strong>Date d'émission :</strong>
                             {{ formatDate(selectedFacture.date_emission) }}
                         </p>
-                        <!-- <p class="mb-2">
-                            <strong>Date d'échéance :</strong>
-                            <span [class.text-danger]="isOverdue(selectedFacture)">
-                                {{ formatDate(selectedFacture.date_echeance) }}
-                            </span>
-                        </p> -->
                         <p class="mb-0">
                             <strong>Statut :</strong>
                             <span class="badge {{ getStatutClass(selectedFacture.statut_paiement) }}">
@@ -423,6 +379,41 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- ✅ Adresse de livraison — adresse_client remplace ville_zone -->
+                <hr>
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-truck me-2 text-success"></i>Adresse de Livraison
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- ✅ adresse_client comme champ principal -->
+                        <p class="mb-2">
+                            <strong>Adresse de livraison :</strong>
+                            {{ getClientInfo(selectedFacture).adresse_client || '—' }}
+                        </p>
+                        <p class="mb-2">
+                            <strong>Pays :</strong>
+                            {{ getClientInfo(selectedFacture).pays || '—' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        @if (getClientInfo(selectedFacture).code_postal) {
+                        <p class="mb-2">
+                            <strong>Code postal :</strong>
+                            {{ getClientInfo(selectedFacture).code_postal }}
+                        </p>
+                        }
+                        @if (getClientInfo(selectedFacture).region) {
+                        <p class="mb-2">
+                            <strong>Région :</strong>
+                            {{ getClientInfo(selectedFacture).region }}
+                        </p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Produits facturés -->
                 <hr>
                 <h6 class="fw-bold mb-3">
                     <i class="fas fa-box me-2 text-success"></i>Produits Facturés
@@ -445,7 +436,9 @@
                                 <td class="text-center">{{ produit.quantite }}</td>
                                 <td class="text-end">{{ produit.prix | number:'1.0-0':'fr' }} F</td>
                                 <td class="text-end">
-                                    <strong>{{ produit.quantite * produit.prix | number:'1.0-0':'fr' }} F</strong>
+                                    <strong>
+                                        {{ produit.quantite * produit.prix | number:'1.0-0':'fr' }} F
+                                    </strong>
                                 </td>
                             </tr>
                             }
@@ -457,6 +450,8 @@
                     <i class="fas fa-info-circle me-1"></i> Aucun produit dans cette facture
                 </div>
                 }
+
+                <!-- Total -->
                 <hr>
                 <div class="row">
                     <div class="col-md-6 offset-md-6">
@@ -490,7 +485,8 @@
             <form (ngSubmit)="updateFacture()">
                 <div class="modal-header">
                     <h5 class="modal-title text-white">
-                        <i class="fas fa-edit me-2"></i>Modifier Facture - {{ selectedFacture.numero_facture }}
+                        <i class="fas fa-edit me-2"></i>Modifier Facture -
+                        {{ selectedFacture.numero_facture }}
                     </h5>
                     <button type="button" class="btn-close" (click)="closeEditModal()"></button>
                 </div>
@@ -511,12 +507,6 @@
                             <option value="impayé">Impayé</option>
                         </select>
                     </div>
-                    <!-- <div class="mb-3">
-                        <label for="echeance_edit" class="form-label">Date d'échéance</label>
-                        <input type="date" class="form-control" id="echeance_edit" [(ngModel)]="editForm.date_echeance"
-                            name="date_echeance">
-                        <small class="text-muted">Modifier la date d'échéance si nécessaire</small>
-                    </div> -->
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-1"></i>
                         <strong>Montant Total :</strong>
@@ -542,8 +532,8 @@
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0">
                 <div class="d-flex align-items-center w-100">
-                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center
-                        justify-content-center me-3" style="width:48px;height:48px;">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex
+                        align-items-center justify-content-center me-3" style="width:48px;height:48px;">
                         <i class="fas fa-exclamation-triangle fa-lg"></i>
                     </div>
                     <div class="flex-grow-1">
@@ -554,17 +544,22 @@
             </div>
             <div class="modal-body p-4">
                 <div class="text-center mb-4">
-                    <h6 class="fw-semibold mb-2">Êtes-vous sûr de vouloir supprimer cette facture ?</h6>
+                    <h6 class="fw-semibold mb-2">
+                        Êtes-vous sûr de vouloir supprimer cette facture ?
+                    </h6>
                     <p class="mb-3">
-                        La facture <span class="fw-bold text-danger">{{ factureToDelete.numero_facture }}</span>
-                        de <span class="fw-bold">{{ getClientInfo(factureToDelete).nomComplet }}</span>
+                        La facture
+                        <span class="fw-bold text-danger">{{ factureToDelete.numero_facture }}</span>
+                        de
+                        <span class="fw-bold">{{ getClientInfo(factureToDelete).nomComplet }}</span>
                         sera définitivement supprimée.
                     </p>
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         <small>Le montant de
                             <strong>{{ getMontant(factureToDelete) | number:'1.0-0':'fr' }} F</strong>
-                            sera perdu.</small>
+                            sera perdu.
+                        </small>
                     </div>
                 </div>
             </div>

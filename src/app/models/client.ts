@@ -1,3 +1,5 @@
+
+
 export interface Client {
     id: number;
     nom: string;
@@ -17,13 +19,12 @@ export interface Client {
     // ─── Stats liste (retournées par index()) ────────────────────────────────
     commandes_count?: number;
 
-    // ✅ Les deux formes couvertes (Laravel camelCase → mappé en snake_case côté backend)
-    commandes_sum_montant_total?: number;   // après ->through() dans le controller
-    commandes_sum_montantTotal?: number;    // fallback si mapping absent
 
-    // ✅ Dernière commande (les deux formes)
-    derniere_commande?: string;             // alias propre après ->through()
-    commandes_max_created_at?: string;      // valeur brute Laravel withMax()
+    commandes_sum_montant_total?: number;
+    commandes_sum_montantTotal?: number;
+
+    derniere_commande?: string;
+    commandes_max_created_at?: string;
 }
 
 export interface ClientResponse {
@@ -43,13 +44,38 @@ export interface ClientStats {
     total_depense: number;
     total_avis: number;
     moyenne_avis: number;
-    dernieres_commandes: ClientCommande[];
+    dernieres_commandes?: ClientCommande[];
 }
 
+// ─── Détail d'une commande dans la vue client ────────────────────────────────
 export interface ClientCommande {
     id: number;
     reference: string;
     date: string;
     montant: number;
     statut: 'en_cours' | 'valider' | 'annuler' | 'en_attente';
+
+    // ✅ Champs adresse de livraison
+    adresse_client?: string;
+    ville_zone?: string;
+    code_postal?: string;
+    region?: string;
+    pays?: string;
+    methode_paiement?: string;
+
+    // ✅ Produits de la commande
+    produits?: ClientCommandeProduit[];
+}
+
+// ─── Produit dans une commande client ────────────────────────────────────────
+export interface ClientCommandeProduit {
+    id?: number;
+    nom: string;
+    quantite: number;
+    prix_unitaire?: number;
+    prix?: number;
+    price?: number;
+    total?: number;
+    type?: string;
+    image?: string;
 }

@@ -1,0 +1,202 @@
+/* components/pages/mon-compte/mon-compte.component.css */
+.page-header {
+  background: linear-gradient(135deg, #287747 0%, #1e5f37 100%);
+  margin-top: 150px;
+  padding: 60px 0;
+}
+
+/* Navigation par onglets */
+.nav-pills .nav-link {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+  background-color: #f0f7ff;
+  border-color: #287747;
+}
+
+.nav-pills .nav-link.active {
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+  color: white !important;
+  box-shadow: 0 5px 15px rgba(40, 119, 71, 0.2);
+}
+
+.nav-pills .nav-link.active i {
+  color: white !important;
+}
+
+/* Cartes */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none !important;
+}
+
+.card:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Badges */
+.badge-warning {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.badge-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.badge-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.badge-danger {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.badge-info {
+  background-color: #17a2b8;
+  color: #fff;
+}
+
+.badge-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+/* Formulaires */
+.form-control, .form-select {
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #287747;
+  box-shadow: 0 0 0 0.2rem rgba(40, 119, 71, 0.15);
+}
+
+.form-control-lg {
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+/* Boutons */
+.btn-success {
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(40, 119, 71, 0.3);
+}
+
+.btn-outline-success {
+  border-color: #287747;
+  color: #287747;
+}
+
+.btn-outline-success:hover {
+  background-color: #287747;
+  border-color: #287747;
+  color: white;
+}
+
+.btn-outline-danger {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Avatar */
+.img-thumbnail {
+  padding: 3px;
+  background: white;
+}
+
+/* Tableau */
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #287747;
+  padding: 1rem;
+}
+
+.table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background-color: #f0f7ff;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .page-header {
+    margin-top: 120px;
+    padding: 40px 0;
+  }
+  
+  .sticky-top {
+    position: relative !important;
+    top: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .table {
+    font-size: 0.9rem;
+  }
+  
+  .table td, .table th {
+    padding: 0.75rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card, .alert {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Modal */
+.modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  border: none;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Badge statut */
+.badge {
+  font-weight: 500;
+  font-size: 0.85rem;
+}

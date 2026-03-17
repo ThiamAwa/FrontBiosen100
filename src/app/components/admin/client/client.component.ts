@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ClientService } from '../../../services/client/client.service';
-import { Client, ClientCommande, ClientResponse, ClientStats } from '../../../models/client';
+import {
+  Client,
+  ClientCommande,
+  ClientCommandeProduit,
+  ClientResponse,
+  ClientStats
+} from '../../../models/client';
 
 @Component({
   selector: 'app-client',
@@ -14,7 +20,7 @@ import { Client, ClientCommande, ClientResponse, ClientStats } from '../../../mo
 })
 export class ClientComponent implements OnInit {
 
-  // ─── Liste & Pagination ───────────────────────────────────────────────────────
+  // ─── Liste & Pagination ───────────────────────────────────────────────────
   clients: Client[] = [];
   currentPage = 1;
   lastPage = 1;
@@ -22,7 +28,7 @@ export class ClientComponent implements OnInit {
   firstItem = 0;
   lastItem = 0;
 
-  // ─── États des modales ───────────────────────────────────────────────────────
+  // ─── États des modales ────────────────────────────────────────────────────
   showCreateModal = false;
   showEditModal = false;
   showDeleteModal = false;
@@ -35,15 +41,18 @@ export class ClientComponent implements OnInit {
   commandeDetail: Client | null = null;
   derniereCommande: ClientCommande | null = null;
 
-  // ─── Filtres & Recherche ─────────────────────────────────────────────────────
+  // ─── Filtres & Recherche ──────────────────────────────────────────────────
   searchQuery = '';
   filterStatut = '';
   filterTri = '';
 
-  // ─── Statistiques (vue détail) ───────────────────────────────────────────────
+  // ─── Statistiques (vue détail) ────────────────────────────────────────────
   clientStats: ClientStats | null = null;
 
-  // ─── Formulaires ─────────────────────────────────────────────────────────────
+  // ─── Commande sélectionnée dans le détail ─────────────────────────────────
+  selectedCommande: ClientCommande | null = null;
+
+  // ─── Formulaires ──────────────────────────────────────────────────────────
   createForm = {
     nom: '', prenom: '', email: '',
     telephone: '', adresse: '', password: ''
@@ -60,7 +69,7 @@ export class ClientComponent implements OnInit {
     password: '',
   };
 
-  // ─── Messages ────────────────────────────────────────────────────────────────
+  // ─── Messages ─────────────────────────────────────────────────────────────
   successMessage: string | null = null;
   errorMessage: string | null = null;
   validationErrors: string[] = [];
@@ -79,15 +88,12 @@ export class ClientComponent implements OnInit {
     this.clientService.getClients(page, this.searchQuery, this.filterStatut, this.filterTri)
       .subscribe({
         next: (res: ClientResponse) => {
-          // ✅ Normalisation côté Angular en fallback
           this.clients = res.data.map(client => ({
             ...client,
-            // Total dépensé : couvre camelCase et snake_case
             commandes_sum_montant_total:
               client.commandes_sum_montant_total
               ?? (client as any).commandes_sum_montantTotal
               ?? 0,
-            // Dernière commande : couvre alias et champ brut Laravel
             derniere_commande:
               client.derniere_commande
               ?? client.commandes_max_created_at
@@ -180,13 +186,11 @@ export class ClientComponent implements OnInit {
 
   updateClient(): void {
     if (!this.selectedClient) return;
-
     const { password, ...rest } = this.editForm;
     const data: Partial<Client> = {
       ...rest,
       role_id: rest.role_id ? +rest.role_id : undefined,
     };
-
     this.clientService.updateClient(this.editForm.id, data).subscribe({
       next: () => {
         this.successMessage = 'Client modifié avec succès.';
@@ -248,14 +252,22 @@ export class ClientComponent implements OnInit {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // VUE DÉTAILS
+  // VUE DÉTAILS CLIENT
   // ═══════════════════════════════════════════════════════════════════════════
 
   openViewModal(client: Client): void {
     this.clientToView = client;
     this.clientStats = null;
+    this.selectedCommande = null;
+
     this.clientService.getStats(client.id).subscribe({
-      next: (stats: ClientStats) => { this.clientStats = stats; },
+      next: (stats: ClientStats) => {
+        this.clientStats = stats;
+        // ✅ Pré-sélectionner automatiquement la dernière commande
+        if (stats.dernieres_commandes && stats.dernieres_commandes.length > 0) {
+          this.selectedCommande = stats.dernieres_commandes[0];
+        }
+      },
       error: (err) => console.error('Erreur stats', err)
     });
     this.showViewModal = true;
@@ -265,10 +277,16 @@ export class ClientComponent implements OnInit {
     this.showViewModal = false;
     this.clientToView = null;
     this.clientStats = null;
+    this.selectedCommande = null;
+  }
+
+  /** Sélectionner une commande dans la liste pour voir son détail */
+  selectCommande(commande: ClientCommande): void {
+    this.selectedCommande = this.selectedCommande?.id === commande.id ? null : commande;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // DERNIÈRE COMMANDE
+  // MODAL DERNIÈRE COMMANDE (depuis le tableau liste)
   // ═══════════════════════════════════════════════════════════════════════════
 
   openCommandeModal(client: Client): void {
@@ -278,11 +296,9 @@ export class ClientComponent implements OnInit {
 
     this.clientService.getStats(client.id).subscribe({
       next: (stats: ClientStats) => {
-        if (stats.dernieres_commandes?.length > 0) {
-          // index 0 = la plus récente (triée par latest() côté Laravel)
+        if (stats.dernieres_commandes && stats.dernieres_commandes.length > 0) {
           this.derniereCommande = stats.dernieres_commandes[0];
-
-          // ✅ Mise à jour locale de derniere_commande si elle était absente
+          // Mise à jour locale si derniere_commande était absente
           const idx = this.clients.findIndex(c => c.id === client.id);
           if (idx !== -1 && !this.clients[idx].derniere_commande) {
             this.clients[idx] = {
@@ -303,7 +319,51 @@ export class ClientComponent implements OnInit {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // HELPERS
+  // HELPERS PRODUITS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  getProduits(commande: ClientCommande): ClientCommandeProduit[] {
+    if (!commande.produits || commande.produits.length === 0) return [];
+    return commande.produits.map(p => ({
+      nom: p.nom,
+      quantite: Number(p.quantite),
+      prix: Number(p.prix_unitaire ?? p.prix ?? p.price ?? 0),
+      prix_unitaire: Number(p.prix_unitaire ?? p.prix ?? p.price ?? 0),
+      type: p.type,
+      image: p.image,
+    }));
+  }
+
+  getPrixProduit(p: ClientCommandeProduit): number {
+    return Number(p.prix_unitaire ?? p.prix ?? p.price ?? 0);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HELPERS STATUTS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  getStatutClass(statut: string): string {
+    switch (statut) {
+      case 'valider': return 'statut-valider';
+      case 'en_cours': return 'statut-en_cours';
+      case 'en_attente': return 'statut-en_attente';
+      case 'annuler': return 'statut-annuler';
+      default: return 'statut-secondary';
+    }
+  }
+
+  getStatutLabel(statut: string): string {
+    switch (statut) {
+      case 'valider': return 'Validée';
+      case 'en_cours': return 'En cours';
+      case 'en_attente': return 'En attente';
+      case 'annuler': return 'Annulée';
+      default: return statut;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HELPERS AFFICHAGE
   // ═══════════════════════════════════════════════════════════════════════════
 
   getInitials(client: Client): string {

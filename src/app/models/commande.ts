@@ -1,4 +1,4 @@
-// src/app/models/commande.ts
+
 
 export interface User {
     id: number;
@@ -160,18 +160,21 @@ export interface Commande {
     nom_client?: string;
     prenom_client?: string;
     telephone_client?: string;
+
+    // ── Adresse de livraison ──
     adresse_client?: string;
     pays?: string;
     ville_zone?: string;
     code_postal?: string;
     region?: string;
+
     methode_paiement?: string;
     is_guest?: boolean;
 
-    // ── Produits JSON (stocké en BDD) ──
+
     produits?: ProduitCommande[] | string;
 
-    // ── Relations ──
+
     user?: User;
     panier?: Panier;
     livraison?: Livraison;

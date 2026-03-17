@@ -69,7 +69,7 @@
                             <option value="depense">Plus dépensé</option>
                             <option value="commandes">Plus de commandes</option>
                         </select>
-                        <button class="btn btn-reset-filter" (click)="resetFilters()" title="Réinitialiser les filtres">
+                        <button class="btn btn-reset-filter" (click)="resetFilters()" title="Réinitialiser">
                             <i class="fas fa-rotate-left"></i>
                         </button>
                     </div>
@@ -86,51 +86,38 @@
                                     <th class="text-center">Commandes</th>
                                     <th class="text-end">Total dépensé</th>
                                     <th>Dernière commande</th>
-                                    <!-- <th class="text-center">Statut</th> -->
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @for (client of clients; track client.id) {
                                 <tr>
-
-                                    <!-- Client -->
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-circle me-2">{{ getInitials(client) }}</div>
                                             <div>
                                                 <strong>{{ client.prenom }} {{ client.nom }}</strong><br>
                                                 <small class="text-muted">
-                                                    {{ (client.adresse || '') | slice:0:25 }}{{ (client.adresse?.length
-                                                    ?? 0) > 25 ? '...' : '' }}
+                                                    {{ (client.adresse || '') | slice:0:25 }}
+                                                    {{ (client.adresse?.length ?? 0) > 25 ? '...' : '' }}
                                                 </small>
                                             </div>
                                         </div>
                                     </td>
-
-                                    <!-- Téléphone -->
                                     <td>
                                         <span class="phone-badge">
-                                            <i class="fas fa-phone-alt"></i>
-                                            {{ client.telephone }}
+                                            <i class="fas fa-phone-alt"></i> {{ client.telephone }}
                                         </span>
                                     </td>
-
-                                    <!-- Commandes -->
                                     <td class="text-center">
                                         <span class="commandes-count">{{ client.commandes_count ?? 0 }}</span>
                                     </td>
-
-                                    <!-- ✅ Total dépensé normalisé dans loadClients() -->
                                     <td class="text-end">
                                         <span class="total-depense">
                                             {{ (client.commandes_sum_montant_total ?? 0) | number:'':'fr' }}
-                                            <!-- {{ clientStats.total_depense | number:'':'fr' }} -->
                                             <small>FCFA</small>
                                         </span>
                                     </td>
-
-                                    <!-- ✅ Dernière commande normalisée dans loadClients() -->
                                     <td>
                                         @if (client.derniere_commande) {
                                         <span class="derniere-commande clickable" (click)="openCommandeModal(client)"
@@ -143,21 +130,6 @@
                                         <span class="text-muted fst-italic" style="font-size:0.82rem;">Aucune</span>
                                         }
                                     </td>
-
-                                    <!-- Statut -->
-                                    <!-- <td class="text-center">
-                                        @if (client.statut === 'actif') {
-                                        <span class="statut-badge statut-actif">
-                                            <i class="fas fa-circle dot"></i> Actif
-                                        </span>
-                                        } @else {
-                                        <span class="statut-badge statut-suspendu">
-                                            <i class="fas fa-circle dot"></i> Suspendu
-                                        </span>
-                                        }
-                                    </td> -->
-
-                                    <!-- Actions -->
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-action-view me-1"
                                             (click)="openViewModal(client)" title="Voir détails">
@@ -172,17 +144,15 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
-
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="7">
+                                    <td colspan="6">
                                         <div class="text-center py-4">
-                                            <div class="empty-icon">
-                                                <i class="fas fa-users-slash"></i>
-                                            </div>
+                                            <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
                                             <p class="text-muted fw-semibold mb-1">Aucun client trouvé</p>
-                                            <small class="text-muted">Commencez par créer votre premier client</small>
+                                            <small class="text-muted">Commencez par créer votre premier
+                                                client</small>
                                         </div>
                                     </td>
                                 </tr>
@@ -200,13 +170,11 @@
                         <span class="fw-medium">{{ lastItem }}</span> sur
                         <span class="fw-medium">{{ total }}</span> clients
                     </div>
-                    <nav aria-label="Page navigation">
+                    <nav>
                         <ul class="pagination mb-0">
                             <li class="page-item" [class.disabled]="currentPage === 1">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)"
-                                    aria-label="Précédent">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage - 1)">&laquo;</a>
                             </li>
                             @for (page of [].constructor(lastPage); track $index) {
                             <li class="page-item" [class.active]="currentPage === $index + 1">
@@ -215,10 +183,8 @@
                             </li>
                             }
                             <li class="page-item" [class.disabled]="currentPage === lastPage">
-                                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)"
-                                    aria-label="Suivant">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
+                                <a class="page-link" href="javascript:void(0)"
+                                    (click)="changePage(currentPage + 1)">&raquo;</a>
                             </li>
                         </ul>
                     </nav>
@@ -250,22 +216,20 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Nom *</label>
-                        <input type="text" class="form-control" [(ngModel)]="createForm.nom" required
-                            placeholder="Ex: Diallo">
+                        <input type="text" class="form-control" [(ngModel)]="createForm.nom" placeholder="Ex: Diallo">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Prénom *</label>
-                        <input type="text" class="form-control" [(ngModel)]="createForm.prenom" required
-                            placeholder="Ex: Fatou">
+                        <input type="text" class="form-control" [(ngModel)]="createForm.prenom" placeholder="Ex: Fatou">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Téléphone *</label>
-                        <input type="text" class="form-control" [(ngModel)]="createForm.telephone" required
+                        <input type="text" class="form-control" [(ngModel)]="createForm.telephone"
                             placeholder="77 000 00 00">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Mot de passe *</label>
-                        <input type="password" class="form-control" [(ngModel)]="createForm.password" required>
+                        <input type="password" class="form-control" [(ngModel)]="createForm.password">
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">Adresse</label>
@@ -305,15 +269,15 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Nom *</label>
-                        <input type="text" class="form-control" [(ngModel)]="editForm.nom" required>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.nom">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Prénom *</label>
-                        <input type="text" class="form-control" [(ngModel)]="editForm.prenom" required>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.prenom">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Téléphone *</label>
-                        <input type="text" class="form-control" [(ngModel)]="editForm.telephone" required>
+                        <input type="text" class="form-control" [(ngModel)]="editForm.telephone">
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">Adresse</label>
@@ -341,13 +305,12 @@
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0">
                 <div class="d-flex align-items-center w-100">
-                    <div class="warning-icon bg-danger bg-opacity-10 text-danger rounded-circle
-                                d-flex align-items-center justify-content-center me-3"
-                        style="width: 48px; height: 48px;">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle
+                        d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;">
                         <i class="fas fa-exclamation-triangle fa-lg"></i>
                     </div>
                     <div class="flex-grow-1">
-                        <h5 class="modal-title mb-0 fw-bold text-dark">Confirmer la suppression</h5>
+                        <h5 class="modal-title mb-0 fw-bold">Confirmer la suppression</h5>
                     </div>
                     <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
                 </div>
@@ -362,13 +325,9 @@
                         sera définitivement supprimé.
                     </p>
                 </div>
-                <div class="alert alert-warning border-warning">
-                    <div class="d-flex align-items-start">
-                        <i class="fas fa-info-circle mt-1 me-3 text-warning"></i>
-                        <div>
-                            <p class="mb-0">Cette action est <strong>irréversible</strong>.</p>
-                        </div>
-                    </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Cette action est <strong>irréversible</strong>.
                 </div>
             </div>
             <div class="modal-footer border-top-0 bg-light rounded-bottom">
@@ -387,11 +346,11 @@
 }
 
 <!-- ═══════════════════════════════════════════
-     MODAL DÉTAILS CLIENT
+     MODAL DÉTAILS CLIENT (avec détail commandes)
 ═══════════════════════════════════════════ -->
 @if (showViewModal && clientToView) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
 
             <div class="modal-header">
@@ -414,9 +373,13 @@
                         </span>
                         <div class="mt-2">
                             @if (clientToView.statut === 'actif') {
-                            <span class="statut-badge statut-actif"><i class="fas fa-circle dot"></i> Actif</span>
+                            <span class="statut-badge statut-actif">
+                                <i class="fas fa-circle dot"></i> Actif
+                            </span>
                             } @else {
-                            <span class="statut-badge statut-suspendu"><i class="fas fa-circle dot"></i> Suspendu</span>
+                            <span class="statut-badge statut-suspendu">
+                                <i class="fas fa-circle dot"></i> Suspendu
+                            </span>
                             }
                         </div>
                     </div>
@@ -424,8 +387,8 @@
 
                 <div class="p-4">
 
-                    <!-- Infos personnelles -->
-                    <div class="detail-section mb-3">
+                    <!-- ── Infos personnelles ── -->
+                    <div class="detail-section mb-4">
                         <h6 class="detail-section-title">
                             <i class="fas fa-user me-2"></i>Informations personnelles
                         </h6>
@@ -436,18 +399,21 @@
                                     <span class="info-value">{{ clientToView.telephone }}</span>
                                 </div>
                             </div>
-                            <div class="col-12 mb-0">
+                            <div class="col-12">
                                 <div class="info-item">
-                                    <span class="info-label"><i class="fas fa-map-marker-alt"></i> Adresse</span>
+                                    <span class="info-label">
+                                        <i class="fas fa-map-marker-alt"></i> Adresse
+                                    </span>
                                     <span class="info-value">{{ clientToView.adresse || 'Non renseignée' }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Statistiques -->
                     @if (clientStats) {
-                    <div class="detail-section mb-3">
+
+                    <!-- ── Statistiques ── -->
+                    <div class="detail-section mb-4">
                         <h6 class="detail-section-title">
                             <i class="fas fa-chart-bar me-2"></i>Statistiques
                         </h6>
@@ -462,7 +428,6 @@
                             <div class="col-4">
                                 <div class="stats-box">
                                     <i class="fas fa-coins stats-icon"></i>
-                                    <!-- ✅ total_depense = sum('montantTotal') depuis stats() Laravel -->
                                     <strong>{{ clientStats.total_depense | number:'':'fr' }}</strong>
                                     <small>Dépenses (FCFA)</small>
                                 </div>
@@ -477,33 +442,189 @@
                         </div>
                     </div>
 
-                    <!-- Dernières commandes -->
+                    <!-- ✅ Dernières commandes — NG8107 + NG2 corrigés -->
                     @if (clientStats.dernieres_commandes && clientStats.dernieres_commandes.length > 0) {
                     <div class="detail-section">
                         <h6 class="detail-section-title">
                             <i class="fas fa-history me-2"></i>Dernières commandes
                         </h6>
-                        <div class="commandes-list">
-                            @for (cmd of clientStats.dernieres_commandes; track cmd.id) {
-                            <div class="commande-item">
-                                <div class="commande-info">
-                                    <span class="commande-ref">{{ cmd.reference }}</span>
-                                    <span class="commande-date text-muted">{{ cmd.date | date:'dd/MM/yyyy' }}</span>
-                                </div>
-                                <div class="commande-right">
-                                    <span class="commande-montant">{{ cmd.montant | number:'':'fr' }} FCFA</span>
-                                    <span class="commande-statut-badge statut-{{ cmd.statut }}">{{ cmd.statut }}</span>
+
+                        <div class="row g-3">
+
+                            <!-- Colonne gauche : liste des commandes -->
+                            <div class="col-md-5">
+                                <div class="commandes-list-scroll">
+                                    @for (cmd of clientStats.dernieres_commandes; track cmd.id) {
+                                    <div class="commande-item-card" [class.selected]="selectedCommande?.id === cmd.id"
+                                        (click)="selectCommande(cmd)">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <span class="commande-ref-badge">
+                                                    <i class="fas fa-hashtag me-1"></i>{{ cmd.reference }}
+                                                </span>
+                                                <div class="commande-date-small">
+                                                    <i class="fas fa-calendar-alt me-1"></i>
+                                                    {{ cmd.date | date:'dd/MM/yyyy' }}
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="commande-montant-sm">
+                                                    {{ cmd.montant | number:'':'fr' }}
+                                                    <small>FCFA</small>
+                                                </div>
+                                                <span class="commande-statut-pill {{ getStatutClass(cmd.statut) }}">
+                                                    {{ getStatutLabel(cmd.statut) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @if (selectedCommande?.id === cmd.id) {
+                                        <div class="selected-indicator">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </div>
+                                        }
+                                    </div>
+                                    }
                                 </div>
                             </div>
-                            }
+
+                            <!-- Colonne droite : détail de la commande sélectionnée -->
+                            <div class="col-md-7">
+                                @if (selectedCommande) {
+                                <div class="commande-detail-panel">
+
+                                    <!-- Header détail -->
+                                    <div class="commande-detail-header">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="commande-ref-lg">
+                                                    <i class="fas fa-receipt me-2"></i>
+                                                    {{ selectedCommande.reference }}
+                                                </span>
+                                                <div class="text-muted small mt-1">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    {{ selectedCommande.date | date:'dd/MM/yyyy à HH:mm' }}
+                                                </div>
+                                            </div>
+                                            <span class="commande-statut-pill-lg
+                                                {{ getStatutClass(selectedCommande.statut) }}">
+                                                {{ getStatutLabel(selectedCommande.statut) }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Adresse de livraison -->
+                                    @if (selectedCommande.adresse_client
+                                    || selectedCommande.ville_zone
+                                    || selectedCommande.pays) {
+                                    <div class="commande-detail-section">
+                                        <div class="commande-detail-section-title">
+                                            <i class="fas fa-truck me-2"></i>Adresse de livraison
+                                        </div>
+                                        @if (selectedCommande.adresse_client) {
+                                        <div class="commande-detail-adresse-line fw-semibold">
+                                            <i class="fas fa-home me-2 text-success" style="font-size:11px;"></i>
+                                            {{ selectedCommande.adresse_client }}
+                                        </div>
+                                        }
+                                        @if (selectedCommande.ville_zone) {
+                                        <div class="commande-detail-adresse-line">
+                                            <i class="fas fa-map-marker-alt me-2 text-muted"
+                                                style="font-size:11px;"></i>
+                                            {{ selectedCommande.ville_zone }}
+                                            @if (selectedCommande.code_postal) {
+                                            — {{ selectedCommande.code_postal }}
+                                            }
+                                        </div>
+                                        }
+                                        @if (selectedCommande.region) {
+                                        <div class="commande-detail-adresse-line text-muted">
+                                            {{ selectedCommande.region }}
+                                        </div>
+                                        }
+                                        @if (selectedCommande.pays) {
+                                        <div class="commande-detail-adresse-line text-muted">
+                                            <i class="fas fa-globe me-2" style="font-size:11px;"></i>
+                                            {{ selectedCommande.pays }}
+                                        </div>
+                                        }
+                                    </div>
+                                    }
+
+                                    <!-- Méthode de paiement -->
+                                    @if (selectedCommande.methode_paiement) {
+                                    <div class="commande-detail-section">
+                                        <div class="commande-detail-section-title">
+                                            <i class="fas fa-credit-card me-2"></i>Paiement
+                                        </div>
+                                        <span class="paiement-badge">
+                                            {{ selectedCommande.methode_paiement }}
+                                        </span>
+                                    </div>
+                                    }
+
+                                    <!-- Produits commandés -->
+                                    @if (getProduits(selectedCommande).length > 0) {
+                                    <div class="commande-detail-section">
+                                        <div class="commande-detail-section-title">
+                                            <i class="fas fa-box me-2"></i>Produits commandés
+                                        </div>
+                                        <div class="produits-list">
+                                            @for (p of getProduits(selectedCommande); track $index) {
+                                            <div class="produit-item">
+                                                <div class="produit-item-left">
+                                                    <span class="produit-qty-badge">{{ p.quantite }}x</span>
+                                                    <span class="produit-nom">{{ p.nom }}</span>
+                                                </div>
+                                                <div class="produit-item-right">
+                                                    <span class="produit-total">
+                                                        {{ p.quantite * getPrixProduit(p) | number:'':'fr' }}
+                                                        <small>F</small>
+                                                    </span>
+                                                    <span class="produit-unitaire text-muted">
+                                                        {{ getPrixProduit(p) | number:'':'fr' }} F/u
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    } @else {
+                                    <div class="commande-detail-section">
+                                        <div class="alert alert-light border text-muted text-center py-2 mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Aucun produit enregistré pour cette commande
+                                        </div>
+                                    </div>
+                                    }
+
+                                    <!-- Total -->
+                                    <div class="commande-detail-total">
+                                        <span>Montant total</span>
+                                        <span class="commande-total-value">
+                                            {{ selectedCommande.montant | number:'':'fr' }}
+                                            <small>FCFA</small>
+                                        </span>
+                                    </div>
+
+                                </div>
+                                } @else {
+                                <div class="commande-detail-empty">
+                                    <i class="fas fa-hand-pointer fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">
+                                        Sélectionnez une commande pour voir son détail
+                                    </p>
+                                </div>
+                                }
+                            </div>
+
                         </div>
                     </div>
                     }
 
                     } @else {
-                    <div class="text-center py-3">
-                        <i class="fas fa-spinner fa-spin text-muted"></i>
-                        <p class="text-muted small mt-2">Chargement des statistiques...</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin text-muted fa-2x"></i>
+                        <p class="text-muted small mt-3">Chargement des statistiques...</p>
                     </div>
                     }
 
@@ -523,7 +644,7 @@
 }
 
 <!-- ═══════════════════════════════════════════
-     MODAL DERNIÈRE COMMANDE
+     MODAL DERNIÈRE COMMANDE (depuis le tableau)
 ═══════════════════════════════════════════ -->
 @if (showCommandeModal && commandeDetail) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -544,11 +665,12 @@
                 <!-- Statut banner -->
                 <div class="commande-modal-banner statut-banner-{{ derniereCommande.statut }}">
                     <i class="fas fa-circle me-2" style="font-size:0.5rem;vertical-align:middle;"></i>
-                    {{ derniereCommande.statut | titlecase }}
+                    {{ getStatutLabel(derniereCommande.statut) }}
                 </div>
 
                 <div class="p-4">
 
+                    <!-- Référence + Date -->
                     <div class="commande-modal-row">
                         <div class="commande-modal-field">
                             <span class="commande-modal-label">
@@ -570,6 +692,7 @@
 
                     <hr class="commande-divider">
 
+                    <!-- Montant + Nb commandes -->
                     <div class="commande-modal-row">
                         <div class="commande-modal-field">
                             <span class="commande-modal-label">
@@ -582,7 +705,7 @@
                         </div>
                         <div class="commande-modal-field">
                             <span class="commande-modal-label">
-                                <i class="fas fa-shopping-bag"></i> Total commandes client
+                                <i class="fas fa-shopping-bag"></i> Total commandes
                             </span>
                             <span class="commande-modal-value">
                                 <span class="commandes-count">{{ commandeDetail.commandes_count ?? 0 }}</span>
@@ -591,8 +714,72 @@
                         </div>
                     </div>
 
+                    <!-- Adresse de livraison -->
+                    @if (derniereCommande.adresse_client
+                    || derniereCommande.ville_zone
+                    || derniereCommande.pays) {
+                    <hr class="commande-divider">
+                    <div class="commande-modal-field">
+                        <span class="commande-modal-label">
+                            <i class="fas fa-truck"></i> Adresse de livraison
+                        </span>
+                        <div class="commande-adresse-block mt-1">
+                            @if (derniereCommande.adresse_client) {
+                            <div class="fw-semibold">{{ derniereCommande.adresse_client }}</div>
+                            }
+                            @if (derniereCommande.ville_zone) {
+                            <div class="text-muted small">
+                                {{ derniereCommande.ville_zone }}
+                                @if (derniereCommande.code_postal) {
+                                — {{ derniereCommande.code_postal }}
+                                }
+                            </div>
+                            }
+                            @if (derniereCommande.region) {
+                            <div class="text-muted small">{{ derniereCommande.region }}</div>
+                            }
+                            @if (derniereCommande.pays) {
+                            <div class="text-muted small">
+                                <i class="fas fa-globe me-1" style="font-size:10px;"></i>
+                                {{ derniereCommande.pays }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Produits de la dernière commande -->
+                    @if (getProduits(derniereCommande).length > 0) {
+                    <hr class="commande-divider">
+                    <div class="commande-modal-field">
+                        <span class="commande-modal-label">
+                            <i class="fas fa-box"></i> Produits commandés
+                        </span>
+                        <div class="produits-list mt-2">
+                            @for (p of getProduits(derniereCommande); track $index) {
+                            <div class="produit-item">
+                                <div class="produit-item-left">
+                                    <span class="produit-qty-badge">{{ p.quantite }}x</span>
+                                    <span class="produit-nom">{{ p.nom }}</span>
+                                </div>
+                                <div class="produit-item-right">
+                                    <span class="produit-total">
+                                        {{ p.quantite * getPrixProduit(p) | number:'':'fr' }}
+                                        <small>F</small>
+                                    </span>
+                                    <span class="produit-unitaire text-muted">
+                                        {{ getPrixProduit(p) | number:'':'fr' }} F/u
+                                    </span>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+
                     <hr class="commande-divider">
 
+                    <!-- Infos client -->
                     <div class="commande-client-info">
                         <div class="avatar-circle me-3">{{ getInitials(commandeDetail) }}</div>
                         <div>

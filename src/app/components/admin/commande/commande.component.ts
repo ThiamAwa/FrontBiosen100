@@ -17,6 +17,7 @@ const LOGO_PATH = '/logo-biosen.jpeg';
   styleUrls: ['./commande.component.css']
 })
 export class CommandeComponent implements OnInit, AfterViewInit {
+
   commandes: Commande[] = [];
   currentPage = 1;
   lastPage = 1;
@@ -58,10 +59,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   selectedCommande: Commande | null = null;
   commandeToDelete: Commande | null = null;
 
-  editForm = {
-    statut: '',
-    noteCommande: ''
-  };
+  editForm = { statut: '', noteCommande: '' };
 
   successMessage: string | null = null;
   errorMessage: string | null = null;
@@ -286,24 +284,25 @@ export class CommandeComponent implements OnInit, AfterViewInit {
 
   // ══════════════════════════════════════════════════════════════════════════
   // ─── Export Excel ─────────────────────────────────────────────────────────
-  // ── Construit les données manuellement (ne dépend plus du DOM)
   // ══════════════════════════════════════════════════════════════════════════
+
   exportExcel(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
       if (this.commandes.length === 0) { alert('Aucune commande à exporter.'); return; }
 
-      // ── Feuille principale : une ligne par commande ──────────────────────
       const dataCommandes = this.commandes.map(c => {
         const produits = this.getProduits(c);
         const produitsStr = produits.length
           ? produits.map(p => `${p.quantite}x ${p.nom} (${p.prix.toLocaleString('fr')} F)`).join(' | ')
           : '—';
+
+        // ✅ Adresse complète du client
         const adresse = [
           c.adresse_client,
           c.ville_zone,
-          c.region,
           c.code_postal,
+          c.region,
           c.pays
         ].filter(Boolean).join(', ') || '—';
 
@@ -323,19 +322,12 @@ export class CommandeComponent implements OnInit, AfterViewInit {
 
       const wsCommandes = XLSX.utils.json_to_sheet(dataCommandes);
       wsCommandes['!cols'] = [
-        { wch: 18 }, // N° Commande
-        { wch: 26 }, // Client
-        { wch: 18 }, // Téléphone
-        { wch: 55 }, // Produits
-        { wch: 16 }, // Montant
-        { wch: 20 }, // Date
-        { wch: 36 }, // Adresse
-        { wch: 18 }, // Boutique
-        { wch: 14 }, // Statut
-        { wch: 30 }, // Note
+        { wch: 18 }, { wch: 26 }, { wch: 18 }, { wch: 55 },
+        { wch: 16 }, { wch: 20 }, { wch: 40 }, { wch: 18 },
+        { wch: 14 }, { wch: 30 },
       ];
 
-      // Style header (fond vert)
+      // Style header vert
       const headerRange = XLSX.utils.decode_range(wsCommandes['!ref'] ?? 'A1');
       for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
         const cellAddr = XLSX.utils.encode_cell({ r: 0, c: C });
@@ -347,7 +339,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
         };
       }
 
-      // ── Feuille détail produits : une ligne par produit ──────────────────
+      // Feuille détail produits
       const dataProduits: Record<string, any>[] = [];
       this.commandes.forEach(c => {
         const produits = this.getProduits(c);
@@ -355,10 +347,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
           dataProduits.push({
             'N° Commande': c.numeroCommande,
             'Client': c.user ? `${c.user.prenom ?? ''} ${c.user.nom ?? ''}`.trim() : '—',
-            'Produit': '—',
-            'Quantité': 0,
-            'Prix unitaire (F)': 0,
-            'Total ligne (F)': 0,
+            'Produit': '—', 'Quantité': 0, 'Prix unitaire (F)': 0, 'Total ligne (F)': 0,
           });
         } else {
           produits.forEach(p => {
@@ -390,7 +379,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // ─── Helpers tableau HTML (partagé PDF + impression) ─────────────────────
+  // ─── Helpers tableau HTML partagé PDF + impression ────────────────────────
   // ══════════════════════════════════════════════════════════════════════════
 
   private buildFilterSummary(): string {
@@ -406,13 +395,11 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     return parts.join(' | ');
   }
 
-  /** Construit le tableau HTML des commandes depuis les données (pas depuis le DOM) */
   private buildCommandesTable(commandes: Commande[]): string {
     const rows = commandes.map((c, i) => {
       const produits = this.getProduits(c);
       const bg = i % 2 === 0 ? '#f0fdf4' : '#ffffff';
 
-      // Produits HTML
       const produitsHtml = produits.length
         ? produits.map(p => `
             <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
@@ -429,10 +416,22 @@ export class CommandeComponent implements OnInit, AfterViewInit {
         ).join('')
         : '<span style="color:#9ca3af;font-style:italic;font-size:10px;">Aucun produit</span>';
 
-      // Adresse
-      const adresse = [c.ville_zone, c.region, c.pays].filter(Boolean).join(', ') || '—';
+      // ✅ Adresse complète : adresse_client + ville + code_postal + région + pays
+      const adresseParts = [
+        c.adresse_client,
+        c.ville_zone,
+        c.code_postal,
+        c.region,
+        c.pays
+      ].filter(Boolean);
+      const adresseHtml = adresseParts.length
+        ? adresseParts.map((part, idx) =>
+          idx === 0
+            ? `<div style="font-size:10.5px;font-weight:600;color:#111827;">${part}</div>`
+            : `<div style="font-size:9.5px;color:#6b7280;">${part}</div>`
+        ).join('')
+        : '<span style="color:#9ca3af;">—</span>';
 
-      // Statut badge
       const statutColors: Record<string, { bg: string; color: string }> = {
         'en_attente': { bg: '#fef3c7', color: '#92400e' },
         'en_cours': { bg: '#dbeafe', color: '#1e40af' },
@@ -463,9 +462,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
           color:#6b7280;font-family:monospace;white-space:nowrap;">
           ${this.formatDate(c.created_at)}
         </td>
-        <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:10px;color:#374151;">
-          ${adresse}
-        </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;">${adresseHtml}</td>
         <td style="padding:9px 10px;border:1px solid #d1fae5;">
           ${c.boutique
           ? `<span style="background:#dbeafe;color:#1e40af;border-radius:12px;
@@ -507,7 +504,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // ─── Construction élément PDF ─────────────────────────────────────────────
+  // ─── Export PDF ───────────────────────────────────────────────────────────
   // ══════════════════════════════════════════════════════════════════════════
 
   private buildPdfElement(commandes: Commande[]): HTMLElement {
@@ -562,9 +559,6 @@ export class CommandeComponent implements OnInit, AfterViewInit {
     return element;
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ─── Export PDF ───────────────────────────────────────────────────────────
-  // ══════════════════════════════════════════════════════════════════════════
   exportPDF(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
@@ -586,6 +580,7 @@ export class CommandeComponent implements OnInit, AfterViewInit {
   // ══════════════════════════════════════════════════════════════════════════
   // ─── Impression ───────────────────────────────────────────────────────────
   // ══════════════════════════════════════════════════════════════════════════
+
   print(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {

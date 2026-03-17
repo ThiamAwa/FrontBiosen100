@@ -114,8 +114,7 @@
                                 </select>
                                 @if (selectedMonth) {
                                 <div class="filter-card-tag-wrapper">
-                                    <!-- ✅ Fix warning : ?. → . -->
-                                    <span class="filter-card-tag">{{ (months[+selectedMonth - 1]).label }}</span>
+                                    <span class="filter-card-tag">{{ months[+selectedMonth - 1].label }}</span>
                                 </div>
                                 }
                             </div>
@@ -180,8 +179,7 @@
                                 @if (selectedDate) {
                                 {{ selectedDate }}
                                 } @else {
-                                <!-- ✅ Fix warning : ?. → . -->
-                                {{ selectedMonth ? (months[+selectedMonth - 1]).label : '' }}
+                                {{ selectedMonth ? months[+selectedMonth - 1].label : '' }}
                                 {{ selectedYear ? selectedYear : '' }}
                                 }
                             </strong>
@@ -261,20 +259,35 @@
                                     <!-- Date -->
                                     <td><small>{{ formatDate(commande.created_at) }}</small></td>
 
-                                    <!-- Adresse de livraison -->
+                                    <!-- ✅ Adresse de livraison complète -->
                                     <td>
-                                        @if (commande.ville_zone) {
-                                        <small class="d-block">
-                                            <!-- <i class="fas fa-map-marker-alt me-1 text-success"></i> -->
-                                            {{ commande.ville_zone }}
+                                        @if (commande.adresse_client) {
+                                        <small class="d-block fw-semibold text-dark">
+                                            <i class="fas fa-home me-1 text-success" style="font-size:9px;"></i>
+                                            {{ commande.adresse_client }}
                                         </small>
                                         }
-                                        @if (commande.pays) {
-                                        <small class="text-muted d-block">{{ commande.pays }}</small>
-                                        }
-                                        <!-- @if (!commande.ville_zone && !commande.pays) {
-                                        <span class="text-muted">—</span>
+                                        <!-- @if (commande.ville_zone) {
+                                        <small class="d-block">
+                                            <i class="fas fa-map-marker-alt me-1 text-muted" style="font-size:9px;"></i>
+                                            {{ commande.ville_zone }}
+                                            @if (commande.code_postal) {
+                                            — {{ commande.code_postal }}
+                                            }
+                                        </small>
                                         } -->
+                                        @if (commande.region) {
+                                        <small class="text-muted d-block">{{ commande.region }}</small>
+                                        }
+                                        @if (commande.pays) {
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-globe me-1" style="font-size:9px;"></i>
+                                            {{ commande.pays }}
+                                        </small>
+                                        }
+                                        @if (!commande.adresse_client && !commande.ville_zone && !commande.pays) {
+                                        <span class="text-muted">—</span>
+                                        }
                                     </td>
 
                                     <!-- Boutique -->
@@ -422,7 +435,7 @@
                     </div>
                 </div>
 
-                <!-- Adresse de livraison -->
+                <!-- ✅ Adresse de livraison complète -->
                 <hr>
                 <h6 class="fw-bold mb-3">
                     <i class="fas fa-truck me-2 text-success"></i>Adresse de Livraison

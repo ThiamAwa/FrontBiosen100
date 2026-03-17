@@ -10,6 +10,11 @@ export interface MetadonneesClient {
     tel?: string;
     phone?: string;
     adresse?: string;
+    // ✅ Champs adresse de livraison
+    ville_zone?: string;
+    code_postal?: string;
+    region?: string;
+    pays?: string;
 }
 
 export interface MetadonneesProduit {
@@ -23,19 +28,22 @@ export interface MetadonneesProduit {
 // ── Metadonnees complètes ─────────────────────────────────────────
 
 export interface Metadonnees {
-
     nom_client?: string;
     telephone_client?: string;
-    adresse_client?: string;
+    adresse_client?: string;     // ✅ adresse complète du client
     email?: string;
     total?: number;
     sous_total?: number;
     frais_livraison?: number;
     methode_paiement?: string;
+
+    // ✅ Champs adresse de livraison au niveau metadonnees
     pays?: string;
+    ville_zone?: string;
+    code_postal?: string;
+    region?: string;
+
     produits?: MetadonneesProduit[];
-
-
     client?: MetadonneesClient;
 }
 

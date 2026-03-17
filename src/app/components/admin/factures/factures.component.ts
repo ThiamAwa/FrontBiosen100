@@ -118,7 +118,8 @@ export class FacturesComponent implements OnInit {
     return `<div style="color:white;font-size:20px;font-weight:800;">SenBio</div>`;
   }
 
-  // ── Load ─────────────────────────────────────────────────────────
+  // ─── Chargement ──────────────────────────────────────────────────────────
+
   loadFactures(): void {
     const filters: any = { page: this.currentPage, per_page: this.perPage };
     if (this.selectedStatut) filters['statut_paiement'] = this.selectedStatut;
@@ -151,7 +152,8 @@ export class FacturesComponent implements OnInit {
     return filters;
   }
 
-  // ── Filtres ──────────────────────────────────────────────────────
+  // ─── Filtres ─────────────────────────────────────────────────────────────
+
   toggleFilterPanel(): void { this.showFilterPanel = !this.showFilterPanel; }
   applyFilters(): void { this.currentPage = 1; this.loadFactures(); }
 
@@ -172,9 +174,12 @@ export class FacturesComponent implements OnInit {
 
   getPeriodeLabel(periode: string): string {
     const labels: Record<string, string> = {
-      'cette_semaine': 'Cette semaine', 'semaine_derniere': 'Semaine dernière',
-      'ce_mois': 'Ce mois', 'mois_dernier': 'Mois dernier',
-      'cette_annee': 'Cette année', 'custom': 'Personnalisé',
+      'cette_semaine': 'Cette semaine',
+      'semaine_derniere': 'Semaine dernière',
+      'ce_mois': 'Ce mois',
+      'mois_dernier': 'Mois dernier',
+      'cette_annee': 'Cette année',
+      'custom': 'Personnalisé',
     };
     return labels[periode] ?? periode;
   }
@@ -189,9 +194,9 @@ export class FacturesComponent implements OnInit {
     const year = now.getFullYear();
     const month = now.getMonth();
     const day = now.getDay();
-    const diffLundi = (day === 0 ? -6 : 1 - day);
+    const diffL = (day === 0 ? -6 : 1 - day);
     const lundi = new Date(now);
-    lundi.setDate(now.getDate() + diffLundi);
+    lundi.setDate(now.getDate() + diffL);
     const dimanche = new Date(lundi);
     dimanche.setDate(lundi.getDate() + 6);
 
@@ -228,7 +233,8 @@ export class FacturesComponent implements OnInit {
     }
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────
+  // ─── Helpers ─────────────────────────────────────────────────────────────
+
   formatDate(dateStr: string | undefined): string {
     if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString('fr-FR', {
@@ -240,38 +246,82 @@ export class FacturesComponent implements OnInit {
     return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f');
   }
 
+  /**
+   * ✅ Retourne les infos du client + l'adresse de livraison complète.
+   * Priorité : commande > metadonnees.client > metadonnees racine
+   */
   getClientInfo(facture: Facture): {
-    nom: string; prenom: string; email: string; telephone: string; adresse: string; nomComplet: string;
+    nom: string; prenom: string; email: string; telephone: string;
+    adresse: string; nomComplet: string;
+    // ✅ Adresse de livraison
+    adresse_client: string;
+    ville_zone: string;
+    code_postal: string;
+    region: string;
+    pays: string;
   } {
+    // ── Priorité 1 : depuis la relation commande ──────────────────────────
     const user = facture.commande?.user;
     if (user?.nom) {
       return {
-        nom: user.nom ?? '', prenom: user.prenom ?? '',
-        email: user.email ?? '', telephone: user.telephone ?? '',
+        nom: user.nom ?? '',
+        prenom: user.prenom ?? '',
+        email: user.email ?? '',
+        telephone: user.telephone ?? '',
         adresse: user.adresse ?? '',
         nomComplet: [user.prenom, user.nom].filter(Boolean).join(' '),
+        // Adresse livraison depuis la commande
+        adresse_client: facture.commande?.adresse_client ?? '',
+        ville_zone: facture.commande?.ville_zone ?? '',
+        code_postal: facture.commande?.code_postal ?? '',
+        region: facture.commande?.region ?? '',
+        pays: facture.commande?.pays ?? '',
       };
     }
+
+    // ── Priorité 2 : depuis metadonnees.client ────────────────────────────
     const c = facture.metadonnees?.client;
     if (c?.nom) {
       return {
-        nom: c.nom ?? '', prenom: c.prenom ?? '',
-        email: c.email ?? '', telephone: c.telephone ?? c.tel ?? c.phone ?? '',
+        nom: c.nom ?? '',
+        prenom: c.prenom ?? '',
+        email: c.email ?? '',
+        telephone: c.telephone ?? c.tel ?? c.phone ?? '',
         adresse: c.adresse ?? '',
         nomComplet: [c.prenom, c.nom].filter(Boolean).join(' '),
+        adresse_client: facture.metadonnees?.adresse_client ?? c.adresse ?? '',
+        ville_zone: facture.metadonnees?.ville_zone ?? c.ville_zone ?? '',
+        code_postal: facture.metadonnees?.code_postal ?? c.code_postal ?? '',
+        region: facture.metadonnees?.region ?? c.region ?? '',
+        pays: facture.metadonnees?.pays ?? c.pays ?? '',
       };
     }
+
+    // ── Priorité 3 : depuis metadonnees racine ────────────────────────────
     const nomClient = facture.metadonnees?.nom_client?.trim() ?? '';
     const parts = nomClient.split(' ');
     const prenom = parts.length > 1 ? parts[0] : '';
     const nom = parts.length > 1 ? parts.slice(1).join(' ') : parts[0] ?? '';
+
     return {
       nom, prenom,
       email: facture.metadonnees?.email ?? '',
       telephone: facture.metadonnees?.telephone_client ?? '',
       adresse: facture.metadonnees?.adresse_client ?? '',
       nomComplet: nomClient || 'Client',
+      adresse_client: facture.metadonnees?.adresse_client ?? '',
+      ville_zone: facture.metadonnees?.ville_zone ?? '',
+      code_postal: facture.metadonnees?.code_postal ?? '',
+      region: facture.metadonnees?.region ?? '',
+      pays: facture.metadonnees?.pays ?? '',
     };
+  }
+
+  /** Retourne l'adresse de livraison formatée en une ligne */
+  getAdresseLivraison(facture: Facture): string {
+    const c = this.getClientInfo(facture);
+    return [c.adresse_client, c.ville_zone, c.code_postal, c.region, c.pays]
+      .filter(Boolean).join(', ') || '—';
   }
 
   getMontant(facture: Facture): number {
@@ -314,12 +364,15 @@ export class FacturesComponent implements OnInit {
 
   getStatutClass(statut: string): string {
     const classes: Record<string, string> = {
-      'payé': 'bg-success', 'impayé': 'bg-danger', 'en_attente': 'bg-warning text-dark'
+      'payé': 'bg-success',
+      'impayé': 'bg-danger',
+      'en_attente': 'bg-warning text-dark'
     };
     return classes[statut] ?? 'bg-secondary';
   }
 
-  // ── Modals ────────────────────────────────────────────────────────
+  // ─── Modals ──────────────────────────────────────────────────────────────
+
   openViewModal(facture: Facture): void {
     this.factureService.getById(facture.id).subscribe({
       next: (f) => { this.selectedFacture = f; this.showViewModal = true; },
@@ -366,7 +419,10 @@ export class FacturesComponent implements OnInit {
     });
   }
 
-  openDeleteModal(facture: Facture): void { this.factureToDelete = facture; this.showDeleteModal = true; }
+  openDeleteModal(facture: Facture): void {
+    this.factureToDelete = facture;
+    this.showDeleteModal = true;
+  }
   closeDeleteModal(): void { this.showDeleteModal = false; this.factureToDelete = null; }
 
   deleteFacture(): void {
@@ -383,63 +439,55 @@ export class FacturesComponent implements OnInit {
     });
   }
 
-// ══════════════════════════════════════════════════════════════════
-  // PDF individuel — design fidèle à la facture Blade invoice.blade.php
   // ══════════════════════════════════════════════════════════════════
+  // PDF individuel
+  // ══════════════════════════════════════════════════════════════════
+
   downloadPdf(facture: Facture): void {
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-    // ── Palette ──────────────────────────────────────────────────
-    const VF  = [40, 119, 71]   as [number, number, number]; // #287747 vert principal
-    const VL  = [209, 250, 229] as [number, number, number]; // #d1fae5 vert clair
-    const VT  = [244, 249, 246] as [number, number, number]; // #f4f9f6 vert très clair
-    const W   = [255, 255, 255] as [number, number, number]; // blanc
-    const N   = [45,  45,  45]  as [number, number, number]; // #2d2d2d texte principal
-    const S   = [85,  85,  85]  as [number, number, number]; // #555 texte secondaire
-    const SL  = [150, 150, 150] as [number, number, number]; // gris léger
-    const BDR = [224, 224, 224] as [number, number, number]; // #e0e0e0 bordure
+    const VF = [40, 119, 71] as [number, number, number];
+    const VL = [209, 250, 229] as [number, number, number];
+    const VT = [244, 249, 246] as [number, number, number];
+    const W = [255, 255, 255] as [number, number, number];
+    const N = [45, 45, 45] as [number, number, number];
+    const S = [85, 85, 85] as [number, number, number];
+    const SL = [150, 150, 150] as [number, number, number];
+    const BDR = [224, 224, 224] as [number, number, number];
 
     const tc = (c: [number, number, number]) => doc.setTextColor(c[0], c[1], c[2]);
     const fc = (c: [number, number, number]) => doc.setFillColor(c[0], c[1], c[2]);
     const dc = (c: [number, number, number]) => doc.setDrawColor(c[0], c[1], c[2]);
     const lw = (w: number) => doc.setLineWidth(w);
-
-    // ── Formatage montant sans caractère spécial ──────────────
     const fmt = (n: number): string =>
       Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-    const client   = this.getClientInfo(facture);
+    const client = this.getClientInfo(facture);
     const produits = this.getProduits(facture);
-    const montant  = this.getMontant(facture);
-    const frais    = facture.metadonnees?.frais_livraison ?? 0;
+    const montant = this.getMontant(facture);
+    const frais = facture.metadonnees?.frais_livraison ?? 0;
     const sousTotal = montant - frais;
-    const numCmd   = facture.commande?.numeroCommande
+    const numCmd = facture.commande?.numeroCommande
       ?? `CMD-${facture.numero_facture.replace('FAC-', '')}`;
     const dateEmission = this.formatDate(facture.date_emission);
-    const dateEcheance = this.formatDate(facture.date_echeance);
-    const now    = new Date();
+    const now = new Date();
     const dateGen = this.formatDate(now.toISOString())
       + ' ' + String(now.getHours()).padStart(2, '0')
       + ':' + String(now.getMinutes()).padStart(2, '0');
 
-    const PW = doc.internal.pageSize.getWidth();  // 210 mm
-    const PH = doc.internal.pageSize.getHeight(); // 297 mm
-    const m  = 15;
-    const CW = PW - m * 2; // 180 mm
+    const PW = doc.internal.pageSize.getWidth();
+    const PH = doc.internal.pageSize.getHeight();
+    const m = 15;
+    const CW = PW - m * 2;
     const pad = 5;
 
-    // ════════════════════════════════════════════════════════════
-    // FOND BLANC GLOBAL
-    // ════════════════════════════════════════════════════════════
+    // Fond blanc
     fc(W); doc.rect(0, 0, PW, PH, 'F');
 
-    // ════════════════════════════════════════════════════════════
-    // HEADER — fond blanc + bande verte 3 mm en bas
-    // ════════════════════════════════════════════════════════════
+    // Header
     const headerH = 38;
     fc(VF); doc.rect(0, headerH, PW, 3, 'F');
 
-    // ── Logo / Société (gauche) ───────────────────────────────
     if (this.logoBase64) {
       doc.addImage(this.logoBase64, 'JPEG', m, 8, 18, 18);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(16); tc(VF);
@@ -455,263 +503,174 @@ export class FacturesComponent implements OnInit {
       doc.text('77 451 03 13', m, 34);
     }
 
-    // ── FACTURE + numéro + date (droite) ─────────────────────
     doc.setFont('helvetica', 'bold'); doc.setFontSize(26); tc(VF);
     doc.text('FACTURE', PW - m, 18, { align: 'right' });
-
     doc.setFont('helvetica', 'bold'); doc.setFontSize(13); tc(N);
     doc.text(facture.numero_facture, PW - m, 27, { align: 'right' });
-
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tc(S);
     doc.text(`Date d'émission : ${dateEmission}`, PW - m, 34, { align: 'right' });
 
-    // ════════════════════════════════════════════════════════════
-    // INFO-BAND — fond vert très clair, deux colonnes
-    // ════════════════════════════════════════════════════════════
+    // Info-band
     const ibY = headerH + 3 + 6;
-    const ibH = 38;
+    const ibH = 44;  // ✅ hauteur augmentée pour l'adresse
 
     fc(VT); dc(BDR); lw(0.1);
     doc.roundedRect(m, ibY, CW, ibH, 3, 3, 'FD');
 
-    // ── Colonne gauche : ÉMIS ─────────────────────────────────
-    // Label "ÉMIS" + ligne décorative verte
+    // Colonne gauche : ÉMIS À
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(VF);
-    doc.text('ÉMIS', m + pad, ibY + 7);
+    doc.text('ÉMIS À', m + pad, ibY + 7);
     dc(VF); lw(0.4);
     doc.line(m + pad, ibY + 9, m + pad + 14, ibY + 9);
 
-    // Nom client en gras noir
     doc.setFont('helvetica', 'bold'); doc.setFontSize(12); tc(N);
-    doc.text(
-      (client.nomComplet || 'Client').toUpperCase(),
-      m + pad, ibY + 17
-    );
+    doc.text((client.nomComplet || 'Client').toUpperCase(), m + pad, ibY + 17);
 
-    // Téléphone + adresse
     let cly = ibY + 24;
     if (client.telephone) {
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); tc(S);
       doc.text(client.telephone, m + pad, cly);
-      cly += 6;
-    }
-    if (client.adresse) {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tc(S);
-      const adrLines = doc.splitTextToSize(client.adresse, 85);
-      doc.text(adrLines[0], m + pad, cly);
+      cly += 5.5;
     }
 
-    // ── Colonne droite : RÉF. COMMANDE ───────────────────────
-    // Label "RÉF. COMMANDE" aligné à droite + ligne décorative
+    // ✅ Adresse de livraison dans le PDF individuel
+    if (client.adresse_client) {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(VF);
+      doc.text('Livraison :', m + pad, cly);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tc(N);
+      // const adrLines = doc.splitTextToSize(client.adresse_client, 80);
+      // doc.text(adrLines[0], m + pad + 18, cly);
+      cly += 5.5;
+    }
+    if (client.adresse_client) {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(S);
+      const vz = client.code_postal
+        ? `${client.adresse_client} — ${client.code_postal}`
+        : client.adresse_client;
+      doc.text(vz, m + pad, cly);
+      cly += 5;
+    }
+    if (client.pays) {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); tc(SL);
+      doc.text(client.pays, m + pad, cly);
+    }
+
+    // Colonne droite : RÉF. COMMANDE
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(VF);
     doc.text('RÉF. COMMANDE', PW - m - pad, ibY + 7, { align: 'right' });
     dc(VF); lw(0.4);
     doc.line(PW - m - pad - 32, ibY + 9, PW - m - pad, ibY + 9);
-
-    // Numéro commande en grand vert gras aligné à droite
     doc.setFont('helvetica', 'bold'); doc.setFontSize(15); tc(VF);
     doc.text(numCmd, PW - m - pad, ibY + 21, { align: 'right' });
 
-    // ════════════════════════════════════════════════════════════
-    // REFS TABLE — Zone, Tél, Échéance, Statut
-    // ════════════════════════════════════════════════════════════
-    const refY   = ibY + ibH + 6;
-    const refH   = 9;
-    const labelW = 50; // largeur colonne label
+    // Refs table
+    const refY = ibY + ibH + 6;
+    const refH = 9;
+    const labelW = 50;
 
     const refRows = [
       {
         label: 'ZONE / VILLE',
-        value: facture.commande?.ville_zone || (facture.metadonnees?.pays ?? '—')
+        value: client.adresse_client || facture.commande?.ville_zone || (facture.metadonnees?.pays ?? '—')
       },
       {
         label: 'TÉL. LIVRAISON',
         value: client.telephone || '—'
       },
-      // {
-      //   label: 'ÉCHÉANCE',
-      //   value: dateEcheance
-      // },
-      // {
-      //   label: 'STATUT PAIEMENT',
-      //   value: this.getStatutLabel(facture.statut_paiement).toUpperCase()
-      // },
     ];
 
-    // Bordure extérieure arrondie
     dc(BDR); lw(0.2);
     doc.roundedRect(m, refY, CW, refRows.length * refH, 3, 3, 'D');
 
     refRows.forEach((row, idx) => {
       const rowY = refY + idx * refH;
-
-      // Fond vert très clair sur la cellule label
       fc(VT);
       doc.rect(m + 0.1, rowY + 0.1, labelW, refH - 0.2, 'F');
-
-      // Séparateur horizontal (sauf dernier)
       if (idx < refRows.length - 1) {
         dc([232, 232, 232]); lw(0.15);
         doc.line(m, rowY + refH, m + CW, rowY + refH);
       }
-
-      // Label vert gras
       doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(VF);
       doc.text(row.label, m + 3, rowY + refH / 2 + 2.5);
-
-      // Valeur — couleur selon statut paiement
-      let valColor: [number, number, number] = N;
-      if (row.label === 'STATUT PAIEMENT') {
-        const sc: Record<string, [number, number, number]> = {
-          'PAYÉ':       VF,
-          'IMPAYÉ':     [185, 28, 28],
-          'EN ATTENTE': [146, 64, 14],
-        };
-        valColor = sc[row.value] ?? S;
-      }
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(valColor);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(N);
       doc.text(row.value, m + CW - 3, rowY + refH / 2 + 2.5, { align: 'right' });
-
-      // Séparateur vertical label | valeur
       dc([220, 220, 220]); lw(0.15);
       doc.line(m + labelW, rowY, m + labelW, rowY + refH);
     });
 
-    // ════════════════════════════════════════════════════════════
-    // TABLEAU PRODUITS
-    // ════════════════════════════════════════════════════════════
-    const tY  = refY + refRows.length * refH + 8;
+    // Tableau produits
+    const tY = refY + refRows.length * refH + 8;
     const thH = 9;
 
-    // Header vert
     fc(VF); doc.rect(m, tY, CW, thH, 'F');
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc(W);
-    doc.text('DÉSIGNATION', m + 14,         tY + 6);
-    doc.text('QTÉ',         m + CW * 0.62,  tY + 6, { align: 'center' });
-    doc.text('PRIX UNIT.',  m + CW * 0.77,  tY + 6, { align: 'center' });
-    doc.text('MONTANT',     m + CW - 3,     tY + 6, { align: 'right' });
+    doc.text('DÉSIGNATION', m + 14, tY + 6);
+    doc.text('QTÉ', m + CW * 0.62, tY + 6, { align: 'center' });
+    doc.text('PRIX UNIT.', m + CW * 0.77, tY + 6, { align: 'center' });
+    doc.text('MONTANT', m + CW - 3, tY + 6, { align: 'right' });
 
-    // Lignes produits
     const rowH = 11;
     let py = tY + thH;
 
     produits.forEach((p, i) => {
       const total = p.prix * p.quantite;
-
-      // Fond alterné
       fc(i % 2 === 0 ? W : VT);
       doc.rect(m, py, CW, rowH, 'F');
-
-      // Séparateur bas
       dc([236, 236, 236]); lw(0.15);
       doc.line(m, py + rowH, m + CW, py + rowH);
-
-      // Badge numéro vert
       fc(VF);
       doc.roundedRect(m + 2, py + 2, 7, 7, 1, 1, 'F');
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); tc(W);
       doc.text(String(i + 1), m + 5.5, py + 7, { align: 'center' });
-
-      // Nom produit
       doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(N);
       doc.text(p.nom, m + 12, py + rowH / 2 + 2.5);
-
-      // Quantité — badge gris
       fc([226, 232, 240]);
       doc.roundedRect(m + CW * 0.62 - 5, py + 2, 10, 7, 1, 1, 'F');
       doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(N);
       doc.text(String(p.quantite), m + CW * 0.62, py + rowH / 2 + 2.5, { align: 'center' });
-
-      // Prix unitaire
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); tc(S);
       doc.text(`${fmt(p.prix)} F`, m + CW * 0.77, py + rowH / 2 + 2.5, { align: 'center' });
-
-      // Total ligne vert gras
       doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(VF);
       doc.text(`${fmt(total)} F`, m + CW - 3, py + rowH / 2 + 2.5, { align: 'right' });
-
       py += rowH;
     });
 
-    // Ligne de fin tableau
     dc(VL); lw(0.4);
     doc.line(m, py, m + CW, py);
-
-    // ════════════════════════════════════════════════════════════
-    // TOTAUX — montant en lettres (gauche) + boîte totaux (droite)
-    // ════════════════════════════════════════════════════════════
     py += 8;
 
-    // ── Montant en lettres ────────────────────────────────────
-    const totalInt = Math.round(montant);
-    const milliers = Math.floor(totalInt / 1000);
-    const reste    = totalInt % 1000;
-    const units    = ['','un','deux','trois','quatre','cinq','six','sept','huit','neuf',
-                      'dix','onze','douze','treize','quatorze','quinze','seize',
-                      'dix-sept','dix-huit','dix-neuf','vingt'];
-    let enLettres = '';
-    if (milliers > 0 && milliers <= 20) {
-      enLettres = milliers === 1 ? 'mille' : `${units[milliers]} mille`;
-      if (reste > 0 && reste <= 20) enLettres += ` ${units[reste]}`;
-    } else {
-      enLettres = fmt(totalInt);
-    }
-    enLettres = enLettres.toUpperCase();
-
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(SL);
-    doc.text('Arrêtée la présente facture à la somme de francs', m, py);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); tc(N);
-    doc.text(enLettres, m, py + 7);
-
-    // ── Boîte totaux (droite) ────────────────────────────────
+    // Totaux
     const bW = 82;
     const bX = m + CW - bW;
     const boxH = 38;
 
-    // Fond vert très clair
     fc(VT); dc(VL); lw(0.2);
     doc.roundedRect(bX, py - 6, bW, boxH, 3, 3, 'FD');
 
-    // Sous-total
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); tc(S);
     doc.text('Sous-total', bX + 5, py + 3);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(N);
     doc.text(`${fmt(sousTotal)} FCFA`, bX + bW - 5, py + 3, { align: 'right' });
-
-    // Séparateur
     dc([224, 236, 230]); lw(0.2);
     doc.line(bX + 3, py + 7, bX + bW - 3, py + 7);
 
-    // Frais livraison
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); tc(S);
     doc.text('Frais de livraison', bX + 5, py + 14);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9); tc(N);
     doc.text(`${fmt(frais)} FCFA`, bX + bW - 5, py + 14, { align: 'right' });
-
-    // Séparateur
     dc([224, 236, 230]); lw(0.2);
     doc.line(bX + 3, py + 18, bX + bW - 3, py + 18);
 
-    // TOTAL GRAND — fond vert plein
     fc(VF);
     doc.roundedRect(bX, py + 20, bW, 13, 3, 3, 'F');
-
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); tc([187, 247, 208]);
     doc.text('TOTAL À PAYER', bX + 5, py + 27);
-
-    // Montant + FCFA en une seule chaîne, taille réduite pour tenir
     doc.setFont('helvetica', 'bold'); doc.setFontSize(12); tc(W);
     doc.text(`${fmt(montant)} FCFA`, bX + bW - 4, py + 29, { align: 'right' });
 
-    // ════════════════════════════════════════════════════════════
-    // CONDITIONS
-    // ════════════════════════════════════════════════════════════
     py += boxH + 10;
-
-    // Ligne verte pleine
     fc(VF); doc.rect(m, py, CW, 1.5, 'F');
     py += 7;
-
     doc.setFont('helvetica', 'bold'); doc.setFontSize(8); tc(VF);
     doc.text('CONDITIONS', m, py);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tc(N);
@@ -720,39 +679,29 @@ export class FacturesComponent implements OnInit {
       m, py + 7
     );
 
-    // ════════════════════════════════════════════════════════════
-    // FOOTER
-    // ════════════════════════════════════════════════════════════
     const fY = PH - 14;
-
     dc([224, 224, 224]); lw(0.3);
     doc.line(m, fY - 3, m + CW, fY - 3);
-
-    // Gauche — RC / NINEA / Banque
     doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(S);
     doc.text('RC : SN DKR 2022 A 6647   •   NINEA : 009221079', m, fY + 2);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(SL);
     doc.text('Compte bancaire UBA : 309070004683', m, fY + 7);
-
-    // Droite — marque + remerciement
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); tc(VF);
     doc.text('BIOSEN100', m + CW, fY + 2, { align: 'right' });
     doc.setFont('helvetica', 'normal'); doc.setFontSize(7); tc(SL);
     doc.text('Merci de votre confiance', m + CW, fY + 7, { align: 'right' });
-
-    // Tampon centré
     doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); tc(SL);
     doc.text(
       `Document généré le ${dateGen} — ${facture.numero_facture}`,
       PW / 2, fY + 12, { align: 'center' }
     );
 
-    // ── Sauvegarde ────────────────────────────────────────────
     doc.save(`facture_${facture.numero_facture}.pdf`);
     this.showSuccess('PDF téléchargé avec succès.');
   }
 
-  // ── Export Excel ──────────────────────────────────────────────────
+  // ─── Export Excel ─────────────────────────────────────────────────────────
+
   exportExcel(): void {
     this.factureService.getAll(this.buildExportFilters()).subscribe({
       next: (res) => {
@@ -765,6 +714,11 @@ export class FacturesComponent implements OnInit {
               'Client': client.nomComplet,
               'Email': client.email,
               'Téléphone': client.telephone,
+              'Adresse client': client.adresse_client,
+              'Ville / Zone': client.ville_zone,
+              'Code postal': client.code_postal,
+              'Région': client.region,
+              'Pays': client.pays,
               'Montant (FCFA)': this.getMontant(f),
               'Date Emission': this.formatDate(f.date_emission),
               'Date Echeance': this.formatDate(f.date_echeance),
@@ -774,7 +728,9 @@ export class FacturesComponent implements OnInit {
           const ws = XLSX.utils.json_to_sheet(data);
           ws['!cols'] = [
             { wch: 18 }, { wch: 16 }, { wch: 28 }, { wch: 30 },
-            { wch: 18 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 14 },
+            { wch: 18 }, { wch: 30 }, { wch: 20 }, { wch: 14 },
+            { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 },
+            { wch: 16 }, { wch: 14 },
           ];
           const wb = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(wb, ws, 'Factures');
@@ -786,9 +742,7 @@ export class FacturesComponent implements OnInit {
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════
-  // Helpers partagés PDF liste + impression
-  // ══════════════════════════════════════════════════════════════════
+  // ─── Helpers partagés PDF liste + impression ──────────────────────────────
 
   private buildFilterSummary(): string {
     const parts: string[] = [];
@@ -804,12 +758,27 @@ export class FacturesComponent implements OnInit {
     return parts.join(' | ');
   }
 
-  /** Construit le tableau HTML cloné et stylisé (style Commandes) */
   private buildFacturesTable(factures: Facture[]): string {
     const rows = factures.map((f, i) => {
       const client = this.getClientInfo(f);
       const numCmd = f.commande?.numeroCommande ?? '—';
       const montant = this.formatMontantPdf(this.getMontant(f));
+
+      // ✅ Adresse complète pour le tableau PDF liste
+      const adresseParts = [
+        client.adresse_client,
+        client.ville_zone,
+        client.code_postal,
+        client.region,
+        client.pays
+      ].filter(Boolean);
+      const adresseHtml = adresseParts.length
+        ? adresseParts.map((part, idx) =>
+          idx === 0
+            ? `<div style="font-size:10.5px;font-weight:600;color:#111827;">${part}</div>`
+            : `<div style="font-size:9.5px;color:#6b7280;">${part}</div>`
+        ).join('')
+        : '<span style="color:#9ca3af;">—</span>';
 
       const statutStyle: Record<string, string> = {
         'payé': 'background:#d1fae5;color:#064e3b;',
@@ -826,19 +795,16 @@ export class FacturesComponent implements OnInit {
         <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:11px;color:#475569;font-family:monospace;">
           ${numCmd}
         </td>
-        <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:11px;color:#111827;font-weight:600;">
-          ${client.nomComplet}
-          ${client.telephone ? `<br><small style="color:#94a3b8;font-weight:400;font-size:10px;">${client.telephone}</small>` : ''}
+        <td style="padding:9px 10px;border:1px solid #d1fae5;">
+          <div style="font-size:11px;color:#111827;font-weight:600;">${client.nomComplet}</div>
+          ${client.telephone ? `<div style="font-size:9.5px;color:#94a3b8;">${client.telephone}</div>` : ''}
         </td>
+        <td style="padding:9px 10px;border:1px solid #d1fae5;">${adresseHtml}</td>
         <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:11px;color:#064e3b;font-weight:700;text-align:right;">
           ${montant} <span style="font-size:9px;color:#94a3b8;font-weight:400;">FCFA</span>
         </td>
         <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:11px;color:#6b7280;font-family:monospace;">
           ${this.formatDate(f.date_emission)}
-        </td>
-        <td style="padding:9px 10px;border:1px solid #d1fae5;font-size:11px;font-family:monospace;
-          ${this.isOverdue(f) ? 'color:#dc2626;font-weight:700;' : 'color:#6b7280;'}">
-          ${this.formatDate(f.date_echeance)}
         </td>
         <td style="padding:9px 10px;border:1px solid #d1fae5;">
           <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;${sStyle}">
@@ -851,20 +817,19 @@ export class FacturesComponent implements OnInit {
     return `<table style="width:100%;border-collapse:collapse;font-size:11px;font-family:Arial,sans-serif;">
       <thead>
         <tr>
-          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;">N° FACTURE</th>
-          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;">N° COMMANDE</th>
-          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;">CLIENT</th>
-          <th style="background:#287747;color:#fff;padding:10px;text-align:right;border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;">MONTANT</th>
-          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;">ÉMISSION</th>
-          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;">ÉCHÉANCE</th>
-          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-weight:bold;font-size:10.5px;">STATUT</th>
+          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-size:10.5px;">N° FACTURE</th>
+          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-size:10.5px;">N° COMMANDE</th>
+          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-size:10.5px;">CLIENT</th>
+          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-size:10.5px;">ADRESSE LIVRAISON</th>
+          <th style="background:#287747;color:#fff;padding:10px;text-align:right;border:1px solid #1d5c35;font-size:10.5px;">MONTANT</th>
+          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-size:10.5px;">ÉMISSION</th>
+          <th style="background:#287747;color:#fff;padding:10px;text-align:left;border:1px solid #1d5c35;font-size:10.5px;">STATUT</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>`;
   }
 
-  /** Construit le bloc header + stripe + tableau + footer (style Commandes) */
   private buildPdfElement(factures: Facture[]): HTMLElement {
     const date = new Date().toLocaleString('fr-FR');
     const filterSummary = this.buildFilterSummary();
@@ -917,7 +882,6 @@ export class FacturesComponent implements OnInit {
     return element;
   }
 
-  // ── Export PDF liste (style Commandes) ────────────────────────────
   exportPDF(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     this.factureService.getAll(this.buildExportFilters()).subscribe({
@@ -942,7 +906,6 @@ export class FacturesComponent implements OnInit {
     });
   }
 
-  // ── Impression (style Commandes) ──────────────────────────────────
   print(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     this.factureService.getAll(this.buildExportFilters()).subscribe({
@@ -983,17 +946,7 @@ export class FacturesComponent implements OnInit {
                 display:flex;justify-content:space-between;font-size:9px;color:#9ca3af;
               }
               .pdf-badge { background:#287747;color:white;padding:2px 9px;border-radius:20px;font-size:8.5px;font-weight:700; }
-              table { width:100%;border-collapse:collapse;font-size:10.5px; }
-              thead th { background:#287747;color:white;padding:10px;text-align:left;border:1px solid #1d5c35;font-weight:700;font-size:10px; }
-              tbody td { padding:9px 10px;border:1px solid #d1fae5;color:#1a2e25;vertical-align:middle; }
-              tbody tr:nth-child(even) td { background:#f0fdf4; }
-              tbody tr:nth-child(odd)  td { background:#ffffff; }
-              @page { size:A4 landscape;margin:10mm; }
-              @media print {
-                thead th { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-                .pdf-header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-                .pdf-stripe { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-              }
+              @media print { @page { size:A4 landscape;margin:10mm; } }
             </style></head>
             <body>
               <div class="pdf-header">
@@ -1035,7 +988,8 @@ export class FacturesComponent implements OnInit {
     });
   }
 
-  // ── Alerts ────────────────────────────────────────────────────────
+  // ─── Alerts ───────────────────────────────────────────────────────────────
+
   closeAlert(): void { this.successMessage = ''; this.errorMessage = ''; }
 
   private showSuccess(msg: string): void {

@@ -23,7 +23,6 @@ interface CartItem {
   styleUrls: ['./checkout.component.css']
 })
 export class CheckoutComponent implements OnInit {
-  // Données du formulaire
   formData = {
     nom: '',
     prenom: '',
@@ -41,18 +40,15 @@ export class CheckoutComponent implements OnInit {
     terms: false
   };
 
-  // Panier
   cart: CartItem[] = [];
   subtotal = 0;
   shippingCost = 0;
   total = 0;
 
-  // États
   isLoading = false;
   errors: any = {};
   successMessage = '';
 
-  // Zones de livraison Sénégal
   shippingZones = [
     { value: 'Dakar|Zone 1|1000', label: 'Dakar - Zone 1 (Ouest Foire, Patte d\'Oie) - 1 000 FCFA' },
     { value: 'Dakar|Zone 2|1500', label: 'Dakar - Zone 2 (Yoff, Ngor, Foire) - 1 500 FCFA' },
@@ -62,7 +58,6 @@ export class CheckoutComponent implements OnInit {
     { value: 'Bargny|Zone 5|3000', label: 'Bargny - Zone 5 - 3 000 FCFA' }
   ];
 
-  // Pays
   countries = [
     { value: 'Senegal', label: '🇸🇳 Sénégal' },
     { value: 'Cote d\'Ivoire', label: '🇨🇮 Côte d\'Ivoire' },
@@ -84,64 +79,37 @@ export class CheckoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCart();
-    this.prefillUserData(); // ✅ Nouvelle méthode pour pré-remplir
+    this.prefillUserData();
   }
 
-  /**
-   * Pré-remplir les données utilisateur s'il est connecté
-   */
   prefillUserData(): void {
     const currentUser = this.authService.currentUser();
-    
     if (currentUser) {
-      console.log('Utilisateur connecté, pré-remplissage des champs:', currentUser);
-      
-      // Pré-remplir avec les données de l'utilisateur
       this.formData.nom = currentUser.nom || '';
       this.formData.prenom = currentUser.prenom || '';
       this.formData.email = currentUser.email || '';
       this.formData.telephone = currentUser.telephone || '';
-      // this.formData.adresse = currentUser.adresse || '';
-      
-      // Désactiver la case "créer un compte" car déjà connecté
       this.formData.create_account = false;
-      
-      // Si l'utilisateur a déjà une adresse enregistrée, on peut suggérer le pays
-      // Mais on laisse l'utilisateur choisir
     }
   }
 
-  /**
-   * Charger le panier depuis le service
-   */
   loadCart(): void {
     this.cart = this.cartService.getCart();
     this.calculateTotals();
-    
-    // Si panier vide, rediriger vers boutique
     if (this.cart.length === 0) {
       this.router.navigate(['/boutique']);
     }
   }
 
-  /**
-   * Calculer les totaux
-   */
   calculateTotals(): void {
     this.subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     this.updateTotal();
   }
 
-  /**
-   * Mettre à jour le total
-   */
   updateTotal(): void {
     this.total = this.subtotal + this.shippingCost;
   }
 
-  /**
-   * Mettre à jour les frais de livraison
-   */
   onShippingZoneChange(): void {
     if (this.formData.zone_livraison) {
       const parts = this.formData.zone_livraison.split('|');
@@ -150,9 +118,6 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  /**
-   * Gérer le changement de pays
-   */
   onCountryChange(): void {
     if (this.formData.pays !== 'Senegal') {
       this.formData.zone_livraison = '';
@@ -161,18 +126,12 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  /**
-   * Basculer les champs de création de compte
-   */
   toggleAccountFields(): void {
     if (!this.formData.create_account) {
       this.formData.password = '';
     }
   }
 
-  /**
-   * Valider le formulaire
-   */
   validateForm(): boolean {
     this.errors = {};
 
@@ -192,16 +151,11 @@ export class CheckoutComponent implements OnInit {
       if (!this.formData.region) this.errors.region = 'La région est requise';
     }
 
-    // Validation conditionnelle selon que l'utilisateur est connecté ou non
     if (!this.authService.currentUser()) {
-      // Uniquement pour les guests
       if (this.formData.create_account) {
         if (!this.formData.email) this.errors.email = 'L\'email est requis pour créer un compte';
         if (!this.formData.password) this.errors.password = 'Le mot de passe est requis';
       }
-    } else {
-      // Utilisateur connecté : l'email est déjà dans le profil
-      // Pas besoin de valider l'email dans le formulaire
     }
 
     if (!this.formData.terms) this.errors.terms = 'Vous devez accepter les conditions';
@@ -211,6 +165,7 @@ export class CheckoutComponent implements OnInit {
 
   /**
    * Soumettre la commande
+   * La fenêtre est ouverte AVANT le await pour que le mobile l'autorise
    */
   async onSubmit(): Promise<void> {
     if (!this.validateForm()) {
@@ -221,18 +176,17 @@ export class CheckoutComponent implements OnInit {
     this.isLoading = true;
     this.errors = {};
 
+    const whatsappWindow = window.open('', '_blank');
+
     try {
-      // Préparer les données pour l'API
       const orderData: any = {
         ...this.formData,
         cart_data: JSON.stringify(this.cart),
         shipping_cost: this.shippingCost
       };
 
-      // Si l'utilisateur est connecté, on n'envoie pas le mot de passe
       if (this.authService.currentUser()) {
         delete orderData.password;
-        // On peut aussi ne pas envoyer create_account
         orderData.create_account = false;
       }
 
@@ -241,16 +195,20 @@ export class CheckoutComponent implements OnInit {
       if (response && response.order_number) {
         this.cartService.clearCart();
 
-        // ✅ Ouvrir WhatsApp avec la facture
-        this.redirectToWhatsApp(response.order_number);
+        // ✅ Rediriger la fenêtre déjà ouverte (pas de nouvelle popup bloquée)
+        const whatsappUrl = this.buildWhatsAppUrl(response.order_number);
+        if (whatsappWindow) {
+          whatsappWindow.location.href = whatsappUrl;
+        }
 
-        // ✅ Rediriger vers la confirmation
         this.router.navigate(['/checkout/confirmation', response.order_number]);
       } else {
+        whatsappWindow?.close();
         throw new Error('Réponse invalide du serveur');
       }
 
     } catch (error: any) {
+      whatsappWindow?.close();
       if (error.status === 422 && error.error?.errors) {
         this.errors = error.error.errors;
       } else {
@@ -261,10 +219,12 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  redirectToWhatsApp(orderNumber: string): void {
+  /**
+   * Construire l'URL WhatsApp — utilisée par onSubmit()
+   */
+  buildWhatsAppUrl(orderNumber: string): string {
     const vendeurTel = '221782904830';
 
-    // Construire la liste des produits
     let lignesProduits = '';
     this.cart.forEach((item, index) => {
       lignesProduits += `\n${index + 1}. ${item.name}`;
@@ -273,7 +233,6 @@ export class CheckoutComponent implements OnInit {
       lignesProduits += '\n';
     });
 
-    // Zone de livraison formatée
     const zoneParts = this.formData.zone_livraison?.split('|') || [];
     const zoneLabel = zoneParts.length >= 2
       ? `${zoneParts[0]} - ${zoneParts[1]}`
@@ -316,22 +275,13 @@ Puis envoyez la capture de paiement ici
 
 _— BioSen 100_`;
 
-    const whatsappUrl = `https://wa.me/${vendeurTel}?text=${encodeURIComponent(message)}`;
-
-    // Ouvrir WhatsApp dans un nouvel onglet
-    window.open(whatsappUrl, '_blank');
+    return `https://wa.me/${vendeurTel}?text=${encodeURIComponent(message)}`;
   }
 
-  /**
-   * Formater le prix
-   */
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
   }
 
-  /**
-   * Vérifier si un champ est invalide
-   */
   isInvalid(field: string): boolean {
     return !!this.errors[field];
   }

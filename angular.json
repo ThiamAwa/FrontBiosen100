@@ -31,6 +31,15 @@
                 "output": "assets"
               }
             ],
+	    "allowedCommonJsDependencies": [
+  		"html2pdf.js",
+  		"canvg",
+  		"core-js",
+  		"raf",
+  		"rgbcolor",
+  		"html2canvas",
+  		"jspdf"
+	     ],
             "styles": [
               "src/styles.css",
               "src/assets/css/style.css",

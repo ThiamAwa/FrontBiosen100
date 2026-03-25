@@ -1,12 +1,12 @@
 <div class="container-fluid fixed-top">
 
-  <!-- Topbar -->
+  <!-- Topbar (masqué sur mobile) -->
   <div class="container topbar d-none d-lg-block" style="background-color:#287747">
     <div class="d-flex justify-content-between">
       <div class="top-info ps-2">
         <small class="me-3">
           <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
-          <a href="#" class="text-white">123 Street, New York</a>
+          <a href="#" class="text-white">Yoff, Keur Massar, Thiès</a>
         </small>
         <small class="me-3">
           <i class="fas fa-envelope me-2 text-secondary"></i>
@@ -16,8 +16,7 @@
       <div class="top-link pe-2">
         <a routerLink="/confidentialite" class="text-white"><small class="mx-2">Confidentialité</small>/</a>
         <a routerLink="/conditions" class="text-white"><small class="mx-2">Conditions d'utilisation</small>/</a>
-        <a routerLink="/remboursements" class="text-white"><small class="ms-2">Ventes et
-            Remboursements</small></a>
+        <a routerLink="/remboursements" class="text-white"><small class="ms-2">Ventes et Remboursements</small></a>
       </div>
     </div>
   </div>
@@ -25,37 +24,41 @@
   <!-- Navbar principale -->
   <div class="container px-0">
     <nav class="navbar navbar-light bg-white navbar-expand-xl">
+
+      <!-- Logo + marque -->
       <a routerLink="/" class="navbar-brand d-flex align-items-center gap-2">
         <img src="/logo-biosen.jpeg" alt="Sen Bio Logo" class="brand-logo-img"
           style="height: 50px; width: auto; object-fit: contain;" />
-        <h1 style="color:#287747" class="display-6 mb-0">BioSen 100</h1>
+        <h1 style="color:#287747" class="display-6 mb-0 brand-title">BioSen 100</h1>
       </a>
 
-      <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+      <!-- Bouton burger (mobile/tablette) -->
+      <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Menu">
         <span class="fa fa-bars text-primary"></span>
       </button>
 
       <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
 
-        <!-- Liens de navigation -->
+        <!-- Navigation -->
         <div class="navbar-nav mx-auto">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}"
             class="nav-item nav-link">Accueil</a>
           <a routerLink="/boutique" routerLinkActive="active" class="nav-item nav-link">Boutique</a>
-          <a routerLink="/temoignages" routerLinkActive="active" class="nav-item nav-link">Témoignages et
-            Conseils</a>
+          <a routerLink="/temoignages" routerLinkActive="active" class="nav-item nav-link">Témoignages et Conseils</a>
           <a routerLink="/sport" routerLinkActive="active" class="nav-item nav-link">Sport</a>
           <a routerLink="/contact" routerLinkActive="active" class="nav-item nav-link">Contact</a>
         </div>
 
         <!-- Actions droite -->
-        <div class="d-flex align-items-center m-3 me-0 gap-3">
+        <div class="navbar-actions d-flex align-items-center m-3 me-0 gap-3">
 
-          <!-- Bouton Recherche -->
+          <!-- Recherche -->
           <button class="btn border border-secondary btn-md-square rounded-circle bg-white">
             <i class="fas fa-search text-primary"></i>
           </button>
 
+          <!-- Panier -->
           <button type="button" class="btn-panier position-relative text-dark border-0 bg-transparent p-0"
             (click)="openCartModal()" title="Mon panier" style="cursor: pointer; color: #287747 !important;">
             <i class="fa fa-shopping-bag fa-2x"></i>
@@ -70,61 +73,85 @@
           <div class="dropdown">
             <a href="#" class="dropdown-toggle text-dark d-flex align-items-center gap-2" data-bs-toggle="dropdown">
               <i class="fas fa-user-circle fa-2x"></i>
-              <span class="d-none d-lg-block">
+              <span class="d-none d-xl-block account-label">
                 {{ authService.currentUser()?.prenom || 'Mon Compte' }}
               </span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow">
+
+            <ul class="dropdown-menu dropdown-menu-end account-dropdown-menu shadow">
               @if (authService.currentUser()) {
-              <!-- Utilisateur connecté -->
-              <li class="px-3 py-2 border-bottom">
-                <small class="text-muted">
-                  Connecté en tant que <strong>{{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom
-                    }}</strong>
-                </small>
+              <!-- Connecté -->
+              <li class="account-dropdown-header">
+                <div class="welcome-text">Connecté en tant que</div>
+                <div class="brand-name">
+                  {{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom }}
+                </div>
+                <i class="fas fa-leaf leaf-icon"></i>
               </li>
-              @if (authService.currentUser()?.isAdmin) {
-              <li>
-                <a routerLink="/admin/dashboard" class="dropdown-item">
-                  <i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard Admin
-                </a>
-              </li>
-              }
-              <li>
-                <a routerLink="/profile" class="dropdown-item">
-                  <i class="fas fa-user me-2 text-primary"></i>Mon Profil
-                </a>
-              </li>
-              <li>
-                <a routerLink="/mes-commandes" class="dropdown-item">
-                  <i class="fas fa-shopping-bag me-2 text-success"></i>Mes Commandes
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li>
-                <button class="dropdown-item text-danger" (click)="logout()">
-                  <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
-                </button>
-              </li>
+
+              <div class="account-dropdown-body">
+                @if (authService.currentUser()?.isAdmin) {
+                <li>
+                  <a routerLink="/admin/dashboard" class="account-dropdown-item">
+                    <span class="item-icon purple"><i class="fas fa-tachometer-alt"></i></span>
+                    Dashboard Admin
+                  </a>
+                </li>
+                }
+                <li>
+                  <a routerLink="/profile" class="account-dropdown-item">
+                    <span class="item-icon green"><i class="fas fa-user"></i></span>
+                    Mon Profil
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/mes-commandes" class="account-dropdown-item">
+                    <span class="item-icon orange"><i class="fas fa-shopping-bag"></i></span>
+                    Mes Commandes
+                  </a>
+                </li>
+                <li>
+                  <hr class="account-dropdown-divider">
+                </li>
+                <li>
+                  <button class="account-dropdown-item text-danger" (click)="logout()">
+                    <span class="item-icon gray"><i class="fas fa-sign-out-alt"></i></span>
+                    Déconnexion
+                  </button>
+                </li>
+              </div>
+
               } @else {
-              <!-- Utilisateur non connecté -->
-              <li class="px-3 py-2 border-bottom">
-                <small class="text-muted">Bienvenue sur BioSen100</small>
+              <!-- Non connecté -->
+              <li class="account-dropdown-header">
+                <div class="welcome-text">Bienvenue sur</div>
+                <div class="brand-name">BioSen 100</div>
+                <i class="fas fa-leaf leaf-icon"></i>
               </li>
-              <li>
-                <button class="dropdown-item" (click)="openLoginModal()">
-                  <i class="fas fa-sign-in-alt me-2 text-primary"></i>
-                  <strong>Se connecter</strong>
+
+              <div class="account-dropdown-body">
+                <li>
+                  <button class="account-dropdown-item" (click)="openLoginModal()">
+                    <span class="item-icon green"><i class="fas fa-sign-in-alt"></i></span>
+                    <strong>Se connecter</strong>
+                  </button>
+                </li>
+                <li>
+                  <a routerLink="/register" class="account-dropdown-item">
+                    <span class="item-icon blue"><i class="fas fa-user-plus"></i></span>
+                    Créer un compte
+                  </a>
+                </li>
+              </div>
+
+              <div class="account-dropdown-footer">
+                <button class="btn-signin" (click)="openLoginModal()">
+                  <i class="fas fa-sign-in-alt"></i> Se connecter
                 </button>
-              </li>
-              <li>
-                <a routerLink="/register" class="dropdown-item">
-                  <i class="fas fa-user-plus me-2 text-success"></i>Créer un compte
+                <a routerLink="/register" class="btn-register-link" (click)="close()">
+                  Créer un compte <i class="fas fa-arrow-right"></i>
                 </a>
-              </li>
-              <!-- ... reste du menu -->
+              </div>
               }
             </ul>
           </div>
@@ -134,85 +161,92 @@
     </nav>
   </div>
 
-  <!-- Modal Connexion -->
+  <!-- MODAL CONNEXION -->
   @if (authService.loginModalOpen()) {
   <div class="modal-backdrop-custom" (click)="close()"></div>
   <div class="modal d-block" tabindex="-1" style="z-index:1055;">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header" style="background-color:#287747;">
-          <h5 class="modal-title text-white">
-            <i class="fas fa-user me-2"></i>Connexion
-          </h5>
-          <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
-        </div>
-        <div class="modal-body p-4">
+    <div class="modal-dialog modal-dialog-centered login-modal-dialog">
+      <div class="modal-content login-modal-content">
 
-          <!-- Erreurs -->
+        <div class="login-modal-header">
+          <div class="modal-logo">
+            <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+            <div>
+              <h5 class="modal-title-text">Connexion</h5>
+              <p class="modal-subtitle">Accédez à votre espace BioSen</p>
+            </div>
+          </div>
+          <button type="button" class="login-modal-close" (click)="close()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body login-modal-body">
           @if (errors.length > 0) {
-          <div class="alert alert-danger alert-dismissible fade show">
+          <div class="login-error-alert">
             <i class="fas fa-exclamation-circle me-2"></i>
             @for (error of errors; track error) {
             <div>{{ error }}</div>
             }
-            <button type="button" class="btn-close" (click)="errors = []"></button>
+            <button type="button" style="float:right; background:none; border:none; cursor:pointer; color:inherit;"
+              (click)="errors = []">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           }
 
           <form (ngSubmit)="login()">
-            <!-- Email -->
             <div class="mb-3">
-              <label for="email" class="form-label">
-                <i class="fas fa-envelope me-2"></i>Email
-              </label>
-              <input type="email" id="email" class="form-control" [(ngModel)]="credentials.email" name="email" required>
+              <label for="email" class="login-label">Email</label>
+              <div class="login-input-wrapper">
+                <i class="fas fa-envelope login-input-icon"></i>
+                <input type="email" id="email" class="form-control login-input" [(ngModel)]="credentials.email"
+                  name="email" placeholder="votre@email.com" required>
+              </div>
             </div>
 
-            <!-- Mot de passe -->
             <div class="mb-3">
-              <label for="password" class="form-label">
-                <i class="fas fa-lock me-2"></i>Mot de passe
-              </label>
-              <input type="password" id="password" class="form-control" [(ngModel)]="credentials.password"
-                name="password" placeholder="••••••••" required>
+              <label for="password" class="login-label">Mot de passe</label>
+              <div class="login-input-wrapper">
+                <i class="fas fa-lock login-input-icon"></i>
+                <input type="password" id="password" class="form-control login-input" [(ngModel)]="credentials.password"
+                  name="password" placeholder="••••••••" required>
+              </div>
             </div>
 
-            <!-- Se souvenir -->
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="remember" [(ngModel)]="credentials.remember"
-                name="remember">
-              <label class="form-check-label" for="remember">Se souvenir de moi</label>
+            <div class="d-flex justify-content-between align-items-center mb-4 login-remember">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="remember" [(ngModel)]="credentials.remember"
+                  name="remember">
+                <label class="form-check-label" for="remember">Se souvenir de moi</label>
+              </div>
+              <a href="#" class="forgot-link">Mot de passe oublié ?</a>
             </div>
 
-            <!-- Submit -->
-            <div class="d-grid gap-2 mb-3">
-              <button type="submit" class="btn btn-lg text-white" style="background-color:#287747;"
-                [disabled]="isLoading">
-                @if (isLoading) {
-                <span class="spinner-border spinner-border-sm me-2"></span>
-                } @else {
-                <i class="fas fa-sign-in-alt me-2"></i>
-                }
-                Se connecter
-              </button>
-            </div>
-
-            <div class="text-center">
-              <a href="#" class="text-muted small">Mot de passe oublié ?</a>
-            </div>
-
-            <hr class="my-4">
-
-            <div class="text-center">
-              <p class="mb-0">Pas encore de compte ?</p>
-              <a routerLink="/register" class="fw-bold" style="color:#287747;" (click)="close()">
-                Créer un compte
-              </a>
-            </div>
+            <button type="submit" class="btn-login" [disabled]="isLoading">
+              @if (isLoading) {
+              <span class="spinner-border spinner-border-sm"></span>
+              Connexion...
+              } @else {
+              <i class="fas fa-sign-in-alt"></i>
+              Se connecter
+              }
+            </button>
           </form>
+
+          <div class="login-divider">ou</div>
         </div>
+
+        <div class="login-footer">
+          <p>Pas encore de compte ?</p>
+          <a routerLink="/register" (click)="close()">
+            Créer un compte <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
       </div>
     </div>
   </div>
   }
+
 </div>

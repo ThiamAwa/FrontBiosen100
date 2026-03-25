@@ -35,9 +35,9 @@ export interface Stats {
 
 @Injectable({ providedIn: 'root' })
 export class GammeService {
-  private apiUrl = 'http://localhost:8000/api/gammes';
-  private publicApiUrl = environment.apiUrl;    // http://localhost:8000/api
-  private storageUrl = environment.storageUrl; // http://localhost:8000/storage
+  private apiUrl = `${environment.apiUrl}/gammes`;
+  private publicApiUrl = environment.apiUrl;
+  private storageUrl = environment.storageUrl;
 
   constructor(private http: HttpClient) { }
 

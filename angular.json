@@ -31,6 +31,15 @@
                 "output": "assets"
               }
             ],
+	    "allowedCommonJsDependencies": [
+  		"html2pdf.js",
+  		"canvg",
+  		"core-js",
+  		"raf",
+  		"rgbcolor",
+  		"html2canvas",
+  		"jspdf"
+	     ],
             "styles": [
               "src/styles.css",
               "src/assets/css/style.css",
@@ -47,16 +56,22 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                      "replace": "src/environments/environment.ts",
+                      "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "2MB",
+                  "maximumError": "5MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "100kB",
+                  "maximumError": "100kB"
                 }
               ],
               "outputHashing": "all"

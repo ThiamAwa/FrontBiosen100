@@ -1,4 +1,12 @@
-/*** Topbar (barre d'informations au-dessus de la navbar) ***/
+/* ============================================================
+   NAVBAR BIOSEN 100 — CSS COMPLET AVEC RESPONSIVE
+   ============================================================ */
+
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+
 .fixed-top {
     transition: 0.5s;
     background: var(--bs-white);
@@ -39,7 +47,11 @@
     color: var(--bs-primary) !important;
 }
 
-/*** Navbar principale ***/
+
+/* ============================================================
+     NAVBAR PRINCIPALE
+     ============================================================ */
+
 .navbar {
     height: 100px;
     border-bottom: 1px solid rgba(255, 255, 255, .1);
@@ -100,12 +112,20 @@
     opacity: 1;
 }
 
-/*** Modal de recherche ***/
+
+/* ============================================================
+     MODAL DE RECHERCHE
+     ============================================================ */
+
 #searchModal .modal-content {
     background: rgba(255, 255, 255, .8);
 }
 
-/*** Bouton Recherche — cercle avec bordure jaune ***/
+
+/* ============================================================
+     BOUTON RECHERCHE
+     ============================================================ */
+
 .navbar .btn.border-secondary {
     border: 2px solid #ffc107 !important;
     border-radius: 50% !important;
@@ -131,7 +151,11 @@
     color: #fff !important;
 }
 
-/*** Bouton panier — vert avec badge ***/
+
+/* ============================================================
+     BOUTON PANIER
+     ============================================================ */
+
 .btn-panier {
     color: #287747 !important;
     transition: all 0.3s ease;
@@ -151,7 +175,7 @@
     outline: none;
 }
 
-.cart-badge {
+.cart-count-badge {
     top: -5px;
     left: 15px;
     height: 20px;
@@ -161,7 +185,11 @@
     background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
 }
 
-/*** Icône utilisateur "Mon Compte" ***/
+
+/* ============================================================
+     ICÔNE "MON COMPTE"
+     ============================================================ */
+
 .navbar .dropdown-toggle .fa-user-circle {
     color: #6b7280 !important;
 }
@@ -183,8 +211,35 @@
 
 
 /* ============================================================
-   DROPDOWN COMPTE — Design raffiné BioSen
-   ============================================================ */
+     TOGGLER BURGER — personnalisé
+     ============================================================ */
+
+.navbar-toggler {
+    border: 1.5px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    padding: 7px 12px !important;
+    transition: all 0.25s ease;
+    background: #fff !important;
+}
+
+.navbar-toggler:hover {
+    background: #f0faf4 !important;
+    border-color: #287747 !important;
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(40, 119, 71, 0.15) !important;
+}
+
+.navbar-toggler .fa-bars {
+    color: #287747 !important;
+    font-size: 16px;
+}
+
+
+/* ============================================================
+     DROPDOWN COMPTE — Design raffiné BioSen
+     ============================================================ */
 
 .account-dropdown-menu {
     min-width: 260px;
@@ -208,7 +263,7 @@
     }
 }
 
-/* En-tête du dropdown */
+/* En-tête */
 .account-dropdown-header {
     background: linear-gradient(135deg, #287747 0%, #1e5c38 100%);
     padding: 18px 20px;
@@ -263,13 +318,13 @@
     color: rgba(255, 255, 255, 0.15);
 }
 
-/* Corps du dropdown */
+/* Corps */
 .account-dropdown-body {
     background: #fff;
     padding: 8px 0;
 }
 
-/* Items du dropdown */
+/* Items */
 .account-dropdown-item {
     display: flex;
     align-items: center;
@@ -352,7 +407,7 @@
     border: none;
 }
 
-/* Footer du dropdown */
+/* Footer dropdown */
 .account-dropdown-footer {
     padding: 12px 20px;
     background: #f9fafb;
@@ -412,8 +467,8 @@
 
 
 /* ============================================================
-   MODAL CONNEXION — Design premium BioSen
-   ============================================================ */
+     MODAL CONNEXION — Design premium BioSen
+     ============================================================ */
 
 .modal-backdrop-custom {
     position: fixed;
@@ -455,10 +510,11 @@
     border: 0 !important;
     border-radius: 20px !important;
     overflow: hidden;
-    box-shadow: 0 30px 80px rgba(15, 30, 20, 0.25), 0 0 0 1px rgba(40, 119, 71, 0.08);
+    box-shadow: 0 30px 80px rgba(15, 30, 20, 0.25),
+        0 0 0 1px rgba(40, 119, 71, 0.08);
 }
 
-/* En-tête du modal */
+/* Header modal */
 .login-modal-header {
     background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
     padding: 28px 32px 24px;
@@ -548,7 +604,7 @@
     transform: rotate(90deg);
 }
 
-/* Corps du modal */
+/* Corps modal */
 .login-modal-body {
     padding: 32px !important;
     background: #fff;
@@ -598,6 +654,7 @@
     color: #374151;
     letter-spacing: 0.3px;
     margin-bottom: 6px;
+    display: block;
 }
 
 /* Inputs */
@@ -685,7 +742,7 @@
     cursor: not-allowed;
 }
 
-/* Mot de passe oublié */
+/* Lien mot de passe oublié */
 .forgot-link {
     font-size: 12.5px;
     color: #6b7280;
@@ -716,7 +773,7 @@
     background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
 }
 
-/* Footer du modal */
+/* Footer modal */
 .login-footer {
     background: #f9fafb;
     border-top: 1px solid rgba(40, 119, 71, 0.08);
@@ -744,4 +801,317 @@
 .login-footer a:hover {
     gap: 10px;
     color: #1a5230;
+}
+
+
+/* ============================================================
+     RESPONSIVE — TABLETTE LARGE (< 1200px)
+     ============================================================ */
+
+@media (max-width: 1199.98px) {
+
+    /* Topbar : on masque les infos de contact, garde les liens */
+    .topbar .top-info {
+        display: none;
+    }
+
+    .topbar .top-link {
+        font-size: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .topbar {
+        border-radius: 0;
+        padding: 12px 16px;
+    }
+
+    /* Navbar hauteur réduite */
+    .navbar {
+        height: 80px;
+    }
+
+    /* Label texte "Mon Compte" masqué */
+    .account-label {
+        display: none !important;
+    }
+
+    /* Menu collapse en overlay pleine largeur */
+    .navbar-collapse.show,
+    .navbar-collapse.collapsing {
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: #fff;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        border-top: 2px solid #287747;
+        z-index: 1040;
+        padding: 8px 0 16px;
+        border-radius: 0 0 16px 16px;
+    }
+
+    /* Liens nav en colonne */
+    .navbar-collapse .navbar-nav {
+        flex-direction: column;
+        padding: 0 8px;
+    }
+
+    .navbar-collapse .navbar-nav .nav-link {
+        padding: 12px 16px;
+        border-radius: 8px !important;
+        border-bottom: 0.5px solid #f3f4f6 !important;
+        font-size: 15px;
+    }
+
+    .navbar-collapse .navbar-nav .nav-link:last-child {
+        border-bottom: none !important;
+    }
+
+    .navbar-collapse .navbar-nav .nav-link:hover {
+        background: #f0faf4 !important;
+        color: #287747;
+    }
+
+    /* Actions dans le menu collapse */
+    .navbar-actions {
+        justify-content: flex-start;
+        padding: 12px 16px 0;
+        margin: 0 !important;
+        border-top: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        gap: 12px !important;
+    }
+
+    /* Dropdown compte en bas du collapse */
+    .navbar-actions .dropdown .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        box-shadow: none !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        margin-top: 8px;
+        width: 100%;
+    }
+}
+
+
+/* ============================================================
+     RESPONSIVE — TABLETTE PORTRAIT / MOBILE GRAND (< 992px)
+     ============================================================ */
+
+@media (max-width: 991.98px) {
+
+    .topbar {
+        padding: 10px 14px;
+    }
+
+    .topbar .top-link {
+        font-size: 11px;
+    }
+
+    .navbar {
+        height: 72px;
+    }
+
+    .navbar-collapse.show,
+    .navbar-collapse.collapsing {
+        top: 72px;
+    }
+
+    /* Logo légèrement réduit */
+    .navbar-brand img.brand-logo-img {
+        height: 42px !important;
+    }
+
+    .navbar-brand h1.brand-title {
+        font-size: 1.3rem !important;
+    }
+}
+
+
+/* ============================================================
+     RESPONSIVE — MOBILE (< 768px)
+     ============================================================ */
+
+@media (max-width: 767.98px) {
+
+    /* Topbar complètement masquée */
+    .container.topbar {
+        display: none !important;
+    }
+
+    /* Navbar compacte */
+    .navbar {
+        height: 62px;
+        padding: 0 12px;
+    }
+
+    .navbar-collapse.show,
+    .navbar-collapse.collapsing {
+        top: 62px;
+        border-radius: 0 0 14px 14px;
+    }
+
+    /* Logo réduit */
+    .navbar-brand img.brand-logo-img {
+        height: 36px !important;
+    }
+
+    .navbar-brand h1.brand-title {
+        font-size: 1.1rem !important;
+    }
+
+    /* Boutons icônes plus petits */
+    .navbar .btn.border-secondary {
+        width: 36px;
+        height: 36px;
+    }
+
+    .btn-panier .fa-shopping-bag {
+        font-size: 1.4rem !important;
+    }
+
+    .navbar .dropdown-toggle .fa-user-circle {
+        font-size: 1.4rem !important;
+    }
+
+    /* Badge panier repositionné */
+    .cart-count-badge {
+        top: -4px !important;
+        left: 11px !important;
+        height: 17px !important;
+        min-width: 17px !important;
+        font-size: 10px !important;
+    }
+
+    /* Menu collapse plein écran */
+    .navbar-collapse .navbar-nav .nav-link {
+        font-size: 14px;
+        padding: 11px 14px;
+    }
+
+    .navbar-actions {
+        gap: 10px !important;
+    }
+
+    /* Modal : marges réduites */
+    .modal-dialog.login-modal-dialog {
+        margin: 0.75rem;
+    }
+
+    .login-modal-body {
+        padding: 20px !important;
+    }
+
+    .login-modal-header {
+        padding: 20px 20px 18px !important;
+    }
+
+    .login-footer {
+        padding: 14px 20px !important;
+    }
+
+    /* Dropdown compte pleine largeur */
+    .account-dropdown-menu {
+        min-width: 100% !important;
+        border-radius: 12px !important;
+    }
+}
+
+
+/* ============================================================
+     RESPONSIVE — TRÈS PETIT MOBILE (< 400px)
+     ============================================================ */
+
+@media (max-width: 399.98px) {
+
+    /* Masquer le nom, garder le logo seul */
+    .navbar-brand h1.brand-title {
+        display: none !important;
+    }
+
+    .navbar {
+        padding: 0 10px;
+        height: 58px;
+    }
+
+    .navbar-collapse.show,
+    .navbar-collapse.collapsing {
+        top: 58px;
+    }
+
+    /* Boutons encore plus compacts */
+    .navbar .btn.border-secondary {
+        width: 32px;
+        height: 32px;
+    }
+
+    .btn-panier .fa-shopping-bag {
+        font-size: 1.2rem !important;
+    }
+
+    .navbar .dropdown-toggle .fa-user-circle {
+        font-size: 1.2rem !important;
+    }
+
+    /* Modal plein écran sur très petits appareils */
+    .modal-dialog.login-modal-dialog {
+        margin: 0.4rem;
+    }
+
+    .login-modal-content {
+        border-radius: 14px !important;
+    }
+
+    .login-modal-body {
+        padding: 16px !important;
+    }
+
+    .login-modal-header {
+        padding: 16px !important;
+    }
+
+    .login-footer {
+        padding: 12px 16px !important;
+    }
+
+    .login-input {
+        height: 42px;
+        font-size: 13px;
+    }
+
+    .btn-login {
+        padding: 11px 16px;
+        font-size: 14px;
+    }
+}
+
+
+/* ============================================================
+     UTILITAIRES RESPONSIVE
+     ============================================================ */
+
+/* Assure que le fixed-top ne bloque pas le contenu sous la navbar */
+body {
+    padding-top: 140px;
+    /* topbar (~50px) + navbar (~90px) */
+}
+
+@media (max-width: 1199.98px) {
+    body {
+        padding-top: 80px;
+        /* topbar masqué, navbar seule */
+    }
+}
+
+@media (max-width: 767.98px) {
+    body {
+        padding-top: 62px;
+    }
+}
+
+@media (max-width: 399.98px) {
+    body {
+        padding-top: 58px;
+    }
 }

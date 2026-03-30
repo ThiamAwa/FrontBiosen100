@@ -1,0 +1,385 @@
+/* ============================================================
+   REGISTER — CSS autonome, aucune dépendance externe
+   Palette BioSen : #287747 / #1a5230
+   ============================================================ */
+
+/* ── Variables ───────────────────────────────────────────── */
+:host {
+  --green:        #287747;
+  --green-dark:   #1a5230;
+  --green-light:  #f0f7f3;
+  --green-muted:  rgba(40, 119, 71, 0.10);
+  --radius-card:  20px;
+  --radius-input: 12px;
+  --shadow-card:  0 24px 80px rgba(15, 30, 20, 0.16),
+                  0 0 0 1px rgba(40, 119, 71, 0.08);
+  --transition:   0.25s ease;
+}
+
+/* ── Fond de page ─────────────────────────────────────────── */
+.rg-page {
+  min-height: 100vh;
+  background: linear-gradient(145deg, #eaf4ef 0%, #f5faf7 50%, #e8f3ed 100%);
+  position: relative;
+  overflow: hidden;
+  /* Compense la navbar fixed-top */
+  padding-top: 80px;
+}
+
+/* Bulles décoratives */
+.rg-blob {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.rg-blob--1 {
+  width: 560px; height: 560px;
+  top: -160px; left: -160px;
+  background: radial-gradient(circle, rgba(40,119,71,0.13) 0%, transparent 70%);
+}
+.rg-blob--2 {
+  width: 420px; height: 420px;
+  bottom: -120px; right: -120px;
+  background: radial-gradient(circle, rgba(40,119,71,0.09) 0%, transparent 70%);
+}
+.rg-blob--3 {
+  width: 260px; height: 260px;
+  top: 45%; right: 8%;
+  background: radial-gradient(circle, rgba(40,119,71,0.06) 0%, transparent 70%);
+}
+
+/* ── Carte ────────────────────────────────────────────────── */
+.rg-card {
+  position: relative;
+  z-index: 1;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  animation: rg-slide-in 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes rg-slide-in {
+  from { opacity: 0; transform: translateY(-28px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)      scale(1);    }
+}
+
+/* ── En-tête vert ─────────────────────────────────────────── */
+.rg-header {
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+  padding: 26px 30px 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cercles décoratifs internes */
+.rg-header-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.rg-header-circle--a {
+  width: 130px; height: 130px;
+  top: -40px; right: -40px;
+  background: rgba(255,255,255,0.07);
+}
+.rg-header-circle--b {
+  width: 180px; height: 180px;
+  bottom: -70px; left: -30px;
+  background: rgba(255,255,255,0.04);
+}
+
+.rg-header-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.rg-logo-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.rg-title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin: 0 0 2px;
+}
+
+.rg-subtitle {
+  color: rgba(255,255,255,0.70);
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Bouton fermeture */
+.rg-close-btn {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 2;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background var(--transition), transform var(--transition);
+}
+.rg-close-btn:hover {
+  background: rgba(255,255,255,0.28);
+  transform: rotate(90deg);
+  color: #fff;
+}
+
+/* ── Corps du formulaire ──────────────────────────────────── */
+.rg-body {
+  background: #fff;
+  padding: 28px 30px 24px;
+}
+
+/* ── Alerte erreur générale ───────────────────────────────── */
+.rg-alert-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+  border: 1px solid rgba(220,53,69,0.22);
+  border-left: 4px solid #dc3545;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  color: #721c24;
+  font-size: 13.5px;
+  animation: rg-shake 0.38s ease;
+}
+.rg-alert-error i { margin-top: 2px; flex-shrink: 0; }
+
+@keyframes rg-shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+/* ── Champ générique ──────────────────────────────────────── */
+.rg-field {
+  margin-bottom: 16px;
+}
+.rg-field:last-of-type { margin-bottom: 22px; }
+
+.rg-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+.rg-label span { color: #ef4444; }
+
+/* Wrapper input + icône */
+.rg-input-wrap {
+  position: relative;
+}
+
+.rg-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #287747;
+  font-size: 13px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.rg-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px 0 40px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: var(--radius-input);
+  background: #fafafa;
+  font-size: 14px;
+  color: #1f2937;
+  transition:
+    border-color var(--transition),
+    background   var(--transition),
+    box-shadow   var(--transition);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.rg-input::placeholder { color: #9ca3af; }
+
+.rg-input:focus {
+  border-color: #287747;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(40,119,71,0.10);
+}
+
+/* Champ en erreur */
+.rg-field--error .rg-input {
+  border-color: #dc3545;
+  background: #fff8f8;
+}
+.rg-field--error .rg-input:focus {
+  box-shadow: 0 0 0 4px rgba(220,53,69,0.10);
+}
+.rg-field--error .rg-icon { color: #dc3545; }
+
+/* Input avec œil (padding-right) */
+.rg-input--eye { padding-right: 44px; }
+
+/* Bouton œil */
+.rg-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color var(--transition);
+  z-index: 3;
+}
+.rg-eye-btn:hover { color: #287747; }
+
+/* Message d'erreur champ */
+.rg-error-msg {
+  font-size: 12px;
+  color: #dc3545;
+  margin: 5px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: rg-shake 0.32s ease;
+}
+
+/* ── Bouton submit ─────────────────────────────────────────── */
+.rg-btn-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
+  color: #fff;
+  border: none;
+  border-radius: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(40,119,71,0.36);
+  transition:
+    transform   var(--transition),
+    box-shadow  var(--transition),
+    background  var(--transition);
+  margin-top: 4px;
+}
+.rg-btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(40,119,71,0.46);
+  background: linear-gradient(135deg, #2f8a52 0%, #1e5c38 100%);
+}
+.rg-btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 14px rgba(40,119,71,0.30);
+}
+.rg-btn-submit:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+.rg-footer {
+  background: #f9fafb;
+  border-top: 1px solid rgba(40,119,71,0.08);
+  padding: 16px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.rg-footer-text {
+  font-size: 13.5px;
+  color: #6b7280;
+}
+
+.rg-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #287747;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: gap var(--transition), color var(--transition);
+}
+.rg-footer-link:hover {
+  gap: 11px;
+  color: #1a5230;
+}
+
+.rg-arrow {
+  font-size: 11px;
+  transition: transform var(--transition);
+}
+.rg-footer-link:hover .rg-arrow {
+  transform: translateX(3px);
+}
+
+/* ── Badge rôle ─────────────────────────────────────────────── */
+.rg-role-badge {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #287747;
+  background: rgba(40,119,71,0.07);
+  border: 1px solid rgba(40,119,71,0.16);
+  border-radius: 30px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  animation: rg-fade-up 0.5s ease 0.3s both;
+}
+
+@keyframes rg-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 576px) {
+  .rg-body    { padding: 22px 18px 20px; }
+  .rg-header  { padding: 20px 18px 18px; }
+  .rg-footer  { padding: 14px 18px; }
+  .rg-title   { font-size: 18px; }
+}

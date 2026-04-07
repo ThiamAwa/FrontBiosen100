@@ -14,11 +14,21 @@ export class FooterComponent {
   currentYear = new Date().getFullYear();
 
   socialLinks = [
-    { title: 'Facebook', url: 'https://facebook.com', icon: 'fab fa-facebook-f' },
-    { title: 'Instagram', url: 'https://instagram.com', icon: 'fab fa-instagram' },
-    { title: 'Twitter', url: 'https://twitter.com', icon: 'fab fa-twitter' },
-    { title: 'WhatsApp', url: 'https://whatsapp.com', icon: 'fab fa-whatsapp' },
+    { title: 'Snapchat', url: 'https://www.snapchat.com/@biosen100', icon: 'bi bi-snapchat' },
+    { title: 'TikTok', url: 'https://www.tiktok.com/@biosen100', icon: 'bi bi-tiktok' },
+    { title: 'Instagram', url: 'https://www.instagram.com/biosen100/', icon: 'bi bi-instagram' },
+    { title: 'WhatsApp', url: 'https://whatsapp.com', icon: 'bi bi-whatsapp' },
+    // { title: 'Facebook', url: 'https://facebook.com', icon: 'bi bi-facebook' },
+    // { title: 'Twitter', url: 'https://twitter.com', icon: 'bi bi-twitter-x' }
   ];
+
+  // Si tu veux ajouter un deuxième compte TikTok (biosen100thies) :
+  // socialLinks = [
+  //   ...
+  //   { title: 'TikTok (principal)', url: 'https://www.tiktok.com/@biosen100', icon: 'bi bi-tiktok' },
+  //   { title: 'TikTok Thies', url: 'https://www.tiktok.com/@biosen100thies', icon: 'bi bi-tiktok' },
+  //   ...
+  // ];
 
   infoLinks = [
     { label: 'Accueil', route: '/' },
@@ -28,7 +38,6 @@ export class FooterComponent {
     { label: 'Politique de confidentialité', route: '/privacy' },
     { label: "Conditions d'utilisation", route: '/terms' },
   ];
-
 
   paymentMethods = [
     { src: '/payments/expresso.png', alt: 'Expresso' },

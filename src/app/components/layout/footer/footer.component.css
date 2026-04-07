@@ -29,7 +29,7 @@ body {
 }
 
 .footer-top {
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
     padding-bottom: 2rem;
     margin-bottom: 2rem;
 }
@@ -48,6 +48,7 @@ body {
     opacity: 0.9;
 }
 
+/* Base des boutons sociaux */
 .social-links .btn {
     width: 45px;
     height: 45px;
@@ -58,13 +59,82 @@ body {
     justify-content: center;
     transition: all 0.3s ease;
     background: rgb(40, 119, 71);
+    font-size: 1.1rem;
 }
 
 .social-links .btn:hover {
-    background: #287747;
+    background: white;
     border-color: #287747;
     color: #287747;
     transform: translateY(-3px);
+}
+
+/* Couleurs individuelles par réseau social */
+.social-links a[title="Facebook"] {
+    background: #1877F2;
+    border-color: #1877F2;
+}
+
+.social-links a[title="Facebook"]:hover {
+    background: white;
+    color: #1877F2;
+    border-color: #1877F2;
+}
+
+.social-links a[title="Instagram"] {
+    background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4);
+    border-color: #DD2A7B;
+}
+
+.social-links a[title="Instagram"]:hover {
+    background: white;
+    color: #DD2A7B;
+    border-color: #DD2A7B;
+}
+
+.social-links a[title="Twitter"] {
+    background: #000000;
+    border-color: #000000;
+}
+
+.social-links a[title="Twitter"]:hover {
+    background: white;
+    color: #000000;
+    border-color: #000000;
+}
+
+.social-links a[title="WhatsApp"] {
+    background: #25D366;
+    border-color: #25D366;
+}
+
+.social-links a[title="WhatsApp"]:hover {
+    background: white;
+    color: #25D366;
+    border-color: #25D366;
+}
+
+.social-links a[title="TikTok"] {
+    background: #010101;
+    border-color: #EE1D52;
+}
+
+.social-links a[title="TikTok"]:hover {
+    background: white;
+    color: #EE1D52;
+    border-color: #EE1D52;
+}
+
+.social-links a[title="Snapchat"] {
+    background: #FFFC00;
+    border-color: #FFFC00;
+    color: #000000 !important;
+}
+
+.social-links a[title="Snapchat"]:hover {
+    background: white;
+    color: #000000;
+    border-color: #FFFC00;
 }
 
 .footer-section-title {
@@ -95,7 +165,7 @@ body {
 .btn-primary-custom {
     background: white;
     color: #287747;
-    border: none;
+    border: 2px solid #287747;
     font-weight: 600;
     padding: 0.6rem 1.5rem;
     transition: all 0.3s ease;
@@ -105,7 +175,7 @@ body {
     background: #287747;
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 5px 15px rgba(40, 119, 71, 0.3);
 }
 
 .footer-link {
@@ -179,7 +249,7 @@ body {
 }
 
 .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
     padding-top: 1.5rem;
     margin-top: 2rem;
     text-align: center;
@@ -199,124 +269,15 @@ body {
         justify-content: center !important;
     }
 
+    .social-links .btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
     .payment-methods {
         justify-content: center;
     }
 }
 
 /*** Footer End ***/
-/* .footer {
-    background-color: #1a1a2e;
-    color: #ccc;
-}
-
-.brand-title {
-    color: #287747;
-    font-weight: 800;
-}
-
-.brand-subtitle {
-    color: #aaa;
-    font-size: 0.95rem;
-}
-
-.footer-section-title {
-    color: #fff;
-    font-weight: 700;
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #287747;
-    display: inline-block;
-}
-
-.footer-link {
-    color: #aaa;
-    text-decoration: none;
-    padding: 4px 0;
-    transition: color 0.2s, padding-left 0.2s;
-
-    &:hover {
-        color: #287747;
-        padding-left: 6px;
-    }
-}
-
-.footer-text {
-    color: #aaa;
-    line-height: 1.7;
-}
-
-.contact-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #aaa;
-    margin-bottom: 0.8rem;
-
-    i {
-        color: #287747;
-        font-size: 1rem;
-    }
-}
-
-.social-links .btn {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #287747;
-    color: #287747;
-    transition: all 0.3s;
-
-    &:hover {
-        background-color: #287747;
-        color: #fff;
-    }
-}
-
-.btn-primary-custom {
-    background: linear-gradient(135deg, #287747 0%, #1a5230 100%);
-    color: #fff;
-    border: none;
-    padding: 10px 24px;
-
-    &:hover {
-        opacity: 0.9;
-        color: #fff;
-    }
-}
-
-.payment-title {
-    color: #fff;
-    font-weight: 600;
-    margin-bottom: 0.8rem;
-}
-
-.payment-methods {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-
-    img {
-        border-radius: 6px;
-        background: #fff;
-        padding: 4px;
-    }
-}
-
-.footer-top {
-    border-bottom: 1px solid #333;
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
-}
-
-.footer-bottom {
-    border-top: 1px solid #333;
-    margin-top: 2rem;
-    padding: 1.5rem 0;
-    text-align: center;
-    color: #888;
-    font-size: 0.9rem;
-} */

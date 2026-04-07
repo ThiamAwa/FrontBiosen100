@@ -58,9 +58,9 @@ export class ProfileComponent implements OnInit {
     this.loadOrders();
   }
 
-/**
-   * Charger le profil
-   */
+  /**
+     * Charger le profil
+     */
   loadProfile(): void {
     this.userService.getProfile().subscribe({
       next: (profile) => {
@@ -102,37 +102,37 @@ export class ProfileComponent implements OnInit {
     this.showOrderDetails = false;
   }
 
-/**
- * Sauvegarder le profil
- */
-saveProfile(): void {
-  this.isSaving = true;
-  this.errors = {};
-  this.successMessage = '';
+  /**
+   * Sauvegarder le profil
+   */
+  saveProfile(): void {
+    this.isSaving = true;
+    this.errors = {};
+    this.successMessage = '';
 
-  this.userService.updateProfile(this.profileForm).subscribe({
-    next: () => {
-      this.successMessage = 'Profil mis à jour avec succès';
-      
-      // 👇 Recharger complètement le profil
-      this.loadProfile();
-      
-      this.isSaving = false;
-      
-      setTimeout(() => {
-        this.successMessage = '';
-      }, 3000);
-    },
-    error: (err) => {
-      this.isSaving = false;
-      if (err.status === 422 && err.error?.errors) {
-        this.errors = err.error.errors;
-      } else {
-        this.errors.general = err.error?.message || 'Une erreur est survenue';
+    this.userService.updateProfile(this.profileForm).subscribe({
+      next: () => {
+        this.successMessage = 'Profil mis à jour avec succès';
+
+        // 👇 Recharger complètement le profil
+        this.loadProfile();
+
+        this.isSaving = false;
+
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      },
+      error: (err) => {
+        this.isSaving = false;
+        if (err.status === 422 && err.error?.errors) {
+          this.errors = err.error.errors;
+        } else {
+          this.errors.general = err.error?.message || 'Une erreur est survenue';
+        }
       }
-    }
-  });
-}
+    });
+  }
 
   /**
    * Changer le mot de passe
@@ -151,7 +151,7 @@ saveProfile(): void {
           new_password: '',
           new_password_confirmation: ''
         };
-        
+
         setTimeout(() => {
           this.successMessage = '';
         }, 3000);
@@ -178,7 +178,7 @@ saveProfile(): void {
         this.errors.avatar = 'Le fichier doit être une image';
         return;
       }
-      
+
       // Vérifier la taille (2MB max)
       if (file.size > 2 * 1024 * 1024) {
         this.errors.avatar = 'L\'image ne doit pas dépasser 2MB';
@@ -186,7 +186,7 @@ saveProfile(): void {
       }
 
       this.selectedAvatar = file;
-      
+
       // Créer un aperçu
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -211,7 +211,7 @@ saveProfile(): void {
         this.selectedAvatar = null;
         this.avatarPreview = null;
         this.successMessage = 'Avatar mis à jour avec succès';
-        
+
         setTimeout(() => {
           this.successMessage = '';
         }, 3000);
@@ -241,7 +241,7 @@ saveProfile(): void {
     this.userService.deleteAvatar().subscribe({
       next: () => {
         this.successMessage = 'Avatar supprimé avec succès';
-        
+
         setTimeout(() => {
           this.successMessage = '';
         }, 3000);
@@ -292,7 +292,7 @@ saveProfile(): void {
   getInitials(): string {
     const profile = this.userService.profile();
     if (!profile) return 'U';
-    
+
     const first = profile.prenom?.charAt(0) || '';
     const last = profile.nom?.charAt(0) || '';
     return (first + last).toUpperCase() || 'U';

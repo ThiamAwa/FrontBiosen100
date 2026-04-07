@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule , isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { ProduitSportService, ProduitSport, ProduitSportResponse } from '../../../services/produit-sport/produit-sport.service';
 import { debounceTime, Subject } from 'rxjs';
-import { CartService, CartItem  } from '../../../services/cart/cart.service';
+import { CartService, CartItem } from '../../../services/cart/cart.service';
 
 declare var bootstrap: any;
 @Component({
@@ -221,7 +221,7 @@ export class SportComponent implements OnInit {
 
   get cartCount(): number { return this.cartService.getCartCount(); }
 
-  increaseQuantity (item: CartItem): void { this.cartService.incrementQuantity(item.id); }
+  increaseQuantity(item: CartItem): void { this.cartService.incrementQuantity(item.id); }
   decreaseQuantity(item: CartItem): void { this.cartService.decrementQuantity(item.id); }
   removeFromCart(id: number): void { this.cartService.removeFromCart(id); }
 

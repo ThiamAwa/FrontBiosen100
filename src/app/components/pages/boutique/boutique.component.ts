@@ -386,8 +386,18 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   getItemRoute(item: any): string {
-    return this.isItemSport(item) ? 'produit-sport' : 'gamme';
+    const route = this.isItemSport(item) ? 'sport' : 'gamme';
+    console.log('Navigation vers:', route, 'avec ID:', item.id);
+    return route;
   }
+
+  goToDetail(item: any): void {
+  if (this.isItemSport(item)) {
+    this.router.navigate(['/sport', item.id]); 
+  } else {
+    this.router.navigate(['/gamme', item.id]); 
+  }
+}
 
   getItemBadgeLabel(item: any): string {
     if (this.isItemSport(item)) return 'Sport';

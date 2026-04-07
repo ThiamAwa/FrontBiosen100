@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProduitSportService, ProduitSport, MediaItem } from '../../../services/produit-sport/produit-sport.service';
 import { CartService, CartItem } from '../../../services/cart/cart.service';
-
+import { Location } from '@angular/common';
 declare var bootstrap: any;
 
 @Component({
@@ -38,6 +38,7 @@ export class SportDetailComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private cartService: CartService,
     private router: Router,
+    private location: Location,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
@@ -277,5 +278,8 @@ export class SportDetailComponent implements OnInit, OnDestroy {
 
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-FR').format(price);
+  }
+  goBack(): void {
+    this.location.back();
   }
 }

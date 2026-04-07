@@ -340,10 +340,11 @@
               <div class="fruite-img position-relative">
                 <img [src]="getItemImage(item)" class="img-fluid w-100" [alt]="item.nom"
                   style="height: 280px; object-fit: cover;" (error)="onImageError($event)">
-                <div class="product-overlay">
-                  <a [routerLink]="['/produit-sport', item.id]" class="btn btn-light rounded-pill px-4 py-2">
+              
+                <div class="product-overlay" (click)="goToDetail(item)">
+                  <span class="btn btn-light rounded-pill px-4 py-2">
                     <i class="fa fa-eye me-2"></i>Voir détails
-                  </a>
+                  </span>
                 </div>
               </div>
               <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
@@ -475,10 +476,10 @@
           <div class="fruite-img position-relative">
             <img [src]="getItemImage(item)" class="img-fluid w-100" [alt]="item.nom"
               style="height: 280px; object-fit: cover;" (error)="onImageError($event)">
-            <div class="product-overlay">
-              <a [routerLink]="['/produit-sport', item.id]" class="btn btn-light rounded-pill px-4 py-2">
+            <div class="product-overlay" (click)="goToDetail(item)">
+              <span class="btn btn-light rounded-pill px-4 py-2">
                 <i class="fa fa-eye me-2"></i>Voir détails
-              </a>
+              </span>
             </div>
           </div>
           <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"
@@ -527,10 +528,10 @@
         <div class="fruite-img position-relative">
           <img [src]="getItemImage(item)" class="img-fluid w-100" [alt]="item.nom"
             style="height: 280px; object-fit: cover;" (error)="onImageError($event)">
-          <div class="product-overlay">
-            <a [routerLink]="['/' + getItemRoute(item), item.id]" class="btn btn-light rounded-pill px-4 py-2">
+          <div class="product-overlay" (click)="goToDetail(item)">
+            <span class="btn btn-light rounded-pill px-4 py-2">
               <i class="fa fa-eye me-2"></i>Voir détails
-            </a>
+            </span>
           </div>
         </div>
         <div class="text-white px-3 py-1 rounded position-absolute fw-semibold"

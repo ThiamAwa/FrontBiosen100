@@ -75,6 +75,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private observer: IntersectionObserver | null = null;
   private sportSwiper: any = null;
 
+  //Temoignage
+  private carouselStates: Map<number, { currentIndex: number; timer: any }> = new Map();
+  private autoDelay = 4000;
+  private safeUrlCache: Map<string, SafeResourceUrl> = new Map();
+
   constructor(
     private accueilService: HomeService,
     private temoignageService: TemoignageService,
@@ -107,9 +112,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.observer?.disconnect();
-    this.destroySwiper();
-  }
+  this.observer?.disconnect();
+  this.destroySwiper();
+  this.carouselStates.forEach(state => {
+    if (state.timer) clearTimeout(state.timer);
+  });
+}
 
   // ══════════════════════════════════════════════════════════
   // Chargement des données
@@ -163,6 +171,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (data) => {
         this.temoignages = data.slice(0, 3);
         this.loadingTemoignages = false;
+        setTimeout(() => this.initTemoignageCarousels(), 100);
       },
       error: (err) => {
         console.error('Erreur chargement témoignages:', err);
@@ -639,5 +648,108 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return `+221 ${tel.substring(0, 2)}***`;
+  }
+
+// ─── Carousel témoignages ───────────────────────────────────
+
+  getSafeEmbedUrl(videoUrl: string): SafeResourceUrl {
+    if (this.safeUrlCache.has(videoUrl)) {
+      return this.safeUrlCache.get(videoUrl)!;
+    }
+    const embedUrl = this.temoignageService.getYoutubeEmbedUrl(videoUrl) || videoUrl;
+    const finalUrl = embedUrl.includes('?')
+      ? `${embedUrl}&rel=0&modestbranding=1`
+      : `${embedUrl}?rel=0&modestbranding=1`;
+    const safe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
+    this.safeUrlCache.set(videoUrl, safe);
+    return safe;
+  }
+
+  getTotalSlides(t: Temoignage): number {
+    let count = 0;
+    if (t.video_url) count += 1;
+    if (t.images) count += t.images.length;
+    return count;
+  }
+
+  isSlideActive(id: number, index: number): boolean {
+    return this.getCurrentIndex(id) === index;
+  }
+
+  getCurrentIndex(id: number): number {
+    return this.carouselStates.get(id)?.currentIndex || 0;
+  }
+
+  initTemoignageCarousels(): void {
+    this.temoignages.forEach(t => {
+      if (t.id !== undefined) {
+        this.carouselStates.set(t.id, { currentIndex: 0, timer: null });
+        if (this.getTotalSlides(t) > 1) {
+          this.startCarousel(t.id);
+        }
+      }
+    });
+  }
+
+  startCarousel(id: number): void {
+    const temoignage = this.temoignages.find(t => t.id === id);
+    if (!temoignage) return;
+    const total = this.getTotalSlides(temoignage);
+    if (total <= 1) return;
+
+    const state = this.carouselStates.get(id) || { currentIndex: 0, timer: null };
+    if (state.timer) clearTimeout(state.timer);
+
+    const delay = state.currentIndex === 0 && temoignage.video_url
+      ? this.autoDelay * 2
+      : this.autoDelay;
+
+    state.timer = setTimeout(() => {
+      const next = (state.currentIndex + 1) % total;
+      this.goToSlide(id, next);
+      this.startCarousel(id);
+    }, delay);
+
+    this.carouselStates.set(id, state);
+  }
+
+  stopCarousel(id: number): void {
+    const state = this.carouselStates.get(id);
+    if (state?.timer) {
+      clearTimeout(state.timer);
+      state.timer = null;
+    }
+  }
+
+  goToSlide(id: number, index: number): void {
+    const state = this.carouselStates.get(id);
+    if (state) {
+      state.currentIndex = index;
+      this.carouselStates.set(id, state);
+    }
+  }
+
+  nextSlide(id: number, event?: Event): void {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    const temoignage = this.temoignages.find(t => t.id === id);
+    if (!temoignage) return;
+    const total = this.getTotalSlides(temoignage);
+    const state = this.carouselStates.get(id) || { currentIndex: 0, timer: null };
+    const next = Math.min(state.currentIndex + 1, total - 1);
+    this.goToSlide(id, next);
+    this.pauseAndResume(id);
+  }
+
+  prevSlide(id: number, event?: Event): void {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    const state = this.carouselStates.get(id) || { currentIndex: 0, timer: null };
+    const prev = Math.max(state.currentIndex - 1, 0);
+    this.goToSlide(id, prev);
+    this.pauseAndResume(id);
+  }
+
+  pauseAndResume(id: number): void {
+    this.stopCarousel(id);
+    setTimeout(() => this.startCarousel(id), this.autoDelay);
   }
 }

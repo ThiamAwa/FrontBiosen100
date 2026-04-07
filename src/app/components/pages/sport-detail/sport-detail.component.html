@@ -105,9 +105,9 @@
             <span *ngIf="produit.stock <= 0">Rupture de stock</span>
             <span *ngIf="produit.stock > 0">Ajouter au panier</span>
           </button>
-          <a routerLink="/sport" class="btn btn-outline-success rounded-pill">
-            <i class="fas fa-arrow-left me-2"></i>Retour aux produits
-          </a>
+         <button (click)="goBack()" class="btn btn-outline-success rounded-pill">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+          </button>
         </div>
 
       </div>

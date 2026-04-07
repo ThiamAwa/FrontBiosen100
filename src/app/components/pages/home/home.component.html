@@ -319,7 +319,9 @@
 
     @if (loadingTemoignages) {
     <div class="text-center py-4">
-      <div class="spinner-border text-success" role="status"><span class="visually-hidden">Chargement...</span></div>
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
     </div>
     }
 
@@ -327,64 +329,116 @@
     <div class="row g-4">
       @for (t of temoignages; track t.id; let i = $index) {
       <div class="col-lg-4 col-md-6" data-aos="fade-up" [attr.data-aos-delay]="i * 80">
-        <div class="temo-card">
+        <div class="testimonial-card h-100">
+
+          <!-- Quote décoratif -->
+          <div class="quote-icon">
+            <i class="fa fa-quote-right fa-3x"></i>
+          </div>
+
+          <!-- Badge Gamme -->
+          @if (t.gamme) {
+          <span class="badge badge-gamme-public mb-3" style="margin: 1rem 1rem 0;">
+            <i class="fas fa-layer-group me-1"></i>{{ t.gamme.nom }}
+          </span>
+          }
+
+          <!-- ═══ CAROUSEL UNIFIÉ : vidéo en premier, puis photos ═══ -->
           @if (t.video_url || (t.images && t.images.length > 0)) {
-          <div [class]="(t.video_url && t.images && t.images.length > 0) ? 'temo-media-dual' : ''">
-            @if (t.video_url) {
-            <div class="temo-media temo-video-thumb" [class.temo-media-half]="t.images && t.images.length > 0"
-              (click)="openVideoModal(t.video_url!)">
-              <img [src]="'https://img.youtube.com/vi/' + extractYoutubeId(t.video_url) + '/hqdefault.jpg'"
-                alt="Vidéo témoignage" class="temo-media-img"
-                onerror="this.src='assets/img/biosen/default-product.png'">
-              <div class="temo-video-overlay"></div>
-              <div class="temo-play-btn">
-                <div class="temo-play-ring"></div>
-                <i class="fas fa-play temo-play-icon"></i>
+          <div class="carousel-fade-wrapper mb-3"
+               (mouseenter)="stopCarousel(t.id)"
+               (mouseleave)="startCarousel(t.id)">
+
+            <div class="carousel-fade-stage">
+
+              <!-- SLIDE 0 : Vidéo YouTube en iframe -->
+              @if (t.video_url) {
+              <div class="carousel-fade-item" [class.active]="isSlideActive(t.id, 0)">
+                <div class="carousel-video-slide">
+                  <iframe
+                    [src]="getSafeEmbedUrl(t.video_url)"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    loading="lazy">
+                  </iframe>
+                  <span class="carousel-yt-badge">
+                    <i class="fab fa-youtube me-1"></i>Vidéo
+                  </span>
+                </div>
               </div>
-              <span class="temo-badge-yt"><i class="fab fa-youtube me-1"></i>Vidéo</span>
-            </div>
-            }
-            @if (t.images && t.images.length > 0) {
-            <div class="temo-media temo-photo-thumb" [class.temo-media-half]="t.video_url"
-              (click)="openLightbox(t.images[0])">
-              <img [src]="t.images[0]" alt="Photo témoignage" class="temo-media-img">
-              <div class="temo-photo-overlay">
-                <i class="fas fa-search-plus fa-lg text-white"></i>
-              </div>
-              @if (t.images.length > 1) {
-              <span class="temo-badge-photos"><i class="fas fa-images me-1"></i>{{ t.images.length }}</span>
               }
+
+              <!-- SLIDES suivants : Photos -->
+              @for (img of t.images; track img; let i = $index) {
+              <div class="carousel-fade-item"
+                   [class.active]="isSlideActive(t.id, t.video_url ? i + 1 : i)">
+                <img [src]="img" alt="Image témoignage" class="carousel-img"
+                     (click)="openLightbox(img)">
+              </div>
+              }
+
             </div>
+
+            <!-- Flèches de navigation -->
+            @if (getTotalSlides(t) > 1) {
+            <button class="carousel-arrow carousel-arrow-left"
+                    (click)="prevSlide(t.id, $event)"
+                    [class.hidden]="getCurrentIndex(t.id) === 0">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-arrow carousel-arrow-right"
+                    (click)="nextSlide(t.id, $event)"
+                    [class.hidden]="getCurrentIndex(t.id) === getTotalSlides(t) - 1">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+            }
+          </div>
+
+          <!-- Dots de navigation -->
+          @if (getTotalSlides(t) > 1) {
+          <div class="carousel-dots mb-3">
+            @if (t.video_url) {
+            <button class="carousel-dot carousel-dot-video"
+                    [class.active]="getCurrentIndex(t.id) === 0"
+                    (click)="goToSlide(t.id, 0); pauseAndResume(t.id)"
+                    title="Vidéo">
+              <i class="fab fa-youtube"></i>
+            </button>
+            }
+            @for (img of t.images; track img; let i = $index) {
+            <button class="carousel-dot"
+                    [class.active]="getCurrentIndex(t.id) === (t.video_url ? i + 1 : i)"
+                    (click)="goToSlide(t.id, t.video_url ? i + 1 : i); pauseAndResume(t.id)">
+            </button>
             }
           </div>
           }
-          <div class="temo-body">
-            <i class="fas fa-quote-right temo-quote-deco"></i>
-            @if (t.gamme) {
-            <span class="temo-gamme-badge">
-              <i class="fas fa-layer-group me-1"></i>{{ t.gamme.nom }}
-            </span>
-            }
+          }
+          <!-- ═══════════════════════════════════════════ -->
+
+          <!-- Corps texte -->
+          <div class="testimonial-card-body">
             @if (t.description) {
-            <p class="temo-desc">"{{ t.description }}"</p>
+            <p class="testimonial-text">{{ t.description }}</p>
             }
-            <div class="temo-sep"></div>
-            <div class="temo-author">
-              <div class="temo-avatar">{{ getInitials(t) }}</div>
-              <div>
-                <p class="temo-author-name">{{ t.nom_complet }}</p>
-                @if (t.user_id) {
-                <p class="temo-author-sub">
-                  <i class="fas fa-shield-alt me-1"></i>Client vérifié
-                </p>
-                }
-              </div>
-              <div class="temo-stars ms-auto">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-              </div>
-            </div>
           </div>
+
+          <!-- Footer auteur -->
+          <div class="testimonial-footer">
+            <div class="avatar-public">{{ getInitials(t) }}</div>
+            <div>
+              <h5 class="mb-0" style="color:#287747; font-weight:600; font-size:1rem;">
+                {{ t.nom_complet }}
+              </h5>
+              @if (t.user_id) {
+              <p class="mb-0 text-muted" style="font-size:0.82rem;">
+                <!-- <i class="fas fa-shield-alt me-1" style="color:#ffc107;"></i>Client vérifié -->
+              </p>
+              }
+            </div>
+           
+          </div>
+
         </div>
       </div>
       }
@@ -399,13 +453,14 @@
 
     @if (!loadingTemoignages && temoignages.length === 0) {
     <div class="text-center py-5">
-      <div class="temo-empty-icon"><i class="fas fa-comment-slash fa-2x" style="color:#287747;"></i></div>
+      <div class="temo-empty-icon">
+        <i class="fas fa-comment-slash fa-2x" style="color:#287747;"></i>
+      </div>
       <p class="text-muted mt-3">Aucun témoignage disponible pour le moment.</p>
     </div>
     }
   </div>
 </div>
-
 @if (!loading && !error) {
 
 <!-- Pourquoi BioSen -->

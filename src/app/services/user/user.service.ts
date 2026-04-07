@@ -137,25 +137,27 @@ export class UserService {
     );
   }
 
-  updateProfile(data: UpdateProfileData): Observable<UserProfile> {
-  this.isLoading.set(true);
-  return this.http.put<UserProfile>(
-    `${this.apiUrl}/user/profile`, 
-    data,
-    { headers: this.getHeaders() }    
-  ).pipe(
-    tap({
-      next: (updatedProfile) => {
-        this.profile.set(updatedProfile); 
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('Erreur mise à jour profil:', err);
-        this.isLoading.set(false);
-      }
-    })
-  );
-}
+  updateProfile(data: UpdateProfileData): Observable<any> {
+    this.isLoading.set(true);
+    return this.http.put<any>(
+      `${this.apiUrl}/user/profile`,
+      data,
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap({
+        next: (response) => {
+          // Laravel retourne { message: '...', user: {...} }
+          const updatedUser = response.user ?? response;
+          this.profile.set(updatedUser);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          console.error('Erreur mise à jour profil:', err);
+          this.isLoading.set(false);
+        }
+      })
+    );
+  }
 
   /**
    * Changer le mot de passe

@@ -1,300 +1,199 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
-import { UserService, UserProfile, UpdateProfileData } from '../../../services/user/user.service';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
+import { UserService, UserProfile, Order } from '../../../services/user/user.service';
+
+type ActiveTab = 'profil' | 'commandes' | 'securite';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+  styleUrl: './profile.component.css',
 })
 export class ProfileComponent implements OnInit {
-  public userService = inject(UserService);
-  public authService = inject(AuthService);
-  private router = inject(Router);
+  authService = inject(AuthService);
+  userService = inject(UserService);
 
-  // Onglet actif
-  activeTab: 'profil' | 'commandes' | 'securite' = 'profil';
+  activeTab = signal<ActiveTab>('commandes');
 
-  // Données du formulaire
-  profileForm: UpdateProfileData = {
-    nom: '',
-    prenom: '',
-    telephone: '',
-    adresse: '',
-    date_naissance: '',
-    genre: '',
-    newsletter: false
-  };
-
-  // Mot de passe
-  passwordData = {
-    current_password: '',
-    new_password: '',
-    new_password_confirmation: ''
-  };
-
-  // États
-  isSaving = false;
-  successMessage = '';
-  errors: any = {};
-  passwordErrors: any = {};
-
-  // Avatar
-  selectedAvatar: File | null = null;
-  avatarPreview: string | null = null;
-  isUploadingAvatar = false;
+  // Profil
+  profile = signal<UserProfile | null>(null);
+  isLoadingProfile = signal(false);
 
   // Commandes
-  selectedOrder: any = null;
-  showOrderDetails = false;
+  orders = signal<Order[]>([]);
+  isLoadingOrders = signal(false);
+  selectedOrder = signal<any | null>(null);
+  isLoadingOrderDetails = signal(false);
+
+  // Sécurité
+  passwordForm = {
+    current_password: '',
+    new_password: '',
+    new_password_confirmation: '',
+  };
+  passwordSuccess = '';
+  passwordError = '';
+  isChangingPassword = false;
+
+  // Edition profil
+  isEditing = signal(false);
+  editForm: Partial<UserProfile> = {};
+  editSuccess = '';
+  editError = '';
+  isSaving = signal(false);
 
   ngOnInit(): void {
     this.loadProfile();
     this.loadOrders();
   }
 
-  /**
-     * Charger le profil
-     */
+  // ── Chargement profil ──────────────────────────────────────
   loadProfile(): void {
+    this.isLoadingProfile.set(true);
     this.userService.getProfile().subscribe({
-      next: (profile) => {
-        this.profileForm = {
-          nom: profile.nom || '',
-          prenom: profile.prenom || '',
-          telephone: profile.telephone || '',
-          adresse: profile.adresse || '',
-          date_naissance: profile.date_naissance || '',
-          genre: profile.genre || '',
-          newsletter: profile.newsletter || false
-        };
+      next: (p) => {
+        this.profile.set(p);
+        this.isLoadingProfile.set(false);
       },
-      error: (err) => {
-        if (err.status === 401) {
-          this.router.navigate(['/']);
-          this.authService.openLoginModal();
-        }
-      }
+      error: () => this.isLoadingProfile.set(false),
     });
   }
 
-  /**
-   * Charger les commandes
-   */
+  // ── Chargement commandes ───────────────────────────────────
   loadOrders(): void {
-    this.userService.getOrders().subscribe();
-  }
-
-  /**
-   * Changer d'onglet
-   */
-  setActiveTab(tab: 'profil' | 'commandes' | 'securite'): void {
-    this.activeTab = tab;
-    this.successMessage = '';
-    this.errors = {};
-    this.passwordErrors = {};
-    this.selectedOrder = null;
-    this.showOrderDetails = false;
-  }
-
-  /**
-   * Sauvegarder le profil
-   */
-  saveProfile(): void {
-    this.isSaving = true;
-    this.errors = {};
-    this.successMessage = '';
-
-    this.userService.updateProfile(this.profileForm).subscribe({
-      next: () => {
-        this.successMessage = 'Profil mis à jour avec succès';
-
-        // 👇 Recharger complètement le profil
-        this.loadProfile();
-
-        this.isSaving = false;
-
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
+    this.isLoadingOrders.set(true);
+    this.userService.getOrders().subscribe({
+      next: (orders) => {
+        this.orders.set(orders);
+        this.isLoadingOrders.set(false);
       },
       error: (err) => {
-        this.isSaving = false;
-        if (err.status === 422 && err.error?.errors) {
-          this.errors = err.error.errors;
-        } else {
-          this.errors.general = err.error?.message || 'Une erreur est survenue';
-        }
-      }
+        console.error('Erreur chargement commandes:', err);
+        this.isLoadingOrders.set(false);
+      },
     });
   }
 
-  /**
-   * Changer le mot de passe
-   */
-  changePassword(): void {
-    this.isSaving = true;
-    this.passwordErrors = {};
-    this.successMessage = '';
-
-    this.userService.changePassword(this.passwordData).subscribe({
-      next: () => {
-        this.successMessage = 'Mot de passe modifié avec succès';
-        this.isSaving = false;
-        this.passwordData = {
-          current_password: '',
-          new_password: '',
-          new_password_confirmation: ''
-        };
-
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
+  // ── Détails d'une commande ─────────────────────────────────
+  viewOrderDetails(orderId: number): void {
+    this.isLoadingOrderDetails.set(true);
+    this.selectedOrder.set(null);
+    this.userService.getOrderDetails(orderId).subscribe({
+      next: (details) => {
+        this.selectedOrder.set(details);
+        this.isLoadingOrderDetails.set(false);
       },
-      error: (err) => {
-        this.isSaving = false;
-        if (err.status === 422 && err.error?.errors) {
-          this.passwordErrors = err.error.errors;
-        } else {
-          this.passwordErrors.general = err.error?.message || 'Une erreur est survenue';
-        }
-      }
+      error: () => this.isLoadingOrderDetails.set(false),
     });
   }
 
-  /**
-   * Sélectionner un avatar
-   */
-  onAvatarSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      // Vérifier le type
-      if (!file.type.startsWith('image/')) {
-        this.errors.avatar = 'Le fichier doit être une image';
-        return;
-      }
+  closeOrderDetails(): void {
+    this.selectedOrder.set(null);
+  }
 
-      // Vérifier la taille (2MB max)
-      if (file.size > 2 * 1024 * 1024) {
-        this.errors.avatar = 'L\'image ne doit pas dépasser 2MB';
-        return;
-      }
-
-      this.selectedAvatar = file;
-
-      // Créer un aperçu
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.avatarPreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+  // ── Onglets ────────────────────────────────────────────────
+  setTab(tab: ActiveTab): void {
+    this.activeTab.set(tab);
+    if (tab === 'commandes' && this.orders().length === 0) {
+      this.loadOrders();
     }
   }
 
-  /**
-   * Uploader l'avatar
-   */
-  uploadAvatar(): void {
-    if (!this.selectedAvatar) return;
+  // ── Edition profil ─────────────────────────────────────────
+  startEdit(): void {
+    const p = this.profile();
+    if (p) {
+      this.editForm = {
+        nom: p.nom,
+        prenom: p.prenom,
+        telephone: p.telephone,
+        adresse: p.adresse,
+        genre: p.genre,
+        date_naissance: p.date_naissance,
+        newsletter: p.newsletter,
+      };
+    }
+    this.isEditing.set(true);
+  }
 
-    this.isUploadingAvatar = true;
-    this.errors.avatar = '';
+  cancelEdit(): void {
+    this.isEditing.set(false);
+    this.editSuccess = '';
+    this.editError = '';
+  }
 
-    this.userService.uploadAvatar(this.selectedAvatar).subscribe({
+  saveProfile(): void {
+    this.isSaving.set(true);
+    this.editSuccess = '';
+    this.editError = '';
+
+    this.userService.updateProfile(this.editForm as any).subscribe({
+      next: (updated: any) => {
+        // La réponse contient { message, user }
+        const updatedUser = updated.user ?? updated;
+        this.profile.set(updatedUser);
+        this.editSuccess = 'Profil mis à jour avec succès !';
+        this.isEditing.set(false);
+        this.isSaving.set(false);
+      },
+      error: () => {
+        this.editError = 'Erreur lors de la mise à jour.';
+        this.isSaving.set(false);
+      },
+    });
+  }
+
+  // ── Changement de mot de passe ─────────────────────────────
+  changePassword(): void {
+    this.isChangingPassword = true;
+    this.passwordSuccess = '';
+    this.passwordError = '';
+
+    this.userService.changePassword(this.passwordForm).subscribe({
       next: () => {
-        this.isUploadingAvatar = false;
-        this.selectedAvatar = null;
-        this.avatarPreview = null;
-        this.successMessage = 'Avatar mis à jour avec succès';
-
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
+        this.passwordSuccess = 'Mot de passe modifié avec succès !';
+        this.passwordForm = {
+          current_password: '',
+          new_password: '',
+          new_password_confirmation: '',
+        };
+        this.isChangingPassword = false;
       },
       error: (err) => {
-        this.isUploadingAvatar = false;
-        this.errors.avatar = err.error?.message || 'Erreur lors de l\'upload';
-      }
+        this.passwordError =
+          err.error?.errors?.current_password?.[0] ||
+          err.error?.message ||
+          'Erreur lors du changement de mot de passe.';
+        this.isChangingPassword = false;
+      },
     });
   }
 
-  /**
-   * Annuler l'upload d'avatar
-   */
-  cancelAvatarUpload(): void {
-    this.selectedAvatar = null;
-    this.avatarPreview = null;
-    this.errors.avatar = '';
-  }
-
-  /**
-   * Supprimer l'avatar
-   */
-  deleteAvatar(): void {
-    if (!confirm('Voulez-vous vraiment supprimer votre avatar ?')) return;
-
-    this.userService.deleteAvatar().subscribe({
-      next: () => {
-        this.successMessage = 'Avatar supprimé avec succès';
-
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
-      },
-      error: (err) => {
-        this.errors.avatar = err.error?.message || 'Erreur lors de la suppression';
-      }
-    });
-  }
-
-  /**
-   * Voir les détails d'une commande
-   */
-  viewOrderDetails(order: any): void {
-    this.userService.getOrderDetails(order.id).subscribe({
-      next: (details) => {
-        this.selectedOrder = details;
-        this.showOrderDetails = true;
-      },
-      error: (err) => {
-        alert('Erreur lors du chargement des détails de la commande');
-      }
-    });
-  }
-
-  /**
-   * Revenir à la liste des commandes
-   */
-  backToOrders(): void {
-    this.showOrderDetails = false;
-    this.selectedOrder = null;
-  }
-
-  /**
-   * Vérifier si un champ est invalide
-   */
-  isInvalid(field: string): boolean {
-    return !!this.errors[field];
-  }
-
-  isPasswordInvalid(field: string): boolean {
-    return !!this.passwordErrors[field];
-  }
-
-  /**
-   * Obtenir les initiales pour l'avatar par défaut
-   */
+  // ── Utilitaires ────────────────────────────────────────────
   getInitials(): string {
-    const profile = this.userService.profile();
-    if (!profile) return 'U';
+    const p = this.profile();
+    if (!p) return '??';
+    return `${p.prenom?.[0] ?? ''}${p.nom?.[0] ?? ''}`.toUpperCase();
+  }
 
-    const first = profile.prenom?.charAt(0) || '';
-    const last = profile.nom?.charAt(0) || '';
-    return (first + last).toUpperCase() || 'U';
+  getStatusBadge(status: string): string {
+    return this.userService.getOrderStatusBadge(status);
+  }
+
+  getStatusLabel(status: string): string {
+    return this.userService.getOrderStatusLabel(status);
+  }
+
+  formatPrice(price: number): string {
+    return this.userService.formatPrice(price);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

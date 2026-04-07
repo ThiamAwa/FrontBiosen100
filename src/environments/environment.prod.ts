@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'http://hexe7354.odns.fr/backend/api',
-    storageUrl: 'http://hexe7354.odns.fr/backend/storage'
+    apiUrl: 'https://biosen100.com/api',
+    storageUrl: 'https://biosen100.com/api/storage'
 }

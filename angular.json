@@ -16,6 +16,7 @@
             "outputPath": "dist/biosen100",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "baseHref": "/",
             "polyfills": [
               "zone.js"
             ],
@@ -29,18 +30,24 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/@fortawesome/fontawesome-free/webfonts",
+                "output": "/webfonts"
               }
             ],
-	    "allowedCommonJsDependencies": [
-  		"html2pdf.js",
-  		"canvg",
-  		"core-js",
-  		"raf",
-  		"rgbcolor",
-  		"html2canvas",
-  		"jspdf"
-	     ],
+            "allowedCommonJsDependencies": [
+              "html2pdf.js",
+              "canvg",
+              "core-js",
+              "raf",
+              "rgbcolor",
+              "html2canvas",
+              "jspdf"
+            ],
             "styles": [
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "src/styles.css",
               "src/assets/css/style.css",
               "src/assets/css/bootstrap.min.css",
@@ -52,15 +59,6 @@
               "src/assets/lib/lightbox/js/lightbox.min.js",
               "src/assets/lib/owlcarousel/owl.carousel.min.js",
               "src/assets/js/main.js"
-            ],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js",
-              "canvg",
-              "core-js",
-              "raf",
-              "rgbcolor",
-              "html2canvas",
-              "jspdf"
             ]
           },
           "configurations": {

@@ -18,7 +18,7 @@
 }
 
 .sport-card:hover {
-  box-shadow: 0 12px 32px rgba(40,119,71,0.15);
+  box-shadow: 0 12px 32px rgba(40, 119, 71, 0.15);
   transform: translateY(-5px);
 }
 
@@ -65,7 +65,7 @@
   position: absolute;
   inset: 0;
   z-index: 5;
-  background: rgba(40,119,71,0.85);
+  background: rgba(40, 119, 71, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,7 +97,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.45);
+  background: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
   z-index: 10;
@@ -118,7 +118,7 @@
   top: 10px;
   right: 10px;
   z-index: 4;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   color: white;
   padding: 2px 8px;
   border-radius: 12px;
@@ -139,7 +139,7 @@
   font-size: 12px;
   font-weight: 600;
   pointer-events: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .badge-top-right {
@@ -152,7 +152,7 @@
   font-size: 12px;
   font-weight: 600;
   pointer-events: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .badge-promo {
@@ -170,7 +170,7 @@
   bottom: 10px;
   right: 10px;
   z-index: 4;
-  background: rgba(255,0,0,0.85);
+  background: rgba(255, 0, 0, 0.85);
   color: white;
   padding: 3px 10px;
   border-radius: 20px;
@@ -193,8 +193,8 @@
 
 /* Sidebar */
 .shadow-custom {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .fruite-categorie a {
@@ -258,7 +258,7 @@
   background: #287747;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(40,119,71,0.2);
+  box-shadow: 0 4px 8px rgba(40, 119, 71, 0.2);
 }
 
 /* Formulaire */
@@ -305,7 +305,8 @@
     height: 220px;
   }
 
-  .badge-cat, .badge-top-right {
+  .badge-cat,
+  .badge-top-right {
     font-size: 10px;
     padding: 3px 8px;
   }
@@ -342,7 +343,7 @@
 .btn-green:hover {
   background: #1a5230;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(40,119,71,0.2);
+  box-shadow: 0 4px 8px rgba(40, 119, 71, 0.2);
 }
 
 /* Animation d'entrée */
@@ -351,6 +352,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -360,6 +362,7 @@
 .sport-card {
   animation: fadeInUp 0.5s ease-out;
 }
+
 /* sport-detail.component.css - Ajouter ces styles */
 
 .video-preview-container {
@@ -404,7 +407,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(220,53,69,0.4);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
   transition: transform 0.25s, box-shadow 0.25s;
   position: relative;
   overflow: hidden;
@@ -415,18 +418,25 @@
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  border: 2px solid rgba(220,53,69,0.35);
+  border: 2px solid rgba(220, 53, 69, 0.35);
   animation: pulse-ring 2s infinite;
 }
 
 @keyframes pulse-ring {
-  0%   { transform: scale(0.92); opacity: 1; }
-  100% { transform: scale(1.25); opacity: 0; }
+  0% {
+    transform: scale(0.92);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
 }
 
 .play-circle-large:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 28px rgba(220,53,69,0.5);
+  box-shadow: 0 8px 28px rgba(220, 53, 69, 0.5);
 }
 
 .play-icon-large {
@@ -442,7 +452,7 @@
   font-weight: 600;
   font-size: 0.9rem;
   letter-spacing: 0.5px;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.9);
   padding: 4px 12px;
   border-radius: 20px;
 }
@@ -452,7 +462,7 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
   z-index: 9999;
   align-items: center;
@@ -471,26 +481,35 @@
   max-width: 780px;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-video-close {
   position: absolute;
-  top: 14px; right: 18px;
-  background: rgba(255,255,255,0.12);
+  top: 14px;
+  right: 18px;
+  background: rgba(255, 255, 255, 0.12);
   border: none;
   color: #fff;
   font-size: 1.8rem;
   line-height: 1;
   cursor: pointer;
   z-index: 10;
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -498,7 +517,9 @@
   transition: background 0.2s;
 }
 
-.modal-video-close:hover { background: rgba(255,255,255,0.25); }
+.modal-video-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
 
 .modal-video-container {
   position: relative;
@@ -510,7 +531,8 @@
 .modal-video-container iframe {
   position: absolute;
   inset: 0;
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   border: none;
 }
 
@@ -540,8 +562,8 @@
   text-decoration: none;
   font-size: 0.88rem;
   font-weight: 600;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
   padding: 8px 18px;
   transition: background 0.2s, border-color 0.2s;
@@ -577,7 +599,7 @@
   max-height: 90vh;
   object-fit: contain;
   border-radius: 12px;
-  box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
 }
 
 /* Animation d'entrée des cartes */
@@ -590,11 +612,13 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .floating-cart {
   position: fixed;
   bottom: 30px;

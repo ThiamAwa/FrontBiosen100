@@ -15,7 +15,20 @@
                         @for (social of socialLinks; track social.title) {
                         <a class="btn rounded-circle" [href]="social.url" [title]="social.title" target="_blank"
                             rel="noopener noreferrer">
+
+                            <!-- Icône Bootstrap classique -->
+                            @if (social.iconType === 'class') {
                             <i [class]="social.icon"></i>
+                            }
+
+                            <!-- Icône SVG inline (Snapchat, TikTok) -->
+                            @if (social.iconType === 'svg') {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="currentColor" aria-hidden="true">
+                                <path [attr.d]="social.svgPath" />
+                            </svg>
+                            }
+
                         </a>
                         }
                     </div>

@@ -1784,3 +1784,77 @@
 .carousel-dot-video.active { background: #cc0000 !important; }
 .carousel-dot-video i { font-size: 0.5rem; color: transparent; }
 .carousel-dot-video.active i { color: #fff; }
+
+/* ══════════════════════════════════════════════════════
+   SÉPARATEUR CATALOGUE → TÉMOIGNAGES
+══════════════════════════════════════════════════════ */
+.section-divider {
+  padding: 10px 0 0;
+  background: linear-gradient(180deg, #eef4ee 0%, #f0faf4 100%);
+}
+
+.section-divider-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(40,119,71,0.35), transparent);
+  border-radius: 2px;
+}
+
+.divider-center {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.divider-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #287747, #1a5230);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(40,119,71,0.3);
+}
+
+.divider-icon-wrap i {
+  color: #fff;
+  font-size: 0.78rem;
+}
+
+.divider-text {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #287747;
+  white-space: nowrap;
+}
+
+.divider-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 0 0;
+}
+
+.divider-dots span {
+  display: block;
+  border-radius: 50%;
+  background: rgba(40,119,71,0.25);
+}
+
+.divider-dots span:nth-child(1) { width: 6px; height: 6px; }
+.divider-dots span:nth-child(2) { width: 10px; height: 10px; background: rgba(40,119,71,0.5); }
+.divider-dots span:nth-child(3) { width: 6px; height: 6px; }

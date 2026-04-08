@@ -92,7 +92,7 @@
 }
 
 <!-- ═══════════════════════════════════════════════════
-     CATALOGUE BIOSEN 100
+     CATALOGUE BIOSEN 100 — GAMMES BIO UNIQUEMENT
 ═══════════════════════════════════════════════════ -->
 <div class="catalogue-section" id="products">
   <div class="container">
@@ -104,29 +104,11 @@
         Notre sélection
       </div>
       <h2 class="catalogue-title">Catalogue <span>BioSen 100</span></h2>
-      <p class="catalogue-subtitle">Gammes bio authentiques & produits sport de qualité</p>
+      <p class="catalogue-subtitle">Gammes bio authentiques du Sénégal</p>
     </div>
-
-    <div class="catalogue-tabs" data-aos="fade-up" style="position: relative; z-index: 10;">
-      <div class="tabs-wrapper">
-        <button class="tab-btn" [class.tab-active]="activeGammeTab === 'all'" (click)="setActiveGammeTab('all')">
-          <i class="fas fa-th-large"></i>
-          <span>Tous</span>
-        </button>
-        @for (type of typeCategories; track type.id) {
-        <button class="tab-btn" [class.tab-active]="activeGammeTab === type.id.toString()"
-          (click)="setActiveGammeTab(type.id.toString())">
-          <i class="fas fa-leaf"></i>
-          <span>{{ type.nom }}</span>
-        </button>
-        }
-      </div>
-    </div>
-
-    @let content = getFilteredContent();
 
     <!-- ── GAMMES BIO ── -->
-    @if ((content.type === 'all' || content.type === 'gammes') && content.gammes.length > 0) {
+    @if (gammes.length > 0) {
     <div class="section-block" data-aos="fade-up">
       <div class="section-block-header">
         <div class="section-block-icon bio-icon">
@@ -134,11 +116,11 @@
         </div>
         <h5 class="section-block-title">Gammes Bio</h5>
         <div class="section-block-line"></div>
-        <span class="section-block-count">{{ content.gammes.length }} produit(s)</span>
+        <span class="section-block-count">{{ gammes.length }} produit(s)</span>
       </div>
 
       <div class="products-grid">
-        @for (gamme of content.gammes; track gamme.id) {
+        @for (gamme of gammes; track gamme.id) {
         <div class="product-item" data-aos="fade-up" (click)="openGammeModal(gamme)">
           <div class="product-card">
             <div class="product-img-wrap">
@@ -186,126 +168,48 @@
     </div>
     }
 
-    <!-- ── PRODUITS SPORT ── -->
-    @if ((content.type === 'all' || content.type === 'sport') && content.produitsSport.length > 0) {
-    <div class="section-block" data-aos="fade-up">
-      <div class="section-block-header">
-        <div class="section-block-icon sport-icon">
-          <i class="fas fa-dumbbell"></i>
-        </div>
-        <h5 class="section-block-title">Produits Sport</h5>
-        <div class="section-block-line sport-line"></div>
-        <span class="section-block-count">{{ content.produitsSport.length }} produit(s)</span>
-      </div>
-
-      <div class="products-grid">
-        @for (produit of content.produitsSport; track produit.id) {
-        <div class="product-item" data-aos="fade-up">
-          <!-- ✅ CORRECTION : (click) sur product-card ouvre la modale -->
-          <div class="product-card sport-card" (click)="openSportModal(produit)">
-            <div class="product-img-wrap">
-              @let imageUrl = produit.imageUrls?.[0] || 'assets/img/biosen/default-product.png';
-              <img [src]="imageUrl" [alt]="produit.nom" loading="lazy" class="product-img">
-              <div class="product-overlay">
-                <span class="product-overlay-btn" (click)="openSportModal(produit); $event.stopPropagation()">
-                  <i class="fas fa-eye me-2"></i>Voir détails
-                </span>
-              </div>
-              @if (produit.typeCategorie) {
-              <span class="product-badge sport-badge">
-                <i class="fas fa-tag me-1"></i>{{ produit.typeCategorie.nom }}
-              </span>
-              }
-              @if (produit.enPromotion && produit.prixPromo) {
-              <span class="product-promo-badge">
-                -{{ calculateDiscount(produit.prix, produit.prixPromo) }}%
-              </span>
-              }
-            </div>
-            <div class="product-body">
-              <h6 class="product-name">{{ produit.nom }}</h6>
-              @if (produit.description) {
-              <p class="product-desc">{{ limitText(produit.description, 65) }}</p>
-              }
-              <div class="product-footer">
-                <div class="product-price-block">
-                  @if (produit.enPromotion && produit.prixPromo) {
-                  <div class="promo-wrap">
-                    <span class="promo-tag">PROMO</span>
-                    <span class="product-price promo">{{ formatPrice(produit.prixPromo) }}</span>
-                    <span class="product-price-old">{{ formatPrice(produit.prix) }}</span>
-                  </div>
-                  } @else {
-                  <span class="product-price">{{ formatPrice(produit.prix) }}</span>
-                  }
-                </div>
-                <!-- ✅ CORRECTION BUG : stopPropagation AVANT addToCart pour éviter l'ouverture de la modale -->
-                <button class="add-to-cart-btn sport-cart-btn" [class.in-cart]="isInCart(produit.id)"
-                  (click)="$event.stopPropagation(); addToCart(produit, $event)">
-                  <i class="fas" [class.fa-cart-plus]="!isInCart(produit.id)"
-                    [class.fa-check]="isInCart(produit.id)"></i>
-                  <span>{{ isInCart(produit.id) ? 'Ajouté' : 'Ajouter' }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
     <!-- Empty state -->
-    @if (content.gammes.length === 0 && content.produitsSport.length === 0) {
+    @if (gammes.length === 0) {
     <div class="catalogue-empty" data-aos="fade-up">
       <div class="catalogue-empty-icon">
         <i class="fas fa-box-open"></i>
       </div>
-      <p>Aucun contenu disponible pour cette catégorie.</p>
+      <p>Aucun produit bio disponible pour le moment.</p>
     </div>
     }
 
   </div>
 </div>
+<!-- Catalogue End -->
 
-<!-- Stats -->
-<div class="container-fluid py-4 mb-5" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-  <div class="container">
-    <div class="row text-center text-white">
-      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" data-target="5000">1000</h2>
-          <p class="mb-0">Clients Satisfaits</p>
-        </div>
+<!-- ═══════════════════════════════════════════════════
+     SÉPARATEUR CATALOGUE → TÉMOIGNAGES
+═══════════════════════════════════════════════════ -->
+<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+  <div class="section-divider-inner">
+    <div class="divider-line"></div>
+    <div class="divider-center">
+      <div class="divider-icon-wrap">
+        <i class="fas fa-leaf"></i>
       </div>
-      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" [attr.data-target]="stats.total_produits">0</h2>
-          <p class="mb-0">Produits Bio</p>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" data-target="100">0</h2>
-          <p class="mb-0">% Naturel</p>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" data-target="10">0</h2>
-          <p class="mb-0">Ans d'Expérience</p>
-        </div>
+      <span class="divider-text">Ils nous font confiance</span>
+      <div class="divider-icon-wrap">
+        <i class="fas fa-leaf"></i>
       </div>
     </div>
+    <div class="divider-line"></div>
+  </div>
+  <div class="divider-dots">
+    <span></span><span></span><span></span>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     TÉMOIGNAGES
+     TÉMOIGNAGES — juste après le catalogue
 ═══════════════════════════════════════════════════ -->
-<div class="temoignages-section">
+<div class="temoignages-section" style="padding-top: 10px !important;">
   <div class="temoignages-bg-deco"></div>
-  <div class="container py-5" style="position:relative;z-index:2;">
+  <div class="container pb-5" style="position:relative;z-index:2;padding-top:0!important;">
 
     <div class="text-center mx-auto mb-5" style="max-width:680px;" data-aos="fade-up">
       <span class="temo-label">
@@ -431,12 +335,9 @@
                 {{ t.nom_complet }}
               </h5>
               @if (t.user_id) {
-              <p class="mb-0 text-muted" style="font-size:0.82rem;">
-                <!-- <i class="fas fa-shield-alt me-1" style="color:#ffc107;"></i>Client vérifié -->
-              </p>
+              <p class="mb-0 text-muted" style="font-size:0.82rem;"></p>
               }
             </div>
-           
           </div>
 
         </div>
@@ -461,7 +362,41 @@
     }
   </div>
 </div>
+<!-- Témoignages End -->
+
 @if (!loading && !error) {
+
+<!-- Stats -->
+<div class="container-fluid py-4 mb-5" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+  <div class="container">
+    <div class="row text-center text-white">
+      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+        <div class="p-3">
+          <h2 class="display-4 fw-bold mb-0 counter" data-target="5000">1000</h2>
+          <p class="mb-0">Clients Satisfaits</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+        <div class="p-3">
+          <h2 class="display-4 fw-bold mb-0 counter" [attr.data-target]="stats.total_produits">0</h2>
+          <p class="mb-0">Produits Bio</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+        <div class="p-3">
+          <h2 class="display-4 fw-bold mb-0 counter" data-target="100">0</h2>
+          <p class="mb-0">% Naturel</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="p-3">
+          <h2 class="display-4 fw-bold mb-0 counter" data-target="10">0</h2>
+          <p class="mb-0">Ans d'Expérience</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Pourquoi BioSen -->
 <div class="container-fluid py-5" style="background-color: #F9F9F9;">
@@ -625,6 +560,7 @@
     </div>
   </div>
 </div>
+
 <!-- WhatsApp Flottant -->
 <div class="whatsapp-float">
   @if (vendeurs.length > 0) {
@@ -927,116 +863,16 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     MODALE PRODUIT SPORT
-═══════════════════════════════════════════════════ -->
-<div class="modal fade" id="sportModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-      <div class="modal-header border-0 py-4" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-        <h5 class="modal-title text-white fw-bold">
-          <i class="fas fa-dumbbell me-2"></i>{{ selectedSport?.nom }}
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        @if (selectedSport) {
-        <div class="row">
-          <div class="col-md-5 mb-3 mb-md-0">
-            <div class="position-relative">
-              <img [src]="selectedSport.imageUrls?.[0] || 'assets/img/biosen/default-product.png'"
-                class="img-fluid rounded-3 shadow-sm w-100" [alt]="selectedSport.nom"
-                style="height: 300px; object-fit: cover;">
-              @if (selectedSport.enPromotion && selectedSport.prixPromo) {
-              <span class="position-absolute top-0 end-0 m-3 badge rounded-pill fw-bold px-3 py-2"
-                style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.9rem;">
-                -{{ calculateDiscount(selectedSport.prix, selectedSport.prixPromo) }}%
-              </span>
-              }
-              @if (selectedSport.typeCategorie) {
-              <span class="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2"
-                style="background: linear-gradient(135deg, #287747, #1a5230);">
-                <i class="fas fa-tag me-1"></i>{{ selectedSport.typeCategorie.nom }}
-              </span>
-              } @else {
-              <span class="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2"
-                style="background: linear-gradient(135deg, #287747, #1a5230);">
-                <i class="fas fa-dumbbell me-1"></i>Sport
-              </span>
-              }
-            </div>
-            <div class="mt-3 p-3 rounded-3" style="background: #f8f9fa;">
-              @if (selectedSport.enPromotion && selectedSport.prixPromo) {
-              <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="badge rounded-pill px-3 py-2 fw-bold"
-                  style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.75rem;">PROMO</span>
-                <span class="badge rounded-pill px-3 py-1"
-                  style="background: rgba(229,62,62,0.1); color: #e53e3e; font-size: 0.78rem; font-weight: 700;">
-                  -{{ calculateDiscount(selectedSport.prix, selectedSport.prixPromo) }}% de réduction
-                </span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix promo</span>
-                <span class="fw-bold fs-5" style="color: #e53e3e;">{{ formatPrice(selectedSport.prixPromo) }}</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small"><i class="fas fa-history me-1"></i>Prix initial</span>
-                <span class="text-decoration-line-through text-muted">{{ formatPrice(selectedSport.prix) }}</span>
-              </div>
-              } @else {
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix</span>
-                <span class="fw-bold fs-5" style="color: #287747;">{{ formatPrice(selectedSport.prix) }}</span>
-              </div>
-              }
-            </div>
-          </div>
-          <div class="col-md-7">
-            <h6 class="fw-bold mb-3" style="color: #287747;">
-              <i class="fas fa-info-circle me-2"></i>Description
-            </h6>
-            @if (selectedSport.description) {
-            <p class="text-muted" style="text-align: justify; line-height: 1.8;">{{ selectedSport.description }}</p>
-            } @else {
-            <p class="text-muted fst-italic">Aucune description disponible.</p>
-            }
-            @if (selectedSport.imageUrls && selectedSport.imageUrls.length > 1) {
-            <h6 class="fw-bold mb-2 mt-4" style="color: #287747;">
-              <i class="fas fa-images me-2"></i>Galerie
-            </h6>
-            <div class="d-flex flex-wrap gap-2">
-              @for (img of selectedSport.imageUrls; track img; let i = $index) {
-              @if (i > 0) {
-              <img [src]="img" [alt]="selectedSport.nom + ' ' + (i+1)" class="rounded-2 shadow-sm sport-gallery-thumb"
-                (click)="openLightbox(img)">
-              }
-              }
-            </div>
-            }
-          </div>
-        </div>
-        }
-      </div>
-      <div class="modal-footer border-0 bg-light p-4">
-        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
-          <i class="fas fa-times me-2"></i>Fermer
-        </button>
-        @if (selectedSport) {
-        <button type="button" class="btn rounded-pill px-4 text-white fw-bold"
-          style="background: linear-gradient(135deg, #287747, #1a5230);"
-          (click)="$event.stopPropagation(); addToCart(selectedSport, undefined)" data-bs-dismiss="modal">
-          <i class="fas fa-cart-plus me-2"></i>Ajouter au panier
-        </button>
-        <a routerLink="/boutique" class="btn rounded-pill px-4 text-white"
-          style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);" data-bs-dismiss="modal">
-          <i class="fas fa-shopping-bag me-2"></i>Voir la boutique
-        </a>
-        }
-      </div>
-    </div>
+}
+
+<!-- ═══ LIGHTBOX PHOTO ═══ -->
+@if (showLightbox) {
+<div class="temo-modal-backdrop" (click)="closeLightbox()">
+  <div class="temo-lightbox-box" (click)="$event.stopPropagation()">
+    <button class="temo-modal-close temo-lightbox-close" (click)="closeLightbox()" aria-label="Fermer">&times;</button>
+    <img [src]="currentImageUrl" alt="Photo pleine taille" class="temo-lightbox-img">
   </div>
 </div>
-
 }
 
 <!-- ═══ MODAL VIDÉO ═══ -->
@@ -1061,16 +897,6 @@
         <i class="fab fa-youtube me-2"></i>Ouvrir sur YouTube
       </a>
     </div>
-  </div>
-</div>
-}
-
-<!-- ═══ LIGHTBOX PHOTO ═══ -->
-@if (showLightbox) {
-<div class="temo-modal-backdrop" (click)="closeLightbox()">
-  <div class="temo-lightbox-box" (click)="$event.stopPropagation()">
-    <button class="temo-modal-close temo-lightbox-close" (click)="closeLightbox()" aria-label="Fermer">&times;</button>
-    <img [src]="currentImageUrl" alt="Photo pleine taille" class="temo-lightbox-img">
   </div>
 </div>
 }

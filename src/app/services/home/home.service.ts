@@ -56,7 +56,7 @@ export class HomeService {
   }
 
   /**
-   * ✅ CORRECTION COMPLÈTE de getImageUrl :
+   *  CORRECTION COMPLÈTE de getImageUrl :
    * - Accepte `any` pour éviter le crash TypeError: .startsWith is not a function
    * - Gère : null, undefined, tableau, objet, string vide
    * - Fallback = SVG inline (aucun fichier externe requis, plus de 404)

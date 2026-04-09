@@ -13,15 +13,7 @@ export class FooterComponent {
 
   currentYear = new Date().getFullYear();
 
-  // socialLinks = [
-  //   { title: 'Snapchat', url: 'https://www.snapchat.com/@biosen100', icon: 'bi bi-snapchat' },
-  //   { title: 'TikTok', url: 'https://www.tiktok.com/@biosen100', icon: 'bi bi-tiktok' },
-  //   { title: 'Instagram', url: 'https://www.instagram.com/biosen100/', icon: 'bi bi-instagram' },
-  //   { title: 'WhatsApp', url: 'https://whatsapp.com', icon: 'bi bi-whatsapp' },
-  //   // { title: 'Facebook', url: 'https://facebook.com', icon: 'bi bi-facebook' },
-  //   // { title: 'Twitter', url: 'https://twitter.com', icon: 'bi bi-twitter-x' }
-  // ];
-
+  // Réseaux sociaux
   socialLinks = [
     {
       title: 'Snapchat',
@@ -32,40 +24,34 @@ export class FooterComponent {
     {
       title: 'TikTok',
       url: 'https://www.tiktok.com/@biosen100',
-      svgPath: 'M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.52V6.76a4.85 4.85 0 01-1.02-.07z',
+      svgPath: 'M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 0 006.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.52V6.76a4.85 4.85 0 01-1.02-.07z',
       iconType: 'svg'
     },
     { title: 'Instagram', url: 'https://www.instagram.com/biosen100/', icon: 'bi bi-instagram', iconType: 'class' },
     { title: 'WhatsApp', url: 'https://whatsapp.com', icon: 'bi bi-whatsapp', iconType: 'class' },
   ];
 
-  // Si tu veux ajouter un deuxième compte TikTok (biosen100thies) :
-  // socialLinks = [
-  //   ...
-  //   { title: 'TikTok (principal)', url: 'https://www.tiktok.com/@biosen100', icon: 'bi bi-tiktok' },
-  //   { title: 'TikTok Thies', url: 'https://www.tiktok.com/@biosen100thies', icon: 'bi bi-tiktok' },
-  //   ...
-  // ];
-
+  // Liens principaux (identiques à la navbar)
   infoLinks = [
     { label: 'Accueil', route: '/' },
-    { label: 'À propos', route: '/about' },
-    { label: 'Nos produits', route: '/shop' },
-    { label: 'Contact', route: '/contact' },
-    { label: 'Politique de confidentialité', route: '/privacy' },
-    { label: "Conditions d'utilisation", route: '/terms' },
+    { label: 'Boutique', route: '/boutique' },
+    { label: 'Témoignages et Conseils', route: '/temoignages' },
+    { label: 'Sport', route: '/sport' },
+    { label: 'Contact', route: '/contact' }
   ];
 
+  // Méthodes de paiement
   paymentMethods = [
     { src: '/payments/expresso.png', alt: 'Expresso' },
     { src: '/payments/fremoney.png', alt: 'Free Money' },
     { src: '/payments/wave.png', alt: 'Wave' },
-    { src: '/payments/Orange-Money.png', alt: 'Orange Money' },
+    { src: '/payments/Orange-Money.png', alt: 'Orange Money' }
   ];
 
+  // Gestionnaire d'erreur d'image
   onImgError(event: Event) {
     const img = event.target as HTMLImageElement;
-    console.error('❌ Image introuvable :', img.src);
+    console.warn('⚠️ Image introuvable :', img.src);
     img.style.display = 'none';
   }
 }

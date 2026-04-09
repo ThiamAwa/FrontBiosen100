@@ -62,27 +62,36 @@
   </div>
 </div>
 <!-- Hero End -->
-
-@if (loading) {
-<div class="text-center py-5">
-  <div class="spinner-border text-success" role="status"><span class="visually-hidden">Chargement...</span></div>
+<!-- ═══════════════════════════════════════════════════
+     SÉPARATEUR BEST SELLER
+═══════════════════════════════════════════════════ -->
+<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+  <div class="section-divider-inner">
+    <div class="divider-line"></div>
+    <div class="divider-center">
+      <div class="divider-icon-wrap">
+        <i class="fas fa-leaf"></i>
+      </div>
+      <span class="divider-text">Nos Best Seller</span>
+      <div class="divider-icon-wrap">
+        <i class="fas fa-leaf"></i>
+      </div>
+    </div>
+    <div class="divider-line"></div>
+  </div>
+  <div class="divider-dots">
+    <span></span><span></span><span></span>
+  </div>
 </div>
-}
-@if (error) {
-<div class="alert alert-danger text-center mx-5">
-  <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-</div>
-}
-
 <!-- ═══════════════════════════════════════════════════
      GAMMES PHARES — YOULI & URGENCE
 ═══════════════════════════════════════════════════ -->
 <div class="gammes-phares-section" id="products">
   <div class="container">
 
-    <div class="gammes-phares-header" data-aos="fade-up">
+    <!-- <div class="gammes-phares-header" data-aos="fade-up">
       <h2 class="gammes-phares-title">Nos Best <span>Seller</span></h2>
-    </div>
+    </div> -->
 
     <div class="best-sellers-grid">
       @for (gamme of gammes; track gamme.id) {

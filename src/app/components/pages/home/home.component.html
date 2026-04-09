@@ -4,10 +4,9 @@
     <div class="row g-5 align-items-center">
       <div class="col-md-12 col-lg-7">
         <div data-aos="fade-right" class="text-center text-lg-start">
-          <h4 class="mb-3 text-secondary fw-semibold">100% Produits Naturels du Sénégal</h4>
+          <h4 class="mb-3 text-secondary fw-semibold">100% Produits Naturels</h4>
           <h1 class="mb-4 display-3 fw-bold" style="color:#287747">BioSen 100</h1>
-          <p class="mb-4 fs-5 text-muted">Découvrez notre gamme de produits bio authentiques, cultivés avec passion au
-            cœur du Sénégal pour votre bien-être naturel.</p>
+          <p class="mb-4 fs-5 text-muted">Découvrez notre gamme de produits pour votre bien-être naturel</p>
           <div class="position-relative mx-auto mb-4" style="max-width: 600px;">
             <input class="form-control border-2 border-secondary w-100 py-3 px-4 rounded-pill shadow-sm" type="text"
               placeholder="Rechercher un produit BioSen..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
@@ -16,16 +15,6 @@
               (click)="onSearch()">
               <i class="fas fa-search me-2"></i> Rechercher
             </button>
-          </div>
-          <div class="d-flex flex-wrap gap-3 mt-4 justify-content-center justify-content-lg-start">
-            <a href="#products" class="btn btn-lg rounded-pill px-4 py-3 text-white shadow"
-              style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); min-width: 180px;">
-              <i class="fas fa-shopping-bag me-2"></i> Nos Produits
-            </a>
-            <a href="#about" class="btn btn-outline-success btn-lg rounded-pill px-4 py-3"
-              style="min-width: 180px; border-width: 2px;">
-              <i class="fas fa-info-circle me-2"></i> En savoir plus
-            </a>
           </div>
         </div>
       </div>
@@ -47,20 +36,14 @@
               <div class="carousel-item" [class.active]="first">
                 <img [src]="getImageUrl(gamme.image ?? '')" class="img-fluid w-100 rounded" [alt]="gamme.nom"
                   style="height: 450px; object-fit: cover;">
-                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
-                  <h5 class="fw-bold">{{ gamme.nom }}</h5>
-                  @if (gamme.description) { <p>{{ limitText(gamme.description, 50) }}</p> }
-                </div>
+                <!-- Nom de la gamme en haut sans fond vert -->
+                <div style="color: #287747;" class="carousel-nom-top">{{ gamme.nom }}</div>
               </div>
               }
               } @else {
               <div class="carousel-item active rounded">
                 <img src="assets/img/biosen/default-product.png" class="img-fluid w-100 rounded" alt="Nos gammes bio"
                   style="height: 450px; object-fit: cover;">
-                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
-                  <h5 class="fw-bold">Nos Gammes Bio</h5>
-                  <p>Découvrez notre gamme complète de produits naturels</p>
-                </div>
               </div>
               }
             </div>
@@ -92,98 +75,80 @@
 }
 
 <!-- ═══════════════════════════════════════════════════
-     CATALOGUE BIOSEN 100 — GAMMES BIO UNIQUEMENT
+     GAMMES PHARES — YOULI & URGENCE
 ═══════════════════════════════════════════════════ -->
-<div class="catalogue-section" id="products">
+<div class="gammes-phares-section" id="products">
   <div class="container">
 
-    <!-- En-tête -->
-    <div class="catalogue-header" data-aos="fade-up">
-      <div class="catalogue-badge">
-        <img src="/logo-biosen.jpeg" alt="Logo BioSen" class="catalogue-badge-logo">
-        Notre sélection
-      </div>
-      <h2 class="catalogue-title">Catalogue <span>BioSen 100</span></h2>
-      <p class="catalogue-subtitle">Gammes bio authentiques du Sénégal</p>
+    <div class="gammes-phares-header" data-aos="fade-up">
+      <h2 class="gammes-phares-title">Nos Best <span>Seller</span></h2>
     </div>
 
-    <!-- ── GAMMES BIO ── -->
-    @if (gammes.length > 0) {
-    <div class="section-block" data-aos="fade-up">
-      <div class="section-block-header">
-        <div class="section-block-icon bio-icon">
-          <i class="fas fa-seedling"></i>
-        </div>
-        <h5 class="section-block-title">Gammes Bio</h5>
-        <div class="section-block-line"></div>
-        <span class="section-block-count">{{ gammes.length }} produit(s)</span>
-      </div>
+    <div class="best-sellers-grid">
+      @for (gamme of gammes; track gamme.id) {
+        @if (gamme.nom.toLowerCase().includes('youli') || gamme.nom.toLowerCase().includes('urgence')) {
+        <div class="bs-card" data-aos="fade-up">
 
-      <div class="products-grid">
-        @for (gamme of gammes; track gamme.id) {
-        <div class="product-item" data-aos="fade-up" (click)="openGammeModal(gamme)">
-          <div class="product-card">
-            <div class="product-img-wrap">
-              <img [src]="getImageUrl(gamme.image ?? '')" [alt]="gamme.nom" loading="lazy" class="product-img">
-              <div class="product-overlay">
-                <span class="product-overlay-btn"><i class="fas fa-eye me-2"></i>Voir détails</span>
-              </div>
-              <span class="product-badge bio-badge"><i class="fas fa-leaf me-1"></i>Bio</span>
+          <!-- Image -->
+          <div class="bs-img-col">
+            <div class="bs-img-wrap">
+              <img [src]="getImageUrl(gamme.image ?? '')" [alt]="gamme.nom" class="bs-img">
               @if (gamme.enPromotion && gamme.prixPromo) {
-              <span class="product-promo-badge">
-                -{{ calculateDiscount(gamme.prix, gamme.prixPromo) }}%
-              </span>
+              <span class="bs-promo-badge">-{{ calculateDiscount(gamme.prix, gamme.prixPromo) }}%</span>
               }
             </div>
-            <div class="product-body">
-              <h6 class="product-name">{{ gamme.nom }}</h6>
-              @if (gamme.description) {
-              <p class="product-desc">{{ limitText(gamme.description, 65) }}</p>
-              }
-              <div class="product-footer">
-                <div class="product-price-block">
-                  @if (gamme.enPromotion && gamme.prixPromo) {
-                  <div class="promo-wrap">
-                    <span class="promo-tag">PROMO</span>
-                    <span class="product-price promo">{{ formatPrice(gamme.prixPromo) }} <small></small></span>
-                    <span class="product-price-old">{{ formatPrice(gamme.prix) }}</span>
-                  </div>
-                  } @else if (gamme.prix && gamme.prix > 0) {
-                  <span class="product-price">{{ formatPrice(gamme.prix) }} <small></small></span>
-                  } @else {
-                  <span class="product-price-empty">Prix sur demande</span>
-                  }
-                </div>
-                <button class="add-to-cart-btn bio-cart-btn" [class.in-cart]="isInCart(gamme.id)"
-                  (click)="addToCart(gamme, $event)">
-                  <i class="fas" [class.fa-cart-plus]="!isInCart(gamme.id)" [class.fa-check]="isInCart(gamme.id)"></i>
-                  <span>{{ isInCart(gamme.id) ? 'Ajouté' : 'Ajouter' }}</span>
-                </button>
-              </div>
+          </div>
+
+          <!-- Contenu -->
+          <div class="bs-content-col">
+
+            <h3 class="bs-name">{{ gamme.nom }}</h3>
+
+            @if (gamme.description) {
+            <p class="bs-desc">{{ gamme.description }}</p>
+            }
+
+            @if (gamme.modeUtilisation) {
+            <div class="bs-mode">
+              <span class="bs-mode-label"><i class="fas fa-info-circle me-1"></i>Mode d'emploi</span>
+              <p class="bs-mode-text">{{ gamme.modeUtilisation }}</p>
             </div>
+            }
+
+            <!-- Prix -->
+            <div class="bs-prix">
+              @if (gamme.enPromotion && gamme.prixPromo) {
+                <span class="bs-promo-tag">PROMO</span>
+                <span class="bs-prix-promo">{{ formatPrice(gamme.prixPromo) }}</span>
+                <span class="bs-prix-old">{{ formatPrice(gamme.prix) }}</span>
+              } @else if (gamme.prix && gamme.prix > 0) {
+                <span class="bs-prix-normal">{{ formatPrice(gamme.prix) }}</span>
+              } @else {
+                <span class="bs-prix-demande">Prix sur demande</span>
+              }
+            </div>
+
+            <!-- Boutons -->
+            <div class="bs-actions">
+              <button class="bs-btn-cart" (click)="addToCart(gamme, $event)">
+                <i class="fas" [class.fa-cart-plus]="!isInCart(gamme.id)" [class.fa-check]="isInCart(gamme.id)"></i>
+                {{ isInCart(gamme.id) ? 'Ajouté au panier' : 'Ajouter au panier' }}
+              </button>
+              <button class="bs-btn-detail" (click)="openGammeModal(gamme)">
+                <i class="fas fa-eye me-1"></i>Voir détails
+              </button>
+            </div>
+
           </div>
         </div>
         }
-      </div>
+      }
     </div>
-    }
-
-    <!-- Empty state -->
-    @if (gammes.length === 0) {
-    <div class="catalogue-empty" data-aos="fade-up">
-      <div class="catalogue-empty-icon">
-        <i class="fas fa-box-open"></i>
-      </div>
-      <p>Aucun produit bio disponible pour le moment.</p>
-    </div>
-    }
 
   </div>
 </div>
-<!-- Catalogue End -->
-
 <!-- ═══════════════════════════════════════════════════
-     SÉPARATEUR CATALOGUE → TÉMOIGNAGES
+     SÉPARATEUR GAMMES PHARES → TÉMOIGNAGES
 ═══════════════════════════════════════════════════ -->
 <div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
   <div class="section-divider-inner">
@@ -205,21 +170,11 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     TÉMOIGNAGES — juste après le catalogue
+     TÉMOIGNAGES
 ═══════════════════════════════════════════════════ -->
 <div class="temoignages-section" style="padding-top: 10px !important;">
   <div class="temoignages-bg-deco"></div>
   <div class="container pb-5" style="position:relative;z-index:2;padding-top:0!important;">
-
-    <div class="text-center mx-auto mb-5" style="max-width:680px;" data-aos="fade-up">
-      <span class="temo-label">
-        <i class="fas fa-star me-1"></i>Avis clients
-      </span>
-      <h2 class="temo-title mt-2">Ce que disent nos clients</h2>
-      <p class="text-muted" style="font-size:1.05rem;">
-        Découvrez les expériences authentiques en photos et vidéos
-      </p>
-    </div>
 
     @if (loadingTemoignages) {
     <div class="text-center py-4">
@@ -235,19 +190,16 @@
       <div class="col-lg-4 col-md-6" data-aos="fade-up" [attr.data-aos-delay]="i * 80">
         <div class="testimonial-card h-100">
 
-          <!-- Quote décoratif -->
           <div class="quote-icon">
             <i class="fa fa-quote-right fa-3x"></i>
           </div>
 
-          <!-- Badge Gamme -->
           @if (t.gamme) {
           <span class="badge badge-gamme-public mb-3" style="margin: 1rem 1rem 0;">
             <i class="fas fa-layer-group me-1"></i>{{ t.gamme.nom }}
           </span>
           }
 
-          <!-- ═══ CAROUSEL UNIFIÉ : vidéo en premier, puis photos ═══ -->
           @if (t.video_url || (t.images && t.images.length > 0)) {
           <div class="carousel-fade-wrapper mb-3"
                (mouseenter)="stopCarousel(t.id)"
@@ -255,7 +207,6 @@
 
             <div class="carousel-fade-stage">
 
-              <!-- SLIDE 0 : Vidéo YouTube en iframe -->
               @if (t.video_url) {
               <div class="carousel-fade-item" [class.active]="isSlideActive(t.id, 0)">
                 <div class="carousel-video-slide">
@@ -272,7 +223,6 @@
               </div>
               }
 
-              <!-- SLIDES suivants : Photos -->
               @for (img of t.images; track img; let i = $index) {
               <div class="carousel-fade-item"
                    [class.active]="isSlideActive(t.id, t.video_url ? i + 1 : i)">
@@ -283,7 +233,6 @@
 
             </div>
 
-            <!-- Flèches de navigation -->
             @if (getTotalSlides(t) > 1) {
             <button class="carousel-arrow carousel-arrow-left"
                     (click)="prevSlide(t.id, $event)"
@@ -298,7 +247,6 @@
             }
           </div>
 
-          <!-- Dots de navigation -->
           @if (getTotalSlides(t) > 1) {
           <div class="carousel-dots mb-3">
             @if (t.video_url) {
@@ -318,25 +266,19 @@
           </div>
           }
           }
-          <!-- ═══════════════════════════════════════════ -->
 
-          <!-- Corps texte -->
           <div class="testimonial-card-body">
             @if (t.description) {
             <p class="testimonial-text">{{ t.description }}</p>
             }
           </div>
 
-          <!-- Footer auteur -->
           <div class="testimonial-footer">
             <div class="avatar-public">{{ getInitials(t) }}</div>
             <div>
               <h5 class="mb-0" style="color:#287747; font-weight:600; font-size:1rem;">
                 {{ t.nom_complet }}
               </h5>
-              @if (t.user_id) {
-              <p class="mb-0 text-muted" style="font-size:0.82rem;"></p>
-              }
             </div>
           </div>
 
@@ -365,6 +307,20 @@
 <!-- Témoignages End -->
 
 @if (!loading && !error) {
+
+<!-- Séparateur -->
+<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+  <div class="section-divider-inner">
+    <div class="divider-line"></div>
+    <div class="divider-center">
+      <div class="divider-icon-wrap"><i class="fas fa-chart-bar"></i></div>
+      <span class="divider-text">BioSen en chiffres</span>
+      <div class="divider-icon-wrap"><i class="fas fa-chart-bar"></i></div>
+    </div>
+    <div class="divider-line"></div>
+  </div>
+  <div class="divider-dots"><span></span><span></span><span></span></div>
+</div>
 
 <!-- Stats -->
 <div class="container-fluid py-4 mb-5" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
@@ -398,14 +354,23 @@
   </div>
 </div>
 
-<!-- Pourquoi BioSen -->
-<div class="container-fluid py-5" style="background-color: #F9F9F9;">
-  <div class="container">
-    <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
-      <h4 class="fw-semibold" style="color:#287747">Nos Avantages</h4>
-      <h1 class="display-5 fw-bold">Pourquoi choisir BioSen 100 ?</h1>
-      <p class="text-muted">Découvrez ce qui fait de BioSen votre partenaire santé idéal</p>
+<!-- Séparateur -->
+<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+  <div class="section-divider-inner">
+    <div class="divider-line"></div>
+    <div class="divider-center">
+      <div class="divider-icon-wrap"><i class="fas fa-star"></i></div>
+      <span class="divider-text">Nos Angagement</span>
+      <div class="divider-icon-wrap"><i class="fas fa-star"></i></div>
     </div>
+    <div class="divider-line"></div>
+  </div>
+  <div class="divider-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- Pourquoi BioSen -->
+<div class="container-fluid py-5" style="background-color: #ffffff;">
+  <div class="container">
     <div class="row g-4">
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
@@ -451,71 +416,23 @@
   </div>
 </div>
 
-<!-- Comment ça marche -->
-<div class="container-fluid py-5" style="background: linear-gradient(135deg, #E8F5E9 0%, rgba(40, 119, 71, 0.1) 100%);">
-  <div class="container">
-    <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
-      <h4 class="fw-semibold" style="color:#287747">Simple et Rapide</h4>
-      <h1 class="display-5 fw-bold">Comment ça marche ?</h1>
-      <p class="text-muted">Commandez vos produits bio en 3 étapes simples</p>
+<!-- Séparateur -->
+<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+  <div class="section-divider-inner">
+    <div class="divider-line"></div>
+    <div class="divider-center">
+      <div class="divider-icon-wrap"><i class="fas fa-handshake"></i></div>
+      <span class="divider-text">Notre valeur</span>
+      <div class="divider-icon-wrap"><i class="fas fa-handshake"></i></div>
     </div>
-    <div class="row g-4">
-      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="text-center">
-          <div class="position-relative d-inline-block mb-4">
-            <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg"
-              style="width: 120px; height: 120px;">
-              <i class="fas fa-search fa-3x" style="color:#287747"></i>
-            </div>
-            <div class="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow"
-              style="font-size: 1.5rem; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">1</div>
-          </div>
-          <h4 class="mb-3 fw-bold">Choisissez vos produits</h4>
-          <p class="text-muted">Parcourez notre catalogue et sélectionnez les produits naturels qui correspondent à vos
-            besoins</p>
-        </div>
-      </div>
-      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="text-center">
-          <div class="position-relative d-inline-block mb-4">
-            <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg"
-              style="width: 120px; height: 120px;">
-              <i class="fas fa-shopping-cart fa-3x" style="color:#287747"></i>
-            </div>
-            <div class="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow"
-              style="font-size: 1.5rem; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">2</div>
-          </div>
-          <h4 class="mb-3 fw-bold">Passez commande</h4>
-          <p class="text-muted">Ajoutez au panier et finalisez votre commande en quelques clics. Paiement sécurisé
-            garanti</p>
-        </div>
-      </div>
-      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-        <div class="text-center">
-          <div class="position-relative d-inline-block mb-4">
-            <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg"
-              style="width: 120px; height: 120px;">
-              <i class="fas fa-truck fa-3x" style="color:#287747"></i>
-            </div>
-            <div class="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow"
-              style="font-size: 1.5rem; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">3</div>
-          </div>
-          <h4 class="mb-3 fw-bold">Recevez chez vous</h4>
-          <p class="text-muted">Livraison rapide partout au Sénégal sous 48-72h. Profitez de vos produits bio !</p>
-        </div>
-      </div>
-    </div>
+    <div class="divider-line"></div>
   </div>
+  <div class="divider-dots"><span></span><span></span><span></span></div>
 </div>
 
 <!-- Nos Engagements -->
-<div class="container-fluid py-5">
+<div class="container-fluid py-5" style="background-color: #ffffff;">
   <div class="container" id="about">
-    <div class="text-center mx-auto mb-5" style="max-width: 700px;" data-aos="fade-up">
-      <h4 class="fw-semibold" style="color:#287747">Notre Promesse</h4>
-      <h1 class="display-5 fw-bold">Nos Engagements</h1>
-      <p class="text-muted">Des valeurs fortes pour des produits d'exception</p>
-    </div>
     <div class="row g-4">
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="100">
         <div class="text-center p-4 h-100">
@@ -567,16 +484,14 @@
   <div class="dropdown">
     <button class="wa-fab" type="button" data-bs-toggle="dropdown" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="white" width="30" height="30">
-        <path
-          d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z" />
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z"/>
       </svg>
       <span class="wa-pulse"></span>
     </button>
     <div class="dropdown-menu dropdown-menu-end wa-menu p-0">
       <div class="wa-menu-header">
         <svg viewBox="0 0 24 24" fill="white" width="18" height="18">
-          <path
-            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z" />
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z"/>
         </svg>
         <span>Contacter un vendeur</span>
       </div>
@@ -588,15 +503,14 @@
             <span class="wa-name">{{ vendeur.prenom }} {{ vendeur.nom }}</span>
             <span class="wa-tel">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
-                <path
-                  d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
               </svg>
               {{ maskPhone(vendeur.telephone) }}
             </span>
           </div>
           <div class="wa-arrow">
             <svg viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2.5" width="14" height="14">
-              <path d="M5 12h14M12 5l7 7-7 7" />
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </div>
         </a>
@@ -604,8 +518,7 @@
       </div>
       <div class="wa-menu-footer">
         <svg viewBox="0 0 24 24" fill="#25d366" width="12" height="12">
-          <path
-            d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" />
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
         </svg>
         Réponse rapide garantie
       </div>
@@ -614,23 +527,18 @@
   } @else {
   <a href="https://wa.me/221771234589" target="_blank" class="wa-fab">
     <svg viewBox="0 0 24 24" fill="white" width="30" height="30">
-      <path
-        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z" />
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z"/>
     </svg>
     <span class="wa-pulse"></span>
   </a>
   }
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     MODAL PANIER — AVEC IMAGES
-═══════════════════════════════════════════════════ -->
+<!-- Modal Panier -->
 <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-end modal-dialog-scrollable"
     style="max-width: 520px; margin-right: 0; margin-top: 0; margin-bottom: 0; height: 100%;">
     <div class="modal-content border-0 h-100" style="border-radius: 20px 0 0 20px; overflow: hidden;">
-
-      <!-- ── Header ── -->
       <div class="modal-header border-0 py-4 px-4"
         style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
         <div class="d-flex align-items-center gap-3">
@@ -645,11 +553,7 @@
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
       </div>
-
-      <!-- ── Corps ── -->
       <div class="modal-body p-0" style="background: #f8faf8; overflow-y: auto;">
-
-        <!-- Panier vide -->
         @if (cartItems.length === 0) {
         <div class="d-flex flex-column align-items-center justify-content-center py-5 px-4 text-center"
           style="min-height: 350px;">
@@ -665,16 +569,11 @@
           </button>
         </div>
         }
-
-        <!-- Liste des articles -->
         @if (cartItems.length > 0) {
         <div class="px-3 pt-3 pb-1">
-
           @for (item of cartItems; track item.id) {
           <div class="cart-item-card d-flex align-items-center gap-3 bg-white rounded-3 shadow-sm mb-3 p-3"
-            style="border: 1px solid rgba(40,119,71,0.1); transition: box-shadow 0.2s;">
-
-            <!-- Image produit -->
+            style="border: 1px solid rgba(40,119,71,0.1);">
             <div class="flex-shrink-0 position-relative">
               <img [src]="getCartItemImage(item)" [alt]="item.name" class="rounded-2"
                 style="width: 72px; height: 72px; object-fit: cover; border: 2px solid rgba(40,119,71,0.15);"
@@ -684,21 +583,15 @@
                 {{ item.category }}
               </span>
             </div>
-
-            <!-- Infos produit -->
             <div class="flex-grow-1 min-w-0">
               <h6 class="mb-1 fw-bold text-dark text-truncate" style="font-size: 0.9rem;">{{ item.name }}</h6>
               @if (item.description) {
               <p class="mb-2 text-muted text-truncate" style="font-size: 0.75rem;">{{ item.description }}</p>
               }
-
-              <!-- Prix + contrôle quantité -->
               <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                 <span class="fw-bold" style="color: #287747; font-size: 0.95rem;">
                   {{ formatPrice(item.price * item.quantity) }}
                 </span>
-
-                <!-- Contrôle quantité -->
                 <div class="d-flex align-items-center gap-1 rounded-pill px-1 py-1"
                   style="background: #f0f7f2; border: 1px solid rgba(40,119,71,0.2);">
                   <button class="btn btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
@@ -718,8 +611,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- Bouton supprimer -->
             <button class="btn flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle p-0"
               style="width: 32px; height: 32px; background: rgba(220,53,69,0.08); border: 1px solid rgba(220,53,69,0.2); color: #dc3545;"
               (click)="removeFromCart(item.id)" title="Supprimer">
@@ -727,10 +618,7 @@
             </button>
           </div>
           }
-
         </div>
-
-        <!-- Récapitulatif -->
         <div class="px-3 pb-3 mt-1">
           <div class="rounded-3 p-3" style="background: white; border: 1px solid rgba(40,119,71,0.15);">
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -750,8 +638,6 @@
         </div>
         }
       </div>
-
-      <!-- ── Footer ── -->
       @if (cartItems.length > 0) {
       <div class="modal-footer border-0 px-3 pb-4 pt-2 flex-column gap-2"
         style="background: white; box-shadow: 0 -4px 20px rgba(0,0,0,0.06);">
@@ -771,14 +657,11 @@
         </button>
       </div>
       }
-
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     MODALE GAMME BIO
-═══════════════════════════════════════════════════ -->
+<!-- Modale Gamme Bio -->
 <div class="modal fade" id="gammeModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
@@ -841,6 +724,12 @@
             } @else {
             <p class="text-muted fst-italic">Aucune description disponible.</p>
             }
+            @if (selectedGamme.modeUtilisation) {
+            <h6 class="fw-bold mb-2 mt-3" style="color:#287747">
+              <i class="fas fa-list-ul me-2"></i>Mode d'emploi
+            </h6>
+            <p class="text-muted" style="text-align: justify; line-height: 1.8;">{{ selectedGamme.modeUtilisation }}</p>
+            }
           </div>
         </div>
         }
@@ -850,8 +739,8 @@
           <i class="fas fa-times me-2"></i>Fermer
         </button>
         <button type="button" class="btn rounded-pill px-4 text-white fw-bold"
-          style="background: linear-gradient(135deg, #287747, #1a5230);" (click)="addToCart(selectedGamme, undefined)"
-          data-bs-dismiss="modal">
+          style="background: linear-gradient(135deg, #287747, #1a5230);"
+          (click)="addToCart(selectedGamme, undefined)" data-bs-dismiss="modal">
           <i class="fas fa-cart-plus me-2"></i>Ajouter au panier
         </button>
         <a routerLink="/boutique" class="btn rounded-pill px-4 text-white"
@@ -865,7 +754,7 @@
 
 }
 
-<!-- ═══ LIGHTBOX PHOTO ═══ -->
+<!-- Lightbox Photo -->
 @if (showLightbox) {
 <div class="temo-modal-backdrop" (click)="closeLightbox()">
   <div class="temo-lightbox-box" (click)="$event.stopPropagation()">
@@ -875,7 +764,7 @@
 </div>
 }
 
-<!-- ═══ MODAL VIDÉO ═══ -->
+<!-- Modal Vidéo -->
 @if (showVideoModal) {
 <div class="temo-modal-backdrop" (click)="closeVideoModal()">
   <div class="temo-modal-box" (click)="$event.stopPropagation()">

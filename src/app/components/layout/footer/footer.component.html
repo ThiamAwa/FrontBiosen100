@@ -3,37 +3,29 @@
 
         <!-- Footer Top -->
         <div class="footer-top">
-            <div class="row g-4 align-items-center">
-
-                <div class="col-lg-6 col-md-6">
-                    <h1 class="brand-title">BioSen 100%</h1>
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-6 text-center text-md-start">
+                    <h1 class="brand-title mb-1">BioSen 100%</h1>
                     <p class="brand-subtitle mb-0">Produits biologiques sénégalais authentiques</p>
                 </div>
-
-                <div class="col-lg-6 col-md-6">
-                    <div class="social-links d-flex justify-content-md-end justify-content-center gap-3">
+                <div class="col-12 col-md-6">
+                    <div class="social-links d-flex justify-content-center justify-content-md-end flex-wrap gap-2">
                         @for (social of socialLinks; track social.title) {
-                        <a class="btn rounded-circle" [href]="social.url" [title]="social.title" target="_blank"
-                            rel="noopener noreferrer">
-
-                            <!-- Icône Bootstrap classique -->
+                        <a class="btn rounded-circle social-btn" [href]="social.url" [title]="social.title"
+                            target="_blank" rel="noopener noreferrer">
                             @if (social.iconType === 'class') {
                             <i [class]="social.icon"></i>
                             }
-
-                            <!-- Icône SVG inline (Snapchat, TikTok) -->
                             @if (social.iconType === 'svg') {
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="currentColor" aria-hidden="true">
                                 <path [attr.d]="social.svgPath" />
                             </svg>
                             }
-
                         </a>
                         }
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -41,7 +33,7 @@
         <div class="row g-4">
 
             <!-- À propos -->
-            <div class="col-lg-4 col-md-6">
+            <div class="col-12 col-lg-4 col-md-6">
                 <div class="footer-item">
                     <h4 class="footer-section-title">Pourquoi nous choisir ?</h4>
                     <p class="footer-text">
@@ -49,14 +41,11 @@
                         par des producteurs locaux sénégalais. La qualité, l'authenticité et le
                         respect de l'environnement sont au cœur de notre mission.
                     </p>
-                    <a routerLink="/about" class="btn btn-primary-custom rounded-pill">
-                        En savoir plus <i class="bi bi-arrow-right ms-2"></i>
-                    </a>
                 </div>
             </div>
 
-            <!-- Liens -->
-            <div class="col-lg-3 col-md-6">
+            <!-- Liens (informations + légaux) -->
+            <div class="col-12 col-sm-6 col-lg-3 col-md-6">
                 <div class="footer-item">
                     <h4 class="footer-section-title">Informations</h4>
                     <div class="d-flex flex-column">
@@ -65,16 +54,25 @@
                         }
                     </div>
                 </div>
+                <!-- Ajout des liens légaux (issus de la topbar) -->
+                <div class="footer-item mt-4">
+                    <h4 class="footer-section-title">Légal</h4>
+                    <div class="d-flex flex-column">
+                        <a routerLink="/confidentialite" class="footer-link">Confidentialité</a>
+                        <a routerLink="/conditions" class="footer-link">Conditions d'utilisation</a>
+                        <a routerLink="/remboursements" class="footer-link">Ventes et Remboursements</a>
+                    </div>
+                </div>
             </div>
 
             <!-- Contact + Paiements -->
-            <div class="col-lg-5 col-md-12">
+            <div class="col-12 col-sm-6 col-lg-5 col-md-12">
                 <div class="footer-item">
                     <h4 class="footer-section-title">Contact</h4>
 
                     <div class="contact-item">
                         <i class="bi bi-geo-alt-fill"></i>
-                        <span>Yoff, Dakar, Sénégal</span>
+                        <span>Yoff, Ouest Foire, Keur Massar, Thiès</span>
                     </div>
                     <div class="contact-item">
                         <i class="bi bi-envelope-fill"></i>
@@ -97,18 +95,23 @@
                             }
                         </div>
                     </div>
-
                 </div>
             </div>
-
         </div>
 
         <!-- Footer Bottom -->
         <div class="footer-bottom">
-            <p class="mb-0">
+            <p class="mb-2">
                 &copy; {{ currentYear }} <strong>BioSen 100%</strong>. Tous droits réservés.
                 | Fait avec <i class="bi bi-heart-fill text-danger"></i> au Sénégal
             </p>
+            <div class="footer-legal-links">
+                <a routerLink="/confidentialite">Confidentialité</a>
+                <span class="separator">|</span>
+                <a routerLink="/conditions">Conditions d'utilisation</a>
+                <span class="separator">|</span>
+                <a routerLink="/remboursements">Ventes et Remboursements</a>
+            </div>
         </div>
 
     </div>

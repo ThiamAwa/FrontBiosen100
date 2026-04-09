@@ -1,7 +1,7 @@
 <!-- Header -->
 <div class="container-fluid page-header py-5 mb-5">
   <div class="container text-center py-5">
-    <h1 class="display-4 text-white fw-bold">Boutique</h1>
+    <h1 class="display-4 text-white fw-bold">Pour nos Produit</h1>
   </div>
 </div>
 
@@ -340,7 +340,7 @@
               <div class="fruite-img position-relative">
                 <img [src]="getItemImage(item)" class="img-fluid w-100" [alt]="item.nom"
                   style="height: 280px; object-fit: cover;" (error)="onImageError($event)">
-              
+
                 <div class="product-overlay" (click)="goToDetail(item)">
                   <span class="btn btn-light rounded-pill px-4 py-2">
                     <i class="fa fa-eye me-2"></i>Voir détails

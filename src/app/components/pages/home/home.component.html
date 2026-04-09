@@ -249,9 +249,7 @@
 
           <!-- ═══ CAROUSEL UNIFIÉ : vidéo en premier, puis photos ═══ -->
           @if (t.video_url || (t.images && t.images.length > 0)) {
-          <div class="carousel-fade-wrapper mb-3"
-               (mouseenter)="stopCarousel(t.id)"
-               (mouseleave)="startCarousel(t.id)">
+          <div class="carousel-fade-wrapper mb-3" (mouseenter)="stopCarousel(t.id)" (mouseleave)="startCarousel(t.id)">
 
             <div class="carousel-fade-stage">
 
@@ -259,11 +257,9 @@
               @if (t.video_url) {
               <div class="carousel-fade-item" [class.active]="isSlideActive(t.id, 0)">
                 <div class="carousel-video-slide">
-                  <iframe
-                    [src]="getSafeEmbedUrl(t.video_url)"
+                  <iframe [src]="getSafeEmbedUrl(t.video_url)"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    loading="lazy">
+                    allowfullscreen loading="lazy">
                   </iframe>
                   <span class="carousel-yt-badge">
                     <i class="fab fa-youtube me-1"></i>Vidéo
@@ -274,10 +270,8 @@
 
               <!-- SLIDES suivants : Photos -->
               @for (img of t.images; track img; let i = $index) {
-              <div class="carousel-fade-item"
-                   [class.active]="isSlideActive(t.id, t.video_url ? i + 1 : i)">
-                <img [src]="img" alt="Image témoignage" class="carousel-img"
-                     (click)="openLightbox(img)">
+              <div class="carousel-fade-item" [class.active]="isSlideActive(t.id, t.video_url ? i + 1 : i)">
+                <img [src]="img" alt="Image témoignage" class="carousel-img" (click)="openLightbox(img)">
               </div>
               }
 
@@ -285,14 +279,12 @@
 
             <!-- Flèches de navigation -->
             @if (getTotalSlides(t) > 1) {
-            <button class="carousel-arrow carousel-arrow-left"
-                    (click)="prevSlide(t.id, $event)"
-                    [class.hidden]="getCurrentIndex(t.id) === 0">
+            <button class="carousel-arrow carousel-arrow-left" (click)="prevSlide(t.id, $event)"
+              [class.hidden]="getCurrentIndex(t.id) === 0">
               <i class="fas fa-chevron-left"></i>
             </button>
-            <button class="carousel-arrow carousel-arrow-right"
-                    (click)="nextSlide(t.id, $event)"
-                    [class.hidden]="getCurrentIndex(t.id) === getTotalSlides(t) - 1">
+            <button class="carousel-arrow carousel-arrow-right" (click)="nextSlide(t.id, $event)"
+              [class.hidden]="getCurrentIndex(t.id) === getTotalSlides(t) - 1">
               <i class="fas fa-chevron-right"></i>
             </button>
             }
@@ -302,17 +294,14 @@
           @if (getTotalSlides(t) > 1) {
           <div class="carousel-dots mb-3">
             @if (t.video_url) {
-            <button class="carousel-dot carousel-dot-video"
-                    [class.active]="getCurrentIndex(t.id) === 0"
-                    (click)="goToSlide(t.id, 0); pauseAndResume(t.id)"
-                    title="Vidéo">
+            <button class="carousel-dot carousel-dot-video" [class.active]="getCurrentIndex(t.id) === 0"
+              (click)="goToSlide(t.id, 0); pauseAndResume(t.id)" title="Vidéo">
               <i class="fab fa-youtube"></i>
             </button>
             }
             @for (img of t.images; track img; let i = $index) {
-            <button class="carousel-dot"
-                    [class.active]="getCurrentIndex(t.id) === (t.video_url ? i + 1 : i)"
-                    (click)="goToSlide(t.id, t.video_url ? i + 1 : i); pauseAndResume(t.id)">
+            <button class="carousel-dot" [class.active]="getCurrentIndex(t.id) === (t.video_url ? i + 1 : i)"
+              (click)="goToSlide(t.id, t.video_url ? i + 1 : i); pauseAndResume(t.id)">
             </button>
             }
           </div>

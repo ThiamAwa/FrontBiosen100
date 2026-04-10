@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -20,18 +20,34 @@ declare var bootstrap: any;
 })
 export class BoutiqueComponent implements OnInit, OnDestroy {
 
-  // ─── Données ───────────────────────────────────────────────
+  // ─── Données produits ────────────────────────────────────
   gammes: Gamme[] = [];
   categories: Categorie[] = [];
   produitsSport: any[] = [];
 
+  // ─── Best sellers : exactement 2 produits ───────────────
+  bestSellers: any[] = [];
+
+  // ─── Catégories ─────────────────────────────────────────
   typeCategories: { id: number; nom: string; count: number; isSport: boolean }[] = [];
   categoriesSport: { id: number; nom: string; count: number }[] = [];
   totalAllProducts = 0;
 
+  /**
+   * Catégories "objectif" (Bio, Perte, Prise…) — hors Sport
+   * Affichées dans les pills "Parcourir par objectif"
+   */
+  quickCategoriesBio: { id: number; nom: string; icon: string; count: number }[] = [];
+
+  /**
+   * Catégorie Sport unique — affichée séparément dans les pills
+   * avec ses sous-catégories dépliables
+   */
+  quickCategorySport: { id: number; nom: string; count: number } | null = null;
+
   private sportTypeId = '2';
 
-  // Pagination
+  // ─── Pagination ──────────────────────────────────────────
   pagination = {
     current_page: 1,
     last_page: 1,
@@ -39,7 +55,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     total: 0
   };
 
-  // Filtres
+  // ─── Filtres ─────────────────────────────────────────────
   filters = {
     search: '',
     categorie: '',
@@ -51,10 +67,14 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     page: 1
   };
 
-  // État
+  // ─── État ────────────────────────────────────────────────
   loading = true;
   error = '';
   prixMaxValue = 50000;
+
+  // ─── Responsive sidebar ──────────────────────────────────
+  sidebarOpen = false;
+  isMobile = false;
 
   private searchSubject = new Subject<string>();
   private prixSubject = new Subject<number>();
@@ -74,6 +94,9 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isMobile = window.innerWidth < 992;
+    }
     this.loadCategories();
     this.loadProducts();
   }
@@ -81,6 +104,40 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.searchSubject.complete();
     this.prixSubject.complete();
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // Responsive — Sidebar drawer
+  // ══════════════════════════════════════════════════════════
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isMobile = window.innerWidth < 992;
+      if (!this.isMobile && this.sidebarOpen) {
+        this.sidebarOpen = false;
+        document.body.style.overflow = '';
+      }
+    }
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = this.sidebarOpen ? 'hidden' : '';
+    }
+  }
+
+  get activeFiltersCount(): number {
+    let count = 0;
+    if (this.filters.promo) count++;
+    if (this.filters.prix_max < this.prixMaxValue) count++;
+    if (this.filters.search && this.filters.search.trim() !== '') count++;
+    if (this.filters.categorie_sport) count++;
+    return count;
   }
 
   // ══════════════════════════════════════════════════════════
@@ -102,6 +159,13 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     return !this.isAllSelected && !this.isSportSelected;
   }
 
+  /** Nom de la catégorie active affiché au-dessus de la grille */
+  get activeCategoryName(): string {
+    if (this.isAllSelected) return '';
+    const cat = this.typeCategories.find(t => t.id.toString() === this.filters.type_categorie);
+    return cat?.nom ?? '';
+  }
+
   get cartItems(): CartItem[] { return this.cartService.getCart(); }
   get cartSubtotal(): number { return this.cartService.getCartTotal(); }
   get cartCount(): number { return this.cartService.getCartCount(); }
@@ -114,11 +178,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = '';
 
-    /**
-     * Règle : si "En promotion" est coché, on charge TOUJOURS
-     * les deux sources (gammes + sport) pour ne rien manquer,
-     * quelle que soit la catégorie sélectionnée.
-     */
     if (this.filters.promo) {
       this.loadPromo();
       return;
@@ -136,17 +195,11 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   // ──────────────────────────────────────────────────────────
-  // loadPromo — charge les deux sources en promotion
-  // ──────────────────────────────────────────────────────────
   loadPromo(): void {
     forkJoin({
       gammes: this.gammeService.getGammesBoutique(
-        this.filters.page,
-        this.filters.search,
-        '',                        // toutes catégories
-        this.filters.prix_max,
-        this.filters.tri,
-        true                       // en_promotion = true
+        this.filters.page, this.filters.search, '',
+        this.filters.prix_max, this.filters.tri, true
       ),
       sport: this.produitSportService.getProduitsWithFilters({
         page: this.filters.page,
@@ -180,12 +233,8 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   loadAll(): void {
     forkJoin({
       gammes: this.gammeService.getGammesBoutique(
-        this.filters.page,
-        this.filters.search,
-        '',
-        this.filters.prix_max,
-        this.filters.tri,
-        false
+        this.filters.page, this.filters.search, '',
+        this.filters.prix_max, this.filters.tri, false
       ),
       sport: this.produitSportService.getProduitsWithFilters({
         page: this.filters.page,
@@ -204,6 +253,12 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
           total: gammes.total + (sport.produits?.total || 0)
         };
         this.updatePrixMaxValue();
+
+        // Construire les best sellers uniquement au premier chargement
+        if (this.bestSellers.length === 0) {
+          this.buildBestSellers();
+        }
+
         this.loading = false;
       },
       error: (err) => {
@@ -216,12 +271,8 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   loadGammes(): void {
     this.gammeService.getGammesBoutique(
-      this.filters.page,
-      this.filters.search,
-      this.filters.type_categorie,
-      this.filters.prix_max,
-      this.filters.tri,
-      false
+      this.filters.page, this.filters.search, this.filters.type_categorie,
+      this.filters.prix_max, this.filters.tri, false
     ).subscribe({
       next: (response) => {
         this.gammes = response.data;
@@ -280,6 +331,29 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   // ══════════════════════════════════════════════════════════
+  // Best Sellers — exactement 2 produits
+  // ══════════════════════════════════════════════════════════
+
+  /**
+   * Sélectionne les 2 meilleurs produits à mettre en avant.
+   * Règle de priorité :
+   *   1. Produits en promotion avec stock disponible
+   *   2. Produits avec stock disponible (tous types)
+   * On garde exactement 2 produits.
+   */
+  buildBestSellers(): void {
+    const allProducts = [...this.gammes, ...this.produitsSport];
+
+    const enPromo = allProducts.filter(p => p.enPromotion && p.prixPromo && p.stock > 0);
+    const enStock = allProducts.filter(p => !(p.enPromotion && p.prixPromo) && p.stock > 0);
+
+    const candidates = [...enPromo, ...enStock];
+
+    // On prend exactement 2 — si moins de 2 produits dispo, on prend ce qu'on a
+    this.bestSellers = candidates.slice(0, 2);
+  }
+
+  // ══════════════════════════════════════════════════════════
   // Catégories
   // ══════════════════════════════════════════════════════════
 
@@ -320,9 +394,13 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
             this.typeCategories = Array.from(typeMap.values());
             this.totalAllProducts = this.typeCategories.reduce((sum, t) => sum + t.count, 0);
+
             this.categoriesSport = categoriesData
               .filter((cat: any) => cat.type_categorie?.id.toString() === this.sportTypeId)
               .map((cat: any) => ({ id: cat.id, nom: cat.nom, count: cat.produits_count || 0 }));
+
+            // Construire les pills rapides
+            this.buildQuickCategories();
           },
           error: () => {
             this.typeCategories = Array.from(
@@ -341,6 +419,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
               ).values()
             );
             this.totalAllProducts = this.typeCategories.reduce((sum, t) => sum + t.count, 0);
+            this.buildQuickCategories();
           }
         });
       },
@@ -349,6 +428,58 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
         this.typeCategories = [];
       }
     });
+  }
+
+  /**
+   * Sépare les catégories en deux groupes :
+   *  - quickCategoriesBio  : toutes les catégories NON sport (avec icône selon le nom)
+   *  - quickCategorySport  : la catégorie sport unique (mis en valeur séparément dans la vue)
+   */
+  buildQuickCategories(): void {
+    this.quickCategoriesBio = this.typeCategories
+      .filter(t => !t.isSport)
+      .map(t => ({
+        id: t.id,
+        nom: t.nom,
+        count: t.count,
+        icon: this.getCategoryIcon(t.nom)
+      }));
+
+    const sportCat = this.typeCategories.find(t => t.isSport);
+    this.quickCategorySport = sportCat
+      ? { id: sportCat.id, nom: sportCat.nom, count: sportCat.count }
+      : null;
+  }
+
+  /**
+   * Choisit l'icône Font Awesome adaptée au nom de la catégorie.
+   */
+  getCategoryIcon(nom: string): string {
+    const n = nom.toLowerCase();
+
+    if (n.includes('perte') || n.includes('minceur') || n.includes('slim') || n.includes('détox') || n.includes('detox')) {
+      return 'fas fa-arrow-trend-down';
+    }
+    if (n.includes('prise') || n.includes('masse') || n.includes('gain') || n.includes('muscu') || n.includes('bulk')) {
+      return 'fas fa-arrow-trend-up';
+    }
+    if (n.includes('energie') || n.includes('énergie') || n.includes('vitalit')) {
+      return 'fas fa-bolt';
+    }
+    if (n.includes('beaut') || n.includes('soin') || n.includes('peau') || n.includes('anti')) {
+      return 'fas fa-spa';
+    }
+    if (n.includes('bien') || n.includes('sant') || n.includes('immunit')) {
+      return 'fas fa-heart';
+    }
+    if (n.includes('digesti') || n.includes('intestin')) {
+      return 'fas fa-seedling';
+    }
+    if (n.includes('stress') || n.includes('sommeil') || n.includes('relax')) {
+      return 'fas fa-moon';
+    }
+
+    return 'fas fa-leaf';
   }
 
   // ══════════════════════════════════════════════════════════
@@ -360,7 +491,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   get displayedItems(): any[] {
-    // En mode promo, on mélange toujours les deux sources
     if (this.filters.promo) return [...this.gammes, ...this.produitsSport];
     if (this.isAllSelected) return [...this.gammes, ...this.produitsSport];
     if (this.isSportSelected) return this.produitsSport;
@@ -386,18 +516,16 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   getItemRoute(item: any): string {
-    const route = this.isItemSport(item) ? 'sport' : 'gamme';
-    console.log('Navigation vers:', route, 'avec ID:', item.id);
-    return route;
+    return this.isItemSport(item) ? 'sport' : 'gamme';
   }
 
   goToDetail(item: any): void {
-  if (this.isItemSport(item)) {
-    this.router.navigate(['/sport', item.id]); 
-  } else {
-    this.router.navigate(['/gamme', item.id]); 
+    if (this.isItemSport(item)) {
+      this.router.navigate(['/sport', item.id]);
+    } else {
+      this.router.navigate(['/gamme', item.id]);
+    }
   }
-}
 
   getItemBadgeLabel(item: any): string {
     if (this.isItemSport(item)) return 'Sport';
@@ -442,10 +570,14 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     this.filters.type_categorie = typeId;
     this.filters.categorie_sport = '';
     this.filters.page = 1;
+    if (this.isMobile && this.sidebarOpen) {
+      this.toggleSidebar();
+    }
     this.loadProducts();
   }
 
   filterBySousCategoriesSport(categorieId: string): void {
+    // Toggle : cliquer à nouveau sur la même sous-cat la désélectionne
     this.filters.categorie_sport = this.filters.categorie_sport === categorieId ? '' : categorieId;
     this.filters.page = 1;
     this.loadProduitsSport();
@@ -489,7 +621,9 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     if (page >= 1 && page <= this.pagination.last_page) {
       this.filters.page = page;
       this.loadProducts();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (isPlatformBrowser(this.platformId)) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   }
 
@@ -584,6 +718,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   showNotification(message: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     const notification = document.createElement('div');
     notification.className = 'position-fixed top-0 end-0 m-3 p-3 text-white rounded shadow-lg';
     notification.style.zIndex = '9999';

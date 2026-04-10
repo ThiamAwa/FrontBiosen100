@@ -117,15 +117,15 @@
             <p class="bs-desc">{{ gamme.description }}</p>
             }
 
-            @if (gamme.modeUtilisation) {
+            <!-- @if (gamme.modeUtilisation) {
             <div class="bs-mode">
               <span class="bs-mode-label"><i class="fas fa-info-circle me-1"></i>Mode d'emploi</span>
               <p class="bs-mode-text">{{ gamme.modeUtilisation }}</p>
             </div>
-            }
+            } -->
 
             <!-- Prix -->
-            <div class="bs-prix">
+            <div class="bs-prix mt-3">
               @if (gamme.enPromotion && gamme.prixPromo) {
                 <span class="bs-promo-tag">PROMO</span>
                 <span class="bs-prix-promo">{{ formatPrice(gamme.prixPromo) }}</span>

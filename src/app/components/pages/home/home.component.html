@@ -1,19 +1,19 @@
 <!-- Hero Start -->
-<div class="container-fluid py-5 mb-5 hero-header">
+<div class="container-fluid py-3 py-md-4 mb-0 hero-header">
   <div class="container py-0">
-    <div class="row g-5 align-items-center">
+    <div class="row g-3 g-md-4 align-items-center">
       <div class="col-md-12 col-lg-7">
         <div data-aos="fade-right" class="text-center text-lg-start">
-          <h4 class="mb-3 text-secondary fw-semibold">100% Produits Naturels</h4>
-          <h1 class="mb-4 display-3 fw-bold" style="color:#287747">BioSen 100</h1>
-          <p class="mb-4 fs-5 text-muted">Découvrez notre gamme de produits pour votre bien-être naturel</p>
-          <div class="position-relative mx-auto mb-4" style="max-width: 600px;">
-            <input class="form-control border-2 border-secondary w-100 py-3 px-4 rounded-pill shadow-sm" type="text"
+          <h4 class="mb-2 text-secondary fw-semibold">100% Produits Naturels</h4>
+          <h1 class="mb-3 display-4 display-md-3 fw-bold" style="color:#287747">BioSen 100</h1>
+          <p class="mb-3 fs-6 fs-md-5 text-muted">Découvrez notre gamme de produits pour votre bien-être naturel</p>
+          <div class="position-relative mx-auto mb-3" style="max-width: 600px;">
+            <input class="form-control border-2 border-secondary w-100 py-2 py-md-3 px-4 rounded-pill shadow-sm" type="text"
               placeholder="Rechercher un produit BioSen..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
-            <button type="button" class="btn border-0 py-3 px-4 position-absolute rounded-pill text-white h-100 shadow"
+            <button type="button" class="btn border-0 py-2 py-md-3 px-3 px-md-4 position-absolute rounded-pill text-white h-100 shadow"
               style="top: 0; right: 0; background: linear-gradient(135deg, #287747 0%, #1a5230 100%);"
               (click)="onSearch()">
-              <i class="fas fa-search me-2"></i> Rechercher
+              <i class="fas fa-search me-1 me-md-2"></i> Rechercher
             </button>
           </div>
         </div>
@@ -35,7 +35,7 @@
               @for (gamme of gammes; track gamme.id; let index = $index; let first = $first) {
               <div class="carousel-item" [class.active]="first">
                 <img [src]="getImageUrl(gamme.image ?? '')" class="img-fluid w-100 rounded" [alt]="gamme.nom"
-                  style="height: 450px; object-fit: cover;">
+                  style="height: 280px; object-fit: cover;">
                 <div class="carousel-nom-badge">
                   <span class="carousel-nom-badge-dot"></span>
                   {{ gamme.nom }}
@@ -45,16 +45,16 @@
               } @else {
               <div class="carousel-item active rounded">
                 <img src="assets/img/biosen/default-product.png" class="img-fluid w-100 rounded" alt="Nos gammes bio"
-                  style="height: 450px; object-fit: cover;">
+                  style="height: 280px; object-fit: cover;">
               </div>
               }
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselId" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon bg-success rounded-circle p-3" aria-hidden="true"></span>
+              <span class="carousel-control-prev-icon bg-success rounded-circle p-2 p-md-3" aria-hidden="true"></span>
               <span class="visually-hidden">Précédent</span>
             </button>
             <button class="carousel-control-next" type="button" data-bs-target="#carouselId" data-bs-slide="next">
-              <span class="carousel-control-next-icon bg-success rounded-circle p-3" aria-hidden="true"></span>
+              <span class="carousel-control-next-icon bg-success rounded-circle p-2 p-md-3" aria-hidden="true"></span>
               <span class="visually-hidden">Suivant</span>
             </button>
           </div>
@@ -64,10 +64,11 @@
   </div>
 </div>
 <!-- Hero End -->
+
 <!-- ═══════════════════════════════════════════════════
      SÉPARATEUR BEST SELLER
 ═══════════════════════════════════════════════════ -->
-<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+<div class="section-divider" data-aos="fade-up">
   <div class="section-divider-inner">
     <div class="divider-line"></div>
     <div class="divider-center">
@@ -85,6 +86,7 @@
     <span></span><span></span><span></span>
   </div>
 </div>
+
 <!-- ═══════════════════════════════════════════════════
      GAMMES PHARES — YOULI & URGENCE
 ═══════════════════════════════════════════════════ -->
@@ -117,15 +119,8 @@
             <p class="bs-desc">{{ gamme.description }}</p>
             }
 
-            <!-- @if (gamme.modeUtilisation) {
-            <div class="bs-mode">
-              <span class="bs-mode-label"><i class="fas fa-info-circle me-1"></i>Mode d'emploi</span>
-              <p class="bs-mode-text">{{ gamme.modeUtilisation }}</p>
-            </div>
-            } -->
-
             <!-- Prix -->
-            <div class="bs-prix mt-3">
+            <div class="bs-prix mt-2">
               @if (gamme.enPromotion && gamme.prixPromo) {
                 <span class="bs-promo-tag">PROMO</span>
                 <span class="bs-prix-promo">{{ formatPrice(gamme.prixPromo) }}</span>
@@ -141,10 +136,10 @@
             <div class="bs-actions">
               <button class="bs-btn-cart" (click)="addToCart(gamme, $event)">
                 <i class="fas" [class.fa-cart-plus]="!isInCart(gamme.id)" [class.fa-check]="isInCart(gamme.id)"></i>
-                {{ isInCart(gamme.id) ? 'Ajouté au panier' : 'Ajouter au panier' }}
+                {{ isInCart(gamme.id) ? 'Ajouté' : 'Ajouter' }}
               </button>
               <button class="bs-btn-detail" (click)="openGammeModal(gamme)">
-                <i class="fas fa-eye me-1"></i>Voir détails
+                <i class="fas fa-eye me-1"></i>Détails
               </button>
             </div>
 
@@ -153,13 +148,13 @@
         }
       }
     </div>
-
   </div>
 </div>
+
 <!-- ═══════════════════════════════════════════════════
      SÉPARATEUR GAMMES PHARES → TÉMOIGNAGES
 ═══════════════════════════════════════════════════ -->
-<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+<div class="section-divider" data-aos="fade-up">
   <div class="section-divider-inner">
     <div class="divider-line"></div>
     <div class="divider-center">
@@ -181,9 +176,9 @@
 <!-- ═══════════════════════════════════════════════════
      TÉMOIGNAGES
 ═══════════════════════════════════════════════════ -->
-<div class="temoignages-section" style="padding-top: 10px !important;">
+<div class="temoignages-section">
   <div class="temoignages-bg-deco"></div>
-  <div class="container pb-5" style="position:relative;z-index:2;padding-top:0!important;">
+  <div class="container" style="position:relative;z-index:2;">
 
     @if (loadingTemoignages) {
     <div class="text-center py-4">
@@ -194,23 +189,23 @@
     }
 
     @if (!loadingTemoignages && temoignages.length > 0) {
-    <div class="row g-4">
+    <div class="row g-3 g-md-4">
       @for (t of temoignages; track t.id; let i = $index) {
       <div class="col-lg-4 col-md-6" data-aos="fade-up" [attr.data-aos-delay]="i * 80">
         <div class="testimonial-card h-100">
 
           <div class="quote-icon">
-            <i class="fa fa-quote-right fa-3x"></i>
+            <i class="fa fa-quote-right fa-2x fa-md-3x"></i>
           </div>
 
           @if (t.gamme) {
-          <span class="badge badge-gamme-public mb-3" style="margin: 1rem 1rem 0;">
+          <span class="badge badge-gamme-public mb-2" style="margin: 0.75rem 0.75rem 0;">
             <i class="fas fa-layer-group me-1"></i>{{ t.gamme.nom }}
           </span>
           }
 
           @if (t.video_url || (t.images && t.images.length > 0)) {
-          <div class="carousel-fade-wrapper mb-3" (mouseenter)="stopCarousel(t.id)" (mouseleave)="startCarousel(t.id)">
+          <div class="carousel-fade-wrapper mb-2" (mouseenter)="stopCarousel(t.id)" (mouseleave)="startCarousel(t.id)">
 
             <div class="carousel-fade-stage">
 
@@ -249,7 +244,7 @@
           </div>
 
           @if (getTotalSlides(t) > 1) {
-          <div class="carousel-dots mb-3">
+          <div class="carousel-dots mb-2">
             @if (t.video_url) {
             <button class="carousel-dot carousel-dot-video" [class.active]="getCurrentIndex(t.id) === 0"
               (click)="goToSlide(t.id, 0); pauseAndResume(t.id)" title="Vidéo">
@@ -274,7 +269,7 @@
           <div class="testimonial-footer">
             <div class="avatar-public">{{ getInitials(t) }}</div>
             <div>
-              <h5 class="mb-0" style="color:#287747; font-weight:600; font-size:1rem;">
+              <h5 class="mb-0" style="color:#287747; font-weight:600; font-size:0.9rem;">
                 {{ t.nom_complet }}
               </h5>
             </div>
@@ -285,7 +280,7 @@
       }
     </div>
 
-    <div class="text-center mt-5" data-aos="fade-up">
+    <div class="text-center mt-4" data-aos="fade-up">
       <a routerLink="/temoignages" class="btn temo-cta-btn">
         <i class="fas fa-comments me-2"></i>Voir tous les témoignages
       </a>
@@ -293,11 +288,11 @@
     }
 
     @if (!loadingTemoignages && temoignages.length === 0) {
-    <div class="text-center py-5">
+    <div class="text-center py-4">
       <div class="temo-empty-icon">
         <i class="fas fa-comment-slash fa-2x" style="color:#287747;"></i>
       </div>
-      <p class="text-muted mt-3">Aucun témoignage disponible pour le moment.</p>
+      <p class="text-muted mt-2">Aucun témoignage disponible pour le moment.</p>
     </div>
     }
   </div>
@@ -307,7 +302,7 @@
 <!-- ═══════════════════════════════════════════════════
      SÉPARATEUR NOS BOUTIQUES
 ═══════════════════════════════════════════════════ -->
-<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+<div class="section-divider" data-aos="fade-up">
   <div class="section-divider-inner">
     <div class="divider-line"></div>
     <div class="divider-center">
@@ -329,7 +324,7 @@
 <!-- ═══════════════════════════════════════════════════
      SECTION NOS BOUTIQUES
 ═══════════════════════════════════════════════════ -->
-<div class="boutiques-section py-5" id="boutiques">
+<div class="boutiques-section" id="boutiques">
   <div class="container">
 
     @if (!loadingBoutiques && boutiques.length > 0) {
@@ -366,11 +361,11 @@
     }
 
     @if (!loadingBoutiques && boutiques.length === 0) {
-    <div class="text-center py-5">
+    <div class="text-center py-4">
       <div class="temo-empty-icon">
         <i class="fas fa-store-slash fa-2x" style="color:#287747;"></i>
       </div>
-      <p class="text-muted mt-3">Aucune boutique disponible pour le moment.</p>
+      <p class="text-muted mt-2">Aucune boutique disponible pour le moment.</p>
     </div>
     }
   </div>
@@ -379,7 +374,7 @@
 @if (!loading && !error) {
 
 <!-- Séparateur -->
-<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+<div class="section-divider" data-aos="fade-up">
   <div class="section-divider-inner">
     <div class="divider-line"></div>
     <div class="divider-center">
@@ -393,31 +388,31 @@
 </div>
 
 <!-- Stats -->
-<div class="container-fluid py-4 mb-5" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+<div class="container-fluid py-3 py-md-4 mb-0" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
   <div class="container">
-    <div class="row text-center text-white">
-      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" data-target="5000">1000</h2>
-          <p class="mb-0">Clients Satisfaits</p>
+    <div class="row text-center text-white g-2 g-md-3">
+      <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+        <div class="p-2 p-md-3">
+          <h2 class="display-5 fw-bold mb-0 counter" data-target="5000">1000</h2>
+          <p class="mb-0 small">Clients Satisfaits</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" [attr.data-target]="stats.total_produits">0</h2>
-          <p class="mb-0">Produits Bio</p>
+      <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+        <div class="p-2 p-md-3">
+          <h2 class="display-5 fw-bold mb-0 counter" [attr.data-target]="stats.total_produits">0</h2>
+          <p class="mb-0 small">Produits Bio</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" data-target="100">0</h2>
-          <p class="mb-0">% Naturel</p>
+      <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+        <div class="p-2 p-md-3">
+          <h2 class="display-5 fw-bold mb-0 counter" data-target="100">0</h2>
+          <p class="mb-0 small">% Naturel</p>
         </div>
       </div>
       <div class="col-lg-3 col-md-6">
-        <div class="p-3">
-          <h2 class="display-4 fw-bold mb-0 counter" data-target="10">0</h2>
-          <p class="mb-0">Ans d'Expérience</p>
+        <div class="p-2 p-md-3">
+          <h2 class="display-5 fw-bold mb-0 counter" data-target="10">0</h2>
+          <p class="mb-0 small">Ans d'Expérience</p>
         </div>
       </div>
     </div>
@@ -425,12 +420,12 @@
 </div>
 
 <!-- Séparateur -->
-<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+<div class="section-divider" data-aos="fade-up">
   <div class="section-divider-inner">
     <div class="divider-line"></div>
     <div class="divider-center">
       <div class="divider-icon-wrap"><i class="fas fa-star"></i></div>
-      <span class="divider-text">Nos Angagement</span>
+      <span class="divider-text">Nos Engagements</span>
       <div class="divider-icon-wrap"><i class="fas fa-star"></i></div>
     </div>
     <div class="divider-line"></div>
@@ -439,51 +434,51 @@
 </div>
 
 <!-- Pourquoi BioSen -->
-<div class="container-fluid py-5" style="background-color: #ffffff;">
+<div class="container-fluid py-4 py-md-5" style="background-color: #ffffff;">
   <div class="container">
-    <div class="row g-4">
+    <div class="row g-3 g-md-4">
 
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-        <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
-            <i class="fas fa-leaf fa-2x text-white"></i>
+        <div class="text-center p-3 p-md-4 bg-white rounded shadow-sm h-100 feature-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 70px; height: 70px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+            <i class="fas fa-leaf fa-1x fa-md-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">100% Biologique</h5>
-          <p class="mb-0 text-muted">Ingrédients naturels certifiés biologiques — sans additifs chimiques, sans raccourcis. Ce que vous mettez dans votre corps doit vous faire du bien, vraiment.</p>
+          <h5 class="mb-2 fw-bold">100% Biologique</h5>
+          <p class="mb-0 text-muted small">Ingrédients naturels certifiés biologiques — sans additifs chimiques.</p>
         </div>
       </div>
 
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-        <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
-            <i class="fas fa-map-marker-alt fa-2x text-white"></i>
+        <div class="text-center p-3 p-md-4 bg-white rounded shadow-sm h-100 feature-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 70px; height: 70px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+            <i class="fas fa-map-marker-alt fa-1x fa-md-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Fabriqué au Sénégal</h5>
-          <p class="mb-0 text-muted">Conçus et fabriqués localement avec fierté — pour valoriser nos ressources naturelles, soutenir l'économie locale et garantir fraîcheur et traçabilité.</p>
+          <h5 class="mb-2 fw-bold">Fabriqué au Sénégal</h5>
+          <p class="mb-0 text-muted small">Conçus et fabriqués localement avec fierté.</p>
         </div>
       </div>
 
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-        <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
-            <i class="fas fa-bullseye fa-2x text-white"></i>
+        <div class="text-center p-3 p-md-4 bg-white rounded shadow-sm h-100 feature-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 70px; height: 70px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+            <i class="fas fa-bullseye fa-1x fa-md-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Pour Chaque Objectif</h5>
-          <p class="mb-0 text-muted">Perdre du poids ou en prendre — deux parcours légitimes. Nos formules s'adaptent à chaque besoin, sans jugement, sans promesses miracles.</p>
+          <h5 class="mb-2 fw-bold">Pour Chaque Objectif</h5>
+          <p class="mb-0 text-muted small">Perdre du poids ou en prendre — deux parcours légitimes.</p>
         </div>
       </div>
 
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-        <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
-            <i class="fas fa-hand-holding-heart fa-2x text-white"></i>
+        <div class="text-center p-3 p-md-4 bg-white rounded shadow-sm h-100 feature-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 70px; height: 70px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
+            <i class="fas fa-hand-holding-heart fa-1x fa-md-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Accessible à Tous</h5>
-          <p class="mb-0 text-muted">La santé naturelle ne doit pas être réservée à une élite. Quel que soit votre profil ou votre budget, des produits de qualité qui vous font vraiment du bien.</p>
+          <h5 class="mb-2 fw-bold">Accessible à Tous</h5>
+          <p class="mb-0 text-muted small">La santé naturelle ne doit pas être réservée à une élite.</p>
         </div>
       </div>
 
@@ -492,7 +487,7 @@
 </div>
 
 <!-- Séparateur -->
-<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+<div class="section-divider" data-aos="fade-up">
   <div class="section-divider-inner">
     <div class="divider-line"></div>
     <div class="divider-center">
@@ -506,72 +501,70 @@
 </div>
 
 <!-- Nos Engagements -->
-<div class="container-fluid py-5" style="background-color: #ffffff;">
+<div class="container-fluid py-4 py-md-5" style="background-color: #ffffff;">
   <div class="container" id="about">
 
     <!-- Accroche centrale -->
-    <div class="text-center mb-5" data-aos="fade-up">
-      <p class="engagement-accroche">
+    <div class="text-center mb-4" data-aos="fade-up">
+      <p class="engagement-accroche small small-md">
         Que vous cherchiez à perdre du poids, à en prendre, ou simplement à prendre soin de vous —
-        <strong>BIOSEN 100</strong> est là pour ça. Avec des produits pensés pour tous les corps,
-        fabriqués ici, au Sénégal, avec ce que la nature a de meilleur à offrir.
+        <strong>BIOSEN 100</strong> est là pour ça.
       </p>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-3 g-md-4">
 
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="100">
-        <div class="text-center p-4 h-100 engagement-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
-            <i class="fas fa-seedling fa-3x text-white"></i>
+        <div class="text-center p-3 p-md-4 h-100 engagement-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+            <i class="fas fa-seedling fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">100% Biologique</h5>
-          <p class="mb-0 text-muted">Pas d'additifs chimiques, pas de raccourcis. Chaque ingrédient est certifié biologique pour prendre soin de vous en profondeur.</p>
+          <h5 class="mb-2 fw-bold">100% Biologique</h5>
+          <p class="mb-0 text-muted small">Pas d'additifs chimiques, pas de raccourcis.</p>
         </div>
       </div>
 
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="200">
-        <div class="text-center p-4 h-100 engagement-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
-            <i class="fas fa-flag fa-3x text-white"></i>
+        <div class="text-center p-3 p-md-4 h-100 engagement-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+            <i class="fas fa-flag fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Fierté Locale</h5>
-          <p class="mb-0 text-muted">Conçus et fabriqués au Sénégal. Un choix délibéré pour valoriser nos ressources, soutenir l'économie locale et garantir une traçabilité complète.</p>
+          <h5 class="mb-2 fw-bold">Fierté Locale</h5>
+          <p class="mb-0 text-muted small">Conçus et fabriqués au Sénégal.</p>
         </div>
       </div>
 
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="300">
-        <div class="text-center p-4 h-100 engagement-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
-            <i class="fas fa-eye fa-3x text-white"></i>
+        <div class="text-center p-3 p-md-4 h-100 engagement-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+            <i class="fas fa-eye fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Transparence Totale</h5>
-          <p class="mb-0 text-muted">Composition, origine, mode d'utilisation — tout est affiché clairement. Vous méritez de savoir ce que vous consommez. C'est non négociable.</p>
+          <h5 class="mb-2 fw-bold">Transparence Totale</h5>
+          <p class="mb-0 text-muted small">Composition, origine, mode d'utilisation — tout est affiché.</p>
         </div>
       </div>
 
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="400">
-        <div class="text-center p-4 h-100 engagement-card">
-          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-            style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
-            <i class="fas fa-users fa-3x text-white"></i>
+        <div class="text-center p-3 p-md-4 h-100 engagement-card">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
+            <i class="fas fa-users fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Pour Tous les Corps</h5>
-          <p class="mb-0 text-muted">La santé naturelle n'est pas réservée à une élite. Quel que soit votre objectif ou votre budget, BIOSEN 100 est là pour vous.</p>
+          <h5 class="mb-2 fw-bold">Pour Tous les Corps</h5>
+          <p class="mb-0 text-muted small">La santé naturelle n'est pas réservée à une élite.</p>
         </div>
       </div>
 
     </div>
 
     <!-- Citation de clôture -->
-    <div class="text-center mt-5" data-aos="fade-up">
-      <p class="engagement-closing">
+    <div class="text-center mt-4" data-aos="fade-up">
+      <p class="engagement-closing small small-md">
         <i class="fas fa-leaf me-2" style="color:#287747;"></i>
         BIOSEN 100, c'est la nature sénégalaise au service de votre bien-être.
-        <strong>Pour chaque corps. Pour chaque objectif.</strong>
       </p>
     </div>
 
@@ -583,14 +576,14 @@
   @if (vendeurs.length > 0) {
   <div class="dropdown">
     <button class="wa-fab" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="white" width="30" height="30">
+      <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z"/>
       </svg>
       <span class="wa-pulse"></span>
     </button>
     <div class="dropdown-menu dropdown-menu-end wa-menu p-0">
       <div class="wa-menu-header">
-        <svg viewBox="0 0 24 24" fill="white" width="18" height="18">
+        <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z"/>
         </svg>
         <span>Contacter un vendeur</span>
@@ -602,14 +595,14 @@
           <div class="wa-info">
             <span class="wa-name">{{ vendeur.prenom }} {{ vendeur.nom }}</span>
             <span class="wa-tel">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
                 <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
               </svg>
               {{ maskPhone(vendeur.telephone) }}
             </span>
           </div>
           <div class="wa-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2.5" width="14" height="14">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2.5" width="12" height="12">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </div>
@@ -617,7 +610,7 @@
         }
       </div>
       <div class="wa-menu-footer">
-        <svg viewBox="0 0 24 24" fill="#25d366" width="12" height="12">
+        <svg viewBox="0 0 24 24" fill="#25d366" width="10" height="10">
           <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
         </svg>
         Réponse rapide garantie
@@ -626,7 +619,7 @@
   </div>
   } @else {
   <a href="https://wa.me/221771234589" target="_blank" class="wa-fab">
-    <svg viewBox="0 0 24 24" fill="white" width="30" height="30">
+    <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.845L.057 23.885l6.204-1.44A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.681.854.87-3.572-.234-.369A9.818 9.818 0 1112 21.818z"/>
     </svg>
     <span class="wa-pulse"></span>
@@ -639,12 +632,12 @@
   <div class="modal-dialog modal-dialog-end modal-dialog-scrollable"
     style="max-width: 520px; margin-right: 0; margin-top: 0; margin-bottom: 0; height: 100%;">
     <div class="modal-content border-0 h-100" style="border-radius: 20px 0 0 20px; overflow: hidden;">
-      <div class="modal-header border-0 py-4 px-4"
+      <div class="modal-header border-0 py-3 px-4"
         style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
         <div class="d-flex align-items-center gap-3">
           <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded-circle"
-            style="width: 44px; height: 44px;">
-            <i class="fas fa-shopping-cart text-white fs-5"></i>
+            style="width: 38px; height: 38px;">
+            <i class="fas fa-shopping-cart text-white fs-6"></i>
           </div>
           <div>
             <h5 class="modal-title text-white fw-bold mb-0" id="cartModalLabel">Mon Panier</h5>
@@ -655,105 +648,105 @@
       </div>
       <div class="modal-body p-0" style="background: #f8faf8; overflow-y: auto;">
         @if (cartItems.length === 0) {
-        <div class="d-flex flex-column align-items-center justify-content-center py-5 px-4 text-center"
-          style="min-height: 350px;">
-          <div class="mb-4 d-flex align-items-center justify-content-center rounded-circle"
-            style="width: 100px; height: 100px; background: rgba(40,119,71,0.08);">
+        <div class="d-flex flex-column align-items-center justify-content-center py-4 px-3 text-center"
+          style="min-height: 300px;">
+          <div class="mb-3 d-flex align-items-center justify-content-center rounded-circle"
+            style="width: 70px; height: 70px; background: rgba(40,119,71,0.08);">
             <i class="fas fa-shopping-basket fa-2x" style="color: #287747;"></i>
           </div>
-          <h6 class="fw-bold text-dark mb-2">Votre panier est vide</h6>
-          <p class="text-muted small mb-4">Parcourez notre catalogue et ajoutez vos produits préférés</p>
-          <button class="btn rounded-pill px-4 py-2 text-white fw-semibold"
-            style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);" data-bs-dismiss="modal">
-            <i class="fas fa-leaf me-2"></i>Découvrir les produits
+          <h6 class="fw-bold text-dark mb-1">Votre panier est vide</h6>
+          <p class="text-muted small mb-3">Parcourez notre catalogue et ajoutez vos produits préférés</p>
+          <button class="btn rounded-pill px-3 py-1 text-white fw-semibold"
+            style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); font-size: 0.85rem;" data-bs-dismiss="modal">
+            <i class="fas fa-leaf me-1"></i>Découvrir
           </button>
         </div>
         }
         @if (cartItems.length > 0) {
-        <div class="px-3 pt-3 pb-1">
+        <div class="px-2 pt-2 pb-1">
           @for (item of cartItems; track item.id) {
-          <div class="cart-item-card d-flex align-items-center gap-3 bg-white rounded-3 shadow-sm mb-3 p-3"
+          <div class="cart-item-card d-flex align-items-center gap-2 bg-white rounded-3 shadow-sm mb-2 p-2"
             style="border: 1px solid rgba(40,119,71,0.1);">
             <div class="flex-shrink-0 position-relative">
               <img [src]="getCartItemImage(item)" [alt]="item.name" class="rounded-2"
-                style="width: 72px; height: 72px; object-fit: cover; border: 2px solid rgba(40,119,71,0.15);"
+                style="width: 60px; height: 60px; object-fit: cover; border: 1px solid rgba(40,119,71,0.15);"
                 onerror="this.src='assets/img/biosen/default-product.png'">
               <span class="position-absolute bottom-0 start-0 translate-middle-y ms-1 badge rounded-pill"
-                style="font-size: 0.6rem; background: linear-gradient(135deg, #287747, #1a5230); transform: translateY(50%);">
+                style="font-size: 0.5rem; background: linear-gradient(135deg, #287747, #1a5230); transform: translateY(50%);">
                 {{ item.category }}
               </span>
             </div>
             <div class="flex-grow-1 min-w-0">
-              <h6 class="mb-1 fw-bold text-dark text-truncate" style="font-size: 0.9rem;">{{ item.name }}</h6>
+              <h6 class="mb-1 fw-bold text-dark text-truncate" style="font-size: 0.85rem;">{{ item.name }}</h6>
               @if (item.description) {
-              <p class="mb-2 text-muted text-truncate" style="font-size: 0.75rem;">{{ item.description }}</p>
+              <p class="mb-1 text-muted text-truncate" style="font-size: 0.7rem;">{{ item.description }}</p>
               }
-              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                <span class="fw-bold" style="color: #287747; font-size: 0.95rem;">
+              <div class="d-flex align-items-center justify-content-between gap-1 flex-wrap">
+                <span class="fw-bold" style="color: #287747; font-size: 0.85rem;">
                   {{ formatPrice(item.price * item.quantity) }}
                 </span>
                 <div class="d-flex align-items-center gap-1 rounded-pill px-1 py-1"
                   style="background: #f0f7f2; border: 1px solid rgba(40,119,71,0.2);">
                   <button class="btn btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
-                    style="width: 26px; height: 26px; background: rgba(40,119,71,0.12); border: none; color: #287747;"
+                    style="width: 22px; height: 22px; background: rgba(40,119,71,0.12); border: none; color: #287747;"
                     (click)="decreaseQuantity(item)">
-                    <i class="fas fa-minus" style="font-size: 0.65rem;"></i>
+                    <i class="fas fa-minus" style="font-size: 0.55rem;"></i>
                   </button>
                   <span class="fw-bold mx-1"
-                    style="min-width: 20px; text-align: center; font-size: 0.9rem; color: #287747;">
+                    style="min-width: 18px; text-align: center; font-size: 0.8rem; color: #287747;">
                     {{ item.quantity }}
                   </span>
                   <button class="btn btn-sm d-flex align-items-center justify-content-center rounded-circle p-0"
-                    style="width: 26px; height: 26px; background: rgba(40,119,71,0.12); border: none; color: #287747;"
+                    style="width: 22px; height: 22px; background: rgba(40,119,71,0.12); border: none; color: #287747;"
                     (click)="increaseQuantity(item)">
-                    <i class="fas fa-plus" style="font-size: 0.65rem;"></i>
+                    <i class="fas fa-plus" style="font-size: 0.55rem;"></i>
                   </button>
                 </div>
               </div>
             </div>
             <button class="btn flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle p-0"
-              style="width: 32px; height: 32px; background: rgba(220,53,69,0.08); border: 1px solid rgba(220,53,69,0.2); color: #dc3545;"
+              style="width: 28px; height: 28px; background: rgba(220,53,69,0.08); border: 1px solid rgba(220,53,69,0.2); color: #dc3545;"
               (click)="removeFromCart(item.id)" title="Supprimer">
-              <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
+              <i class="fas fa-trash-alt" style="font-size: 0.65rem;"></i>
             </button>
           </div>
           }
         </div>
-        <div class="px-3 pb-3 mt-1">
-          <div class="rounded-3 p-3" style="background: white; border: 1px solid rgba(40,119,71,0.15);">
-            <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="px-2 pb-2 mt-1">
+          <div class="rounded-3 p-2" style="background: white; border: 1px solid rgba(40,119,71,0.15);">
+            <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="text-muted small">Sous-total</span>
               <span class="fw-semibold">{{ formatPrice(cartSubtotal) }}</span>
             </div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="text-muted small"><i class="fas fa-truck me-1" style="color:#287747"></i>Livraison</span>
               <span class="text-success small fw-semibold">Calculée à la commande</span>
             </div>
-            <hr class="my-2" style="border-color: rgba(40,119,71,0.15);">
+            <hr class="my-1" style="border-color: rgba(40,119,71,0.15);">
             <div class="d-flex justify-content-between align-items-center">
               <span class="fw-bold">Total</span>
-              <span class="fw-bold fs-5" style="color: #287747;">{{ formatPrice(cartSubtotal) }}</span>
+              <span class="fw-bold fs-6" style="color: #287747;">{{ formatPrice(cartSubtotal) }}</span>
             </div>
           </div>
         </div>
         }
       </div>
       @if (cartItems.length > 0) {
-      <div class="modal-footer border-0 px-3 pb-4 pt-2 flex-column gap-2"
+      <div class="modal-footer border-0 px-2 pb-3 pt-2 flex-column gap-1"
         style="background: white; box-shadow: 0 -4px 20px rgba(0,0,0,0.06);">
-        <button type="button" class="btn w-100 rounded-pill py-3 text-white fw-bold shadow-sm"
-          style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); font-size: 1rem;"
+        <button type="button" class="btn w-100 rounded-pill py-2 text-white fw-bold shadow-sm"
+          style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); font-size: 0.9rem;"
           (click)="goToCheckout()">
-          <i class="fas fa-lock me-2"></i>Commander — {{ formatPrice(cartSubtotal) }}
+          <i class="fas fa-lock me-1"></i>Commander — {{ formatPrice(cartSubtotal) }}
         </button>
-        <button type="button" class="btn w-100 rounded-pill py-2 text-danger fw-semibold"
-          style="background: rgba(220,53,69,0.06); border: 1px solid rgba(220,53,69,0.2); font-size: 0.85rem;"
+        <button type="button" class="btn w-100 rounded-pill py-1 text-danger fw-semibold"
+          style="background: rgba(220,53,69,0.06); border: 1px solid rgba(220,53,69,0.2); font-size: 0.75rem;"
           (click)="clearCart()">
-          <i class="fas fa-trash me-2"></i>Vider le panier
+          <i class="fas fa-trash me-1"></i>Vider
         </button>
-        <button type="button" class="btn w-100 rounded-pill py-2 text-muted fw-semibold"
-          style="background: transparent; border: 1px solid #dee2e6; font-size: 0.85rem;" data-bs-dismiss="modal">
-          <i class="fas fa-arrow-left me-2"></i>Continuer mes achats
+        <button type="button" class="btn w-100 rounded-pill py-1 text-muted fw-semibold"
+          style="background: transparent; border: 1px solid #dee2e6; font-size: 0.75rem;" data-bs-dismiss="modal">
+          <i class="fas fa-arrow-left me-1"></i>Continuer
         </button>
       </div>
       }
@@ -765,87 +758,87 @@
 <div class="modal fade" id="gammeModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-      <div class="modal-header border-0 py-4" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
-        <h5 class="modal-title text-white fw-bold">
+      <div class="modal-header border-0 py-3" style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);">
+        <h5 class="modal-title text-white fw-bold fs-6 fs-md-5">
           <i class="fas fa-leaf me-2"></i>{{ selectedGamme?.nom }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4">
+      <div class="modal-body p-3 p-md-4">
         @if (selectedGamme) {
-        <div class="row">
-          <div class="col-md-5 mb-3 mb-md-0">
+        <div class="row g-3">
+          <div class="col-md-5 mb-2 mb-md-0">
             <div class="position-relative">
               <img [src]="getGammeImageUrl(selectedGamme)" class="img-fluid rounded-3 shadow-sm w-100"
-                [alt]="selectedGamme.nom" style="height: 300px; object-fit: cover;">
+                [alt]="selectedGamme.nom" style="height: 200px; object-fit: cover;">
               @if (selectedGamme.enPromotion && selectedGamme.prixPromo) {
-              <span class="position-absolute top-0 end-0 m-3 badge rounded-pill fw-bold px-3 py-2"
-                style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.9rem;">
+              <span class="position-absolute top-0 end-0 m-2 badge rounded-pill fw-bold px-2 py-1"
+                style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.7rem;">
                 -{{ calculateDiscount(selectedGamme.prix, selectedGamme.prixPromo) }}%
               </span>
               }
-              <span class="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2"
-                style="background: linear-gradient(135deg, #287747, #1a5230);">
+              <span class="position-absolute top-0 start-0 m-2 badge rounded-pill fw-bold px-2 py-1"
+                style="background: linear-gradient(135deg, #287747, #1a5230); font-size: 0.7rem;">
                 <i class="fas fa-leaf me-1"></i>Bio
               </span>
             </div>
-            <div class="mt-3 p-3 rounded-3" style="background: #f8f9fa;">
+            <div class="mt-2 p-2 rounded-3" style="background: #f8f9fa;">
               @if (selectedGamme.enPromotion && selectedGamme.prixPromo) {
-              <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="badge rounded-pill px-3 py-2 fw-bold"
-                  style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.75rem;">PROMO</span>
-                <span class="badge rounded-pill px-3 py-1"
-                  style="background: rgba(229,62,62,0.1); color: #e53e3e; font-size: 0.78rem; font-weight: 700;">
-                  -{{ calculateDiscount(selectedGamme.prix, selectedGamme.prixPromo) }}% de réduction
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="badge rounded-pill px-2 py-1 fw-bold"
+                  style="background: linear-gradient(135deg, #e53e3e, #c53030); font-size: 0.65rem;">PROMO</span>
+                <span class="badge rounded-pill px-2 py-0"
+                  style="background: rgba(229,62,62,0.1); color: #e53e3e; font-size: 0.65rem; font-weight: 700;">
+                  -{{ calculateDiscount(selectedGamme.prix, selectedGamme.prixPromo) }}%
                 </span>
               </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix promo</span>
-                <span class="fw-bold fs-5" style="color: #e53e3e;">{{ formatPrice(selectedGamme.prixPromo) }}</span>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-muted small">Prix promo</span>
+                <span class="fw-bold fs-6" style="color: #e53e3e;">{{ formatPrice(selectedGamme.prixPromo) }}</span>
               </div>
               <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small"><i class="fas fa-history me-1"></i>Prix initial</span>
-                <span class="text-decoration-line-through text-muted">{{ formatPrice(selectedGamme.prix) }}</span>
+                <span class="text-muted small">Prix initial</span>
+                <span class="text-decoration-line-through text-muted small">{{ formatPrice(selectedGamme.prix) }}</span>
               </div>
               } @else if (selectedGamme.prix && selectedGamme.prix > 0) {
               <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small"><i class="fas fa-tag me-1"></i>Prix</span>
-                <span class="fw-bold fs-5" style="color:#287747">{{ formatPrice(selectedGamme.prix) }}</span>
+                <span class="text-muted small">Prix</span>
+                <span class="fw-bold fs-6" style="color:#287747">{{ formatPrice(selectedGamme.prix) }}</span>
               </div>
               }
             </div>
           </div>
           <div class="col-md-7">
-            <h6 class="fw-bold mb-3" style="color:#287747">
+            <h6 class="fw-bold mb-2" style="color:#287747; font-size: 0.9rem;">
               <i class="fas fa-info-circle me-2"></i>Description
             </h6>
             @if (selectedGamme.description) {
-            <p class="text-muted" style="text-align: justify; line-height: 1.8;">{{ selectedGamme.description }}</p>
+            <p class="text-muted small" style="text-align: justify; line-height: 1.6;">{{ selectedGamme.description }}</p>
             } @else {
-            <p class="text-muted fst-italic">Aucune description disponible.</p>
+            <p class="text-muted fst-italic small">Aucune description disponible.</p>
             }
             @if (selectedGamme.modeUtilisation) {
-            <h6 class="fw-bold mb-2 mt-3" style="color:#287747">
+            <h6 class="fw-bold mb-1 mt-2" style="color:#287747; font-size: 0.9rem;">
               <i class="fas fa-list-ul me-2"></i>Mode d'emploi
             </h6>
-            <p class="text-muted" style="text-align: justify; line-height: 1.8;">{{ selectedGamme.modeUtilisation }}</p>
+            <p class="text-muted small" style="text-align: justify; line-height: 1.6;">{{ selectedGamme.modeUtilisation }}</p>
             }
           </div>
         </div>
         }
       </div>
-      <div class="modal-footer border-0 bg-light p-4">
-        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
-          <i class="fas fa-times me-2"></i>Fermer
+      <div class="modal-footer border-0 bg-light p-3">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-1" data-bs-dismiss="modal" style="font-size: 0.8rem;">
+          <i class="fas fa-times me-1"></i>Fermer
         </button>
-        <button type="button" class="btn rounded-pill px-4 text-white fw-bold"
-          style="background: linear-gradient(135deg, #287747, #1a5230);"
+        <button type="button" class="btn rounded-pill px-3 py-1 text-white fw-bold"
+          style="background: linear-gradient(135deg, #287747, #1a5230); font-size: 0.8rem;"
           (click)="addToCart(selectedGamme, undefined)" data-bs-dismiss="modal">
-          <i class="fas fa-cart-plus me-2"></i>Ajouter au panier
+          <i class="fas fa-cart-plus me-1"></i>Ajouter
         </button>
-        <a routerLink="/boutique" class="btn rounded-pill px-4 text-white"
-          style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%);" data-bs-dismiss="modal">
-          <i class="fas fa-shopping-bag me-2"></i>Voir la boutique
+        <a routerLink="/boutique" class="btn rounded-pill px-3 py-1 text-white"
+          style="background: linear-gradient(135deg, #287747 0%, #1a5230 100%); font-size: 0.8rem;" data-bs-dismiss="modal">
+          <i class="fas fa-shopping-bag me-1"></i>Boutique
         </a>
       </div>
     </div>
@@ -876,14 +869,14 @@
         allowfullscreen></iframe>
       } @else {
       <div class="temo-no-embed">
-        <i class="fas fa-video fa-3x" style="color:#ffc107;"></i>
-        <p>La vidéo ne peut pas être intégrée directement.</p>
+        <i class="fas fa-video fa-2x" style="color:#ffc107;"></i>
+        <p class="small">La vidéo ne peut pas être intégrée directement.</p>
       </div>
       }
     </div>
     <div class="temo-modal-footer">
       <a [href]="currentVideoExternalUrl" target="_blank" class="temo-yt-link">
-        <i class="fab fa-youtube me-2"></i>Ouvrir sur YouTube
+        <i class="fab fa-youtube me-1"></i>Ouvrir sur YouTube
       </a>
     </div>
   </div>

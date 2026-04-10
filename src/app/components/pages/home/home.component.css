@@ -1077,7 +1077,7 @@
 }
 
 /* ══════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE - VERSION MOBILE 2 COLONNES
 ══════════════════════════════════════════════════════ */
 
 /* Tablette paysage */
@@ -1113,9 +1113,7 @@
  
 /* Mobile large */
 @media (max-width: 767px) {
-  .hero-header { padding: 15px 0 10px; }
-  .carousel-item img { height: 220px; }
-  .carousel-nom-badge { font-size: 0.7rem; padding: 4px 12px; }
+ 
  
   .section-divider-inner { gap: 10px; padding: 10px 10px 0; }
   .divider-text { font-size: 0.65rem; letter-spacing: 1.2px; }
@@ -1131,43 +1129,302 @@
   }
 }
  
-/* Mobile standard */
-@media (max-width: 575px) {
-  .hero-header { padding: 12px 0 8px; }
-  .carousel-item img { height: 180px; }
-  .carousel-nom-badge { font-size: 0.6rem; padding: 3px 10px; top: 8px; }
+/* ===== MOBILE : 2 COLONNES POUR TOUTES LES SECTIONS ===== */
+@media (max-width: 576px) {
  
-  .best-sellers-grid { grid-template-columns: 1fr; gap: 12px; }
-  .bs-card { flex-direction: column; }
-  .bs-img-col { flex: none; min-width: unset; height: 160px; }
-  .bs-content-col { padding: 10px; }
-  .bs-actions { flex-direction: column; }
-  .bs-btn-cart, .bs-btn-detail { justify-content: center; width: 100%; }
-  .bs-name { font-size: 0.9rem; }
  
-  .boutiques-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .boutique-img-wrap { height: 90px; }
-  .boutique-body { padding: 8px; }
-  .boutique-name { font-size: 0.75rem; }
-  .boutique-adresse, .boutique-tel { font-size: 0.6rem; }
- 
-  .carousel-fade-stage { height: 150px; }
- 
-  .section-divider-inner { gap: 8px; padding: 8px 8px 0; }
-  .divider-text { font-size: 0.55rem; letter-spacing: 0.8px; }
-  .divider-icon-wrap { width: 24px; height: 24px; }
-  .divider-icon-wrap i { font-size: 0.6rem; }
-  .divider-center { gap: 6px; }
- 
-  .engagement-accroche { padding: 10px 12px; font-size: 0.75rem; }
-  .engagement-closing  { padding: 8px 14px; font-size: 0.7rem; }
-  .counter { font-size: 1.5rem; }
+  /* ===== BEST SELLERS - 2 COLONNES ===== */
+  .best-sellers-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
   
-  .testimonial-card-body { padding: 8px 10px 0; }
-  .testimonial-footer { padding: 8px 10px; }
-  .avatar-public { width: 30px; height: 30px; min-width: 30px; font-size: 0.65rem; }
-  .testimonial-text { font-size: 0.75rem; }
+  .bs-card {
+    flex-direction: column !important;
+    min-height: auto !important;
+  }
   
-  .wa-fab { width: 44px; height: 44px; }
-  .wa-fab svg { width: 22px; height: 22px; }
+  .bs-img-col {
+    flex: none !important;
+    min-width: unset !important;
+    height: 120px !important;
+  }
+  
+  .bs-content-col {
+    padding: 8px !important;
+  }
+  
+  .bs-name {
+    font-size: 0.75rem !important;
+  }
+  
+  .bs-desc {
+    font-size: 0.65rem !important;
+    -webkit-line-clamp: 2 !important;
+  }
+  
+  .bs-prix-normal,
+  .bs-prix-promo {
+    font-size: 0.85rem !important;
+  }
+  
+  .bs-actions {
+    flex-direction: row !important;
+    gap: 5px !important;
+  }
+  
+  .bs-btn-cart,
+  .bs-btn-detail {
+    padding: 3px 6px !important;
+    font-size: 0.6rem !important;
+    white-space: nowrap !important;
+  }
+ 
+  /* ===== TÉMOIGNAGES - 2 COLONNES ===== */
+  .temoignages-section .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  
+  .temoignages-section .col-lg-4,
+  .temoignages-section .col-md-6 {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  .testimonial-card {
+    margin-bottom: 0 !important;
+  }
+  
+  .testimonial-card-body {
+    padding: 8px !important;
+  }
+  
+  .testimonial-text {
+    font-size: 0.7rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 6px !important;
+    padding-left: 6px !important;
+  }
+  
+  .testimonial-footer {
+    padding: 6px 8px !important;
+    gap: 6px !important;
+  }
+  
+  .avatar-public {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    font-size: 0.6rem !important;
+  }
+  
+  .badge-gamme-public {
+    font-size: 0.55rem !important;
+    padding: 0.2em 0.5em !important;
+    margin: 0.5rem 0.5rem 0 !important;
+  }
+  
+  .quote-icon {
+    font-size: 1.2rem !important;
+    top: 6px !important;
+    right: 8px !important;
+  }
+  
+  .carousel-fade-stage {
+    height: 120px !important;
+  }
+  
+  .carousel-dots {
+    padding: 4px 0 2px !important;
+    gap: 4px !important;
+  }
+ 
+  /* ===== STATS (BioSen en chiffres) - 2 COLONNES ===== */
+  .container-fluid.py-3.py-md-4 .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  
+  .container-fluid.py-3.py-md-4 .col-lg-3,
+  .container-fluid.py-3.py-md-4 .col-md-6 {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+  }
+  
+  .counter {
+    font-size: 1.5rem !important;
+  }
+  
+  /* ===== NOS ENGAGEMENTS (Pourquoi BioSen) - 2 COLONNES ===== */
+  .container-fluid.py-4.py-md-5 .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  
+  .container-fluid.py-4.py-md-5 .col-lg-3,
+  .container-fluid.py-4.py-md-5 .col-md-6 {
+    width: 100% !important;
+  }
+  
+  .feature-card {
+    padding: 10px !important;
+  }
+  
+  .feature-card .rounded-circle {
+    width: 50px !important;
+    height: 50px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .feature-card .rounded-circle i {
+    font-size: 1.2rem !important;
+  }
+  
+  .feature-card h5 {
+    font-size: 0.75rem !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .feature-card p {
+    font-size: 0.65rem !important;
+    line-height: 1.4 !important;
+  }
+ 
+  /* ===== NOTRE VALEUR (Engagement cards) - 2 COLONNES ===== */
+  #about .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  
+  #about .col-lg-3,
+  #about .col-md-6 {
+    width: 100% !important;
+  }
+  
+  .engagement-card {
+    padding: 10px !important;
+  }
+  
+  .engagement-card .rounded-circle {
+    width: 60px !important;
+    height: 60px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .engagement-card .rounded-circle i {
+    font-size: 1.5rem !important;
+  }
+  
+  .engagement-card h5 {
+    font-size: 0.7rem !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .engagement-card p {
+    font-size: 0.6rem !important;
+    line-height: 1.3 !important;
+  }
+ 
+  /* ===== BOUTIQUES - 2 COLONNES ===== */
+  .boutiques-grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  
+  .boutique-img-wrap {
+    height: 90px !important;
+  }
+  
+  .boutique-body {
+    padding: 8px !important;
+  }
+  
+  .boutique-name {
+    font-size: 0.75rem !important;
+  }
+  
+  .boutique-adresse, 
+  .boutique-tel {
+    font-size: 0.6rem !important;
+  }
+ 
+  /* Séparateurs */
+  .section-divider-inner {
+    gap: 8px !important;
+    padding: 8px 8px 0 !important;
+  }
+  
+  .divider-text {
+    font-size: 0.55rem !important;
+    letter-spacing: 0.8px !important;
+  }
+  
+  .divider-icon-wrap {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  
+  .divider-icon-wrap i {
+    font-size: 0.6rem !important;
+  }
+  
+  .divider-center {
+    gap: 6px !important;
+  }
+ 
+  /* Accroches */
+  .engagement-accroche {
+    padding: 10px 12px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .engagement-closing {
+    padding: 8px 14px !important;
+    font-size: 0.7rem !important;
+  }
+  
+  /* WhatsApp */
+  .wa-fab {
+    width: 44px !important;
+    height: 44px !important;
+  }
+  
+  .wa-fab svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
+/* Pour les écrans entre 577px et 768px (tablette petites) */
+@media (min-width: 577px) and (max-width: 768px) {
+  .best-sellers-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+  }
+  
+  .temoignages-section .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+  }
+  
+  .container-fluid.py-3.py-md-4 .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .container-fluid.py-4.py-md-5 .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  #about .row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }

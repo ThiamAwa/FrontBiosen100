@@ -13,6 +13,7 @@ import { Gamme } from '../../../models/gamme';
 import { Vendeur } from '../../../models/vendeur';
 import { Temoignage } from '../../../models/temoignage';
 import { ProduitSport } from '../../../models/produit-sport';
+import { BoutiqueService } from '../../../services/boutique/boutique.service';
 
 declare var $: any;
 declare var AOS: any;
@@ -43,6 +44,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     total_categories: 0,
     produits_promo: 0
   };
+  boutiques: any[] = [];
+  loadingBoutiques = false;
 
   // ─── États UI ──────────────────────────────────────────────
   loading = true;
@@ -87,6 +90,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private cartService: CartService,
     private sanitizer: DomSanitizer,
     private router: Router,
+    private boutiqueService: BoutiqueService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
@@ -97,6 +101,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadData();
     this.loadTemoignages();
+    this.loadBoutiques();
   }
 
   ngAfterViewInit(): void {
@@ -752,4 +757,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.stopCarousel(id);
     setTimeout(() => this.startCarousel(id), this.autoDelay);
   }
+  loadBoutiques(): void {
+    this.loadingBoutiques = true;
+    this.boutiqueService.getBoutiques().subscribe({
+      next: (response) => {
+        this.boutiques = response.data?.slice(0, 6) || [];
+        this.loadingBoutiques = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement boutiques:', err);
+        this.loadingBoutiques = false;
+      }
+    });
+  }
+  
 }

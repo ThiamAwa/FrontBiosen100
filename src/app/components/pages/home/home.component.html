@@ -36,8 +36,10 @@
               <div class="carousel-item" [class.active]="first">
                 <img [src]="getImageUrl(gamme.image ?? '')" class="img-fluid w-100 rounded" [alt]="gamme.nom"
                   style="height: 450px; object-fit: cover;">
-                <!-- Nom de la gamme en haut sans fond vert -->
-                <div style="color: #287747;" class="carousel-nom-top">{{ gamme.nom }}</div>
+                <div class="carousel-nom-badge">
+                  <span class="carousel-nom-badge-dot"></span>
+                  {{ gamme.nom }}
+                </div>
               </div>
               }
               } @else {
@@ -90,7 +92,10 @@
   <div class="container">
     <div class="best-sellers-grid">
       @for (gamme of gammes; track gamme.id) {
-        @if (gamme.nom.toLowerCase().includes('youli') || gamme.nom.toLowerCase().includes('urgence')) {
+        @if (gamme.nom.toLowerCase() === 'gamme youli' || gamme.nom.toLowerCase() === 'gamme urgence' ||
+        (gamme.nom.toLowerCase().includes('youli') && !gamme.nom.toLowerCase().includes('pro') && !gamme.nom.toLowerCase().includes('max')) ||
+        (gamme.nom.toLowerCase() === 'urgence')
+      ) {
         <div class="bs-card" data-aos="fade-up">
 
           <!-- Image -->
@@ -299,6 +304,78 @@
 </div>
 <!-- Témoignages End -->
 
+<!-- ═══════════════════════════════════════════════════
+     SÉPARATEUR NOS BOUTIQUES
+═══════════════════════════════════════════════════ -->
+<div class="section-divider" data-aos="fade-up" style="padding-bottom: 0;">
+  <div class="section-divider-inner">
+    <div class="divider-line"></div>
+    <div class="divider-center">
+      <div class="divider-icon-wrap">
+        <i class="fas fa-store"></i>
+      </div>
+      <span class="divider-text">Nos Boutiques</span>
+      <div class="divider-icon-wrap">
+        <i class="fas fa-store"></i>
+      </div>
+    </div>
+    <div class="divider-line"></div>
+  </div>
+  <div class="divider-dots">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION NOS BOUTIQUES
+═══════════════════════════════════════════════════ -->
+<div class="boutiques-section py-5" id="boutiques">
+  <div class="container">
+
+    @if (!loadingBoutiques && boutiques.length > 0) {
+     <div class="boutiques-grid-4">
+        @for (boutique of boutiques; track boutique.id; let i = $index) {
+        <div class="boutique-card" data-aos="fade-up" [attr.data-aos-delay]="i * 80">
+          <div class="boutique-img-wrap">
+            <img [src]="getImageUrl(boutique.image ?? '')" [alt]="boutique.nom"
+                class="boutique-img"
+                onerror="this.src='assets/img/biosen/default-product.png'">
+            <span class="boutique-badge">
+              <i class="fas fa-store"></i>Boutique
+            </span>
+          </div>
+          <div class="boutique-body">
+            <h5 class="boutique-name">{{ boutique.nom }}</h5>
+            @if (boutique.adresse) {
+            <p class="boutique-adresse">
+              <i class="fas fa-map-marker-alt" style="color:#287747;margin-top:2px"></i>{{ boutique.adresse }}
+            </p>
+            }
+            @if (boutique.telephone) {
+            <p class="boutique-tel">
+              <i class="fas fa-phone" style="color:#287747;margin-top:2px"></i>{{ boutique.telephone }}
+            </p>
+            }
+            @if (boutique.description) {
+            <p class="boutique-desc">{{ boutique.description }}</p>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    }
+
+    @if (!loadingBoutiques && boutiques.length === 0) {
+    <div class="text-center py-5">
+      <div class="temo-empty-icon">
+        <i class="fas fa-store-slash fa-2x" style="color:#287747;"></i>
+      </div>
+      <p class="text-muted mt-3">Aucune boutique disponible pour le moment.</p>
+    </div>
+    }
+  </div>
+</div>
+
 @if (!loading && !error) {
 
 <!-- Séparateur -->
@@ -365,46 +442,51 @@
 <div class="container-fluid py-5" style="background-color: #ffffff;">
   <div class="container">
     <div class="row g-4">
+
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
             <i class="fas fa-leaf fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">100% Naturel</h5>
-          <p class="mb-0 text-muted">Produits à base de plantes naturelles du Sénégal, sans additifs chimiques</p>
+          <h5 class="mb-3 fw-bold">100% Biologique</h5>
+          <p class="mb-0 text-muted">Ingrédients naturels certifiés biologiques — sans additifs chimiques, sans raccourcis. Ce que vous mettez dans votre corps doit vous faire du bien, vraiment.</p>
         </div>
       </div>
+
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
-            <i class="fas fa-certificate fa-2x text-white"></i>
+            <i class="fas fa-map-marker-alt fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Bio Sénégalais</h5>
-          <p class="mb-0 text-muted">Cultivé et transformé localement selon les normes biologiques</p>
+          <h5 class="mb-3 fw-bold">Fabriqué au Sénégal</h5>
+          <p class="mb-0 text-muted">Conçus et fabriqués localement avec fierté — pour valoriser nos ressources naturelles, soutenir l'économie locale et garantir fraîcheur et traçabilité.</p>
         </div>
       </div>
+
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
-            <i class="fas fa-check-circle fa-2x text-white"></i>
+            <i class="fas fa-bullseye fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Qualité Garantie</h5>
-          <p class="mb-0 text-muted">Contrôle qualité rigoureux à chaque étape de production</p>
+          <h5 class="mb-3 fw-bold">Pour Chaque Objectif</h5>
+          <p class="mb-0 text-muted">Perdre du poids ou en prendre — deux parcours légitimes. Nos formules s'adaptent à chaque besoin, sans jugement, sans promesses miracles.</p>
         </div>
       </div>
+
       <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
         <div class="text-center p-4 bg-white rounded shadow-sm h-100 feature-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 90px; height: 90px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 5px 20px rgba(40, 119, 71, 0.3);">
-            <i class="fas fa-shipping-fast fa-2x text-white"></i>
+            <i class="fas fa-hand-holding-heart fa-2x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Livraison Rapide</h5>
-          <p class="mb-0 text-muted">Livraison à domicile partout au Sénégal sous 48-72h</p>
+          <h5 class="mb-3 fw-bold">Accessible à Tous</h5>
+          <p class="mb-0 text-muted">La santé naturelle ne doit pas être réservée à une élite. Quel que soit votre profil ou votre budget, des produits de qualité qui vous font vraiment du bien.</p>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -426,48 +508,73 @@
 <!-- Nos Engagements -->
 <div class="container-fluid py-5" style="background-color: #ffffff;">
   <div class="container" id="about">
+
+    <!-- Accroche centrale -->
+    <div class="text-center mb-5" data-aos="fade-up">
+      <p class="engagement-accroche">
+        Que vous cherchiez à perdre du poids, à en prendre, ou simplement à prendre soin de vous —
+        <strong>BIOSEN 100</strong> est là pour ça. Avec des produits pensés pour tous les corps,
+        fabriqués ici, au Sénégal, avec ce que la nature a de meilleur à offrir.
+      </p>
+    </div>
+
     <div class="row g-4">
+
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="100">
-        <div class="text-center p-4 h-100">
+        <div class="text-center p-4 h-100 engagement-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
             <i class="fas fa-seedling fa-3x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">100% Plantes Naturelles</h5>
-          <p class="mb-0 text-muted">Issues de l'agriculture biologique sénégalaise, sans OGM ni pesticides</p>
+          <h5 class="mb-3 fw-bold">100% Biologique</h5>
+          <p class="mb-0 text-muted">Pas d'additifs chimiques, pas de raccourcis. Chaque ingrédient est certifié biologique pour prendre soin de vous en profondeur.</p>
         </div>
       </div>
+
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="200">
-        <div class="text-center p-4 h-100">
+        <div class="text-center p-4 h-100 engagement-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
-            <i class="fas fa-flask fa-3x text-white"></i>
+            <i class="fas fa-flag fa-3x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Contrôle Qualité</h5>
-          <p class="mb-0 text-muted">Tests rigoureux en laboratoire pour garantir efficacité et sécurité</p>
+          <h5 class="mb-3 fw-bold">Fierté Locale</h5>
+          <p class="mb-0 text-muted">Conçus et fabriqués au Sénégal. Un choix délibéré pour valoriser nos ressources, soutenir l'économie locale et garantir une traçabilité complète.</p>
         </div>
       </div>
+
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="300">
-        <div class="text-center p-4 h-100">
+        <div class="text-center p-4 h-100 engagement-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
-            <i class="fas fa-recycle fa-3x text-white"></i>
+            <i class="fas fa-eye fa-3x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Emballage Écologique</h5>
-          <p class="mb-0 text-muted">Packaging recyclable et biodégradable pour protéger notre planète</p>
+          <h5 class="mb-3 fw-bold">Transparence Totale</h5>
+          <p class="mb-0 text-muted">Composition, origine, mode d'utilisation — tout est affiché clairement. Vous méritez de savoir ce que vous consommez. C'est non négociable.</p>
         </div>
       </div>
+
       <div class="col-lg-3 col-md-6" data-aos="flip-left" data-aos-delay="400">
-        <div class="text-center p-4 h-100">
+        <div class="text-center p-4 h-100 engagement-card">
           <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
             style="width: 130px; height: 130px; background: linear-gradient(135deg, #287747 0%, #1a5230 100%); box-shadow: 0 10px 30px rgba(40, 119, 71, 0.4);">
-            <i class="fas fa-handshake fa-3x text-white"></i>
+            <i class="fas fa-users fa-3x text-white"></i>
           </div>
-          <h5 class="mb-3 fw-bold">Production Locale</h5>
-          <p class="mb-0 text-muted">Soutien aux producteurs locaux et commerce équitable au Sénégal</p>
+          <h5 class="mb-3 fw-bold">Pour Tous les Corps</h5>
+          <p class="mb-0 text-muted">La santé naturelle n'est pas réservée à une élite. Quel que soit votre objectif ou votre budget, BIOSEN 100 est là pour vous.</p>
         </div>
       </div>
+
     </div>
+
+    <!-- Citation de clôture -->
+    <div class="text-center mt-5" data-aos="fade-up">
+      <p class="engagement-closing">
+        <i class="fas fa-leaf me-2" style="color:#287747;"></i>
+        BIOSEN 100, c'est la nature sénégalaise au service de votre bien-être.
+        <strong>Pour chaque corps. Pour chaque objectif.</strong>
+      </p>
+    </div>
+
   </div>
 </div>
 

@@ -1,301 +1,303 @@
-/*** Footer Start ***/
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+/* ============================================
+   FOOTER — BioSen 100%
+   ============================================ */
 
 .footer {
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    color: black;
-    position: relative;
-    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%);
-}
-
-.footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.05)"/></svg>');
-    opacity: 0.3;
-}
-
-.footer-content {
+    color: #1a1a1a;
     position: relative;
-    z-index: 1;
 }
+
+/* ============================================
+     FOOTER TOP
+     ============================================ */
 
 .footer-top {
-    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
+    padding: 2.25rem 0 2rem;
+    border-bottom: 1px solid rgba(40, 119, 71, 0.12);
 }
 
 .brand-title {
-    color: #287747;
-    font-weight: 700;
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(17, 16, 16, 0.2);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1a5c33;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin: 0;
 }
 
 .brand-subtitle {
-    color: black;
-    font-size: 0.95rem;
-    opacity: 0.9;
+    font-size: 0.78rem;
+    color: #287747;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin: 5px 0 0;
 }
 
-/* Base des boutons sociaux */
-.social-links .btn {
-    width: 45px;
-    height: 45px;
-    border: 2px solid rgb(40, 119, 71);
-    color: #ffffff;
-    display: flex;
+/* ============================================
+     BOUTONS SOCIAUX
+     ============================================ */
+
+.social-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
-    background: rgb(40, 119, 71);
-    font-size: 1.1rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex-shrink: 0;
 }
 
-.social-links .btn:hover {
-    background: white;
-    border-color: #287747;
-    color: #287747;
+.social-btn:hover {
     transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    color: #fff;
 }
 
-/* Taille SVG par défaut */
-.social-links .btn svg {
+.social-btn i,
+.social-btn svg {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+}
+
+/* Couleurs par réseau */
+.sb-facebook {
+    background: #1877F2;
+}
+
+.sb-instagram {
+    background: linear-gradient(135deg, #F58529, #DD2A7B, #8134AF);
+}
+
+.sb-twitter {
+    background: #111111;
+}
+
+.sb-whatsapp {
+    background: #25D366;
+}
+
+.sb-tiktok {
+    background: #111111;
+    outline: 2px solid #EE1D52;
+    outline-offset: -2px;
+}
+
+.sb-snapchat {
+    background: #FFFC00;
+    color: #111111 !important;
+}
+
+.sb-snapchat:hover {
+    color: #111111 !important;
+}
+
+.sb-snapchat i,
+.sb-snapchat svg {
     width: 20px;
     height: 20px;
+    font-size: 20px;
 }
 
-/* Snapchat SVG plus grand */
-.social-links a[title="Snapchat"] svg {
-    width: 30px;
-    height: 30px;
-}
+/* ============================================
+     FOOTER MAIN
+     ============================================ */
 
-/* Couleurs individuelles par réseau social */
-.social-links a[title="Facebook"] {
-    background: #1877F2;
-    border-color: #1877F2;
-}
-
-.social-links a[title="Facebook"]:hover {
-    background: white;
-    color: #1877F2;
-    border-color: #1877F2;
-}
-
-.social-links a[title="Instagram"] {
-    background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4);
-    border-color: #DD2A7B;
-}
-
-.social-links a[title="Instagram"]:hover {
-    background: white;
-    color: #DD2A7B;
-    border-color: #DD2A7B;
-}
-
-.social-links a[title="Twitter"] {
-    background: #000000;
-    border-color: #000000;
-}
-
-.social-links a[title="Twitter"]:hover {
-    background: white;
-    color: #000000;
-    border-color: #000000;
-}
-
-.social-links a[title="WhatsApp"] {
-    background: #25D366;
-    border-color: #25D366;
-}
-
-.social-links a[title="WhatsApp"]:hover {
-    background: white;
-    color: #25D366;
-    border-color: #25D366;
-}
-
-.social-links a[title="TikTok"] {
-    background: #010101;
-    border-color: #EE1D52;
-}
-
-.social-links a[title="TikTok"]:hover {
-    background: white;
-    color: #EE1D52;
-    border-color: #EE1D52;
-}
-
-.social-links a[title="Snapchat"] {
-    background: #FFFC00;
-    border-color: #FFFC00;
-    color: #000000 !important;
-}
-
-.social-links a[title="Snapchat"]:hover {
-    background: white;
-    color: #000000;
-    border-color: #FFFC00;
+.footer-main {
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(40, 119, 71, 0.1);
 }
 
 .footer-section-title {
-    color: #287747;
-    font-weight: 600;
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-bottom: 0.5rem;
-}
-
-.footer-section-title::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 50px;
-    height: 3px;
-    background: #287747;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1a5c33;
+    margin-bottom: 1rem;
 }
 
 .footer-text {
-    color: black;
-    line-height: 1.7;
-    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+    color: #3d5c47;
+    line-height: 1.85;
 }
 
-.btn-primary-custom {
-    background: white;
-    color: #287747;
-    border: 2px solid #287747;
-    font-weight: 600;
-    padding: 0.6rem 1.5rem;
-    transition: all 0.3s ease;
-}
+/* ============================================
+     LIENS
+     ============================================ */
 
-.btn-primary-custom:hover {
-    background: #287747;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(40, 119, 71, 0.3);
+.footer-links-group {
+    display: flex;
+    flex-direction: column;
 }
 
 .footer-link {
-    color: black;
+    color: #3d5c47;
     text-decoration: none;
-    display: block;
-    padding: 0.4rem 0;
-    transition: all 0.3s ease;
-    position: relative;
-    padding-left: 1.5rem;
+    font-size: 0.88rem;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(40, 119, 71, 0.07);
+    transition: color 0.2s ease, padding-left 0.2s ease;
 }
 
-.footer-link::before {
-    content: '▸';
-    position: absolute;
-    left: 0;
-    color: #287747;
-    transition: all 0.3s ease;
+.footer-link:last-child {
+    border-bottom: none;
 }
 
 .footer-link:hover {
     color: #287747;
-    padding-left: 2rem;
+    padding-left: 4px;
 }
 
-.footer-link:hover::before {
-    left: 0.5rem;
-}
+/* ============================================
+     CONTACT
+     ============================================ */
 
 .contact-item {
-    color: black;
-    margin-bottom: 0.8rem;
     display: flex;
-    align-items: center;
-    gap: 0.8rem;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+    font-size: 0.88rem;
+    color: #2a3d30;
 }
 
-.contact-item i {
+.contact-icon {
     color: #287747;
-    font-size: 1.1rem;
-    width: 20px;
+    font-size: 1rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* ============================================
+     PAIEMENTS
+     ============================================ */
+
+.payment-block {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px dashed rgba(40, 119, 71, 0.2);
 }
 
 .payment-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: #287747;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 0.95rem;
+    margin-bottom: 10px;
 }
 
 .payment-methods {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
+    gap: 7px;
 }
 
 .payment-icon {
-    height: 40px;
+    height: 32px;
     width: auto;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 0.3rem 0.6rem;
+    background: #ffffff;
+    border: 1px solid rgba(40, 119, 71, 0.18);
     border-radius: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 4px 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .payment-icon:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
+/* ============================================
+     FOOTER BOTTOM
+     ============================================ */
 
 .footer-bottom {
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding-top: 1.5rem;
-    margin-top: 2rem;
-    text-align: center;
-    color: black;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem 0 2rem;
 }
 
-@media (max-width: 768px) {
+.footer-copy {
+    font-size: 0.82rem;
+    color: #5a7a62;
+    margin: 0;
+}
+
+.footer-copy strong {
+    color: #1a5c33;
+    font-weight: 700;
+}
+
+.footer-legal-links {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.footer-legal-links a {
+    font-size: 0.8rem;
+    color: #5a7a62;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-legal-links a:hover {
+    color: #287747;
+}
+
+.separator {
+    color: rgba(40, 119, 71, 0.3);
+    font-size: 0.8rem;
+}
+
+/* ============================================
+     RESPONSIVE
+     ============================================ */
+
+@media (max-width: 767px) {
     .brand-title {
         font-size: 1.5rem;
     }
 
-    .footer-top {
+    .footer-bottom {
+        flex-direction: column;
+        align-items: center;
         text-align: center;
     }
 
-    .social-links {
-        justify-content: center !important;
-    }
-
-    .social-links .btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-
-    .social-links a[title="Snapchat"] svg {
-        width: 26px;
-        height: 26px;
-    }
-
-    .payment-methods {
+    .footer-legal-links {
         justify-content: center;
     }
 }
 
-/*** Footer End ***/
+@media (max-width: 480px) {
+    .footer-legal-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .separator {
+        display: none;
+    }
+
+    .footer-copy {
+        text-align: center;
+    }
+}

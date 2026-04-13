@@ -15,6 +15,7 @@ import {
 import { authGuard } from './guards/auth.guard';
 import { ProfileComponent } from './components/pages/profile/profile.component';
 import { RegisterComponent } from './components/layout/register/register.component';
+import { AboutComponent } from './components/pages/about/about.component';
 
 export const routes: Routes = [
 
@@ -35,6 +36,7 @@ export const routes: Routes = [
             { path: 'checkout/confirmation/:order_number', component: CheckoutConfirmationComponent },
             { path: 'profile', component: ProfileComponent },
             { path: 'register', component: RegisterComponent },
+            { path: 'about', component: AboutComponent },
 
         ]
     },

@@ -102,6 +102,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadData();
     this.loadTemoignages();
     this.loadBoutiques();
+    
   }
 
   ngAfterViewInit(): void {
@@ -128,30 +129,53 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Chargement des données
   // ══════════════════════════════════════════════════════════
 
-  loadData(): void {
-    this.loading = true;
-    this.accueilService.getAccueilData().subscribe({
-      next: (response) => {
-        console.log('Réponse API accueil :', response);
-        this.data = response;
-        this.produits = response.produits || [];
-        this.produitsPromo = response.produitsPromo || [];
-        this.gammes = response.gammes || [];
-        this.categories = response.categories || [];
-        this.typeCategories = response.typeCategories || [];
-        this.vendeurs = response.vendeurs || [];
-        this.stats = response.stats || this.stats;
-        this.loading = false;
-        this.loadProduitsSport();
-        setTimeout(() => this.initLibraries(), 800);
-      },
-      error: (err) => {
-        console.error('Erreur chargement accueil:', err);
-        this.error = 'Erreur lors du chargement de la page';
-        this.loading = false;
-      }
-    });
-  }
+ loadData(): void {
+  this.loading = true;
+  this.accueilService.getAccueilData().subscribe({
+    next: (response) => {
+      console.log('Réponse API accueil :', response);
+      this.data = response;
+      this.produits = response.produits || [];
+      this.gammes = response.gammes || [];
+      this.categories = response.categories || [];
+      this.typeCategories = response.typeCategories || [];
+      this.vendeurs = response.vendeurs || [];
+      this.stats = response.stats || this.stats;
+
+      // ✅ CORRECTION : construire produitsPromo depuis TOUTES les sources
+      const promoDepuisAPI = response.produitsPromo || [];
+      const promoDepuisGammes = (this.gammes)
+        .filter((g: any) => g.enPromotion === true && g.prixPromo != null)
+        .map((g: any) => ({
+          id: g.id,
+          nom: g.nom,
+          prix: g.prix,
+          prixPromo: g.prixPromo,
+          stock: g.stock ?? 0,
+          enPromotion: true
+        }));
+
+      // Fusionner les deux sources, sans doublons
+      const tousIds = new Set(promoDepuisAPI.map((p: any) => p.id));
+      const promoUniques = [
+        ...promoDepuisAPI,
+        ...promoDepuisGammes.filter((g: any) => !tousIds.has(g.id))
+      ];
+
+      this.produitsPromo = promoUniques;
+      console.log('✅ produitsPromo final:', this.produitsPromo);
+
+      this.loading = false;
+      this.loadProduitsSport();
+      setTimeout(() => this.initLibraries(), 800);
+    },
+    error: (err) => {
+      console.error('Erreur chargement accueil:', err);
+      this.error = 'Erreur lors du chargement de la page';
+      this.loading = false;
+    }
+  });
+}
 
   loadProduitsSport(): void {
     this.produitSportService.getProduitsWithFilters({ page: 1 }).subscribe({

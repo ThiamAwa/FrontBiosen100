@@ -2,6 +2,43 @@
 <div class="container-fluid pt-0 pt-md-4 pb-3 pb-md-4 mb-0 hero-header">
   <div class="container py-5">
     <div class="row g-3 g-md-4 align-items-center py-3">
+      <div class="col-md-12">
+      @if (produitsPromo.length > 0) {
+      <div class="promo-ticker-wrap">
+        <div class="promo-ticker-inner">
+          <span class="promo-ticker-label">
+            <img src="../../../../assets/img/promotion.png" alt="Promo" class="promo-ticker-img">
+            OFFRES SPÉCIALES
+          </span>
+          <div class="promo-ticker-track">
+            <div class="promo-ticker-content">
+              @for (p of produitsPromo; track p.id) {
+                <span class="promo-ticker-item">
+                  <i class="fas fa-tag me-1"></i>
+                  <strong>{{ p.nom }}</strong>
+                  &nbsp;—&nbsp;
+                  <span class="promo-ticker-price">{{ formatPrice(p.prixPromo ?? p.prix) }}</span>
+                  <span class="promo-ticker-old">{{ formatPrice(p.prix) }}</span>
+                  <span class="promo-ticker-sep">✦</span>
+                </span>
+              }
+              <!-- Doublon pour boucle infinie -->
+              @for (p of produitsPromo; track p.id) {
+                <span class="promo-ticker-item">
+                  <i class="fas fa-tag me-1"></i>
+                  <strong>{{ p.nom }}</strong>
+                  &nbsp;—&nbsp;
+                  <span class="promo-ticker-price">{{ formatPrice(p.prixPromo ?? p.prix) }}</span>
+                  <span class="promo-ticker-old">{{ formatPrice(p.prix) }}</span>
+                  <span class="promo-ticker-sep">✦</span>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+      </div>
       <div class="col-md-12 col-lg-7">
         <div data-aos="fade-right" class="text-center text-lg-start">
           <h4 class="mb-2 text-secondary fw-semibold">100% Produits Naturels</h4>
@@ -104,9 +141,7 @@
           <div class="bs-img-col">
             <div class="bs-img-wrap">
               <img [src]="getImageUrl(gamme.image ?? '')" [alt]="gamme.nom" class="bs-img">
-              @if (gamme.enPromotion && gamme.prixPromo) {
-              <span class="bs-promo-badge">-{{ calculateDiscount(gamme.prix, gamme.prixPromo) }}%</span>
-              }
+          
             </div>
           </div>
 

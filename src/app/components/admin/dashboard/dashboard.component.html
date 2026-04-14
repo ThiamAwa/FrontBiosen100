@@ -34,6 +34,8 @@
                         <h3 class="stat-value">{{ stats.stats.total_commandes }}</h3>
                         <span class="stat-sub">
                             <i class="fas fa-calendar-day me-1"></i>{{ stats.stats.commandes_mois }} ce mois
+                            &nbsp;·&nbsp;
+                            <i class="fas fa-sun me-1"></i>{{ stats.stats.commandes_jour }} aujourd'hui
                         </span>
                     </div>
                 </div>
@@ -53,6 +55,8 @@
                         <span class="stat-sub">
                             <i class="fas fa-calendar-day me-1"></i>{{ formatCurrency(stats.stats.revenus_mois) }} ce
                             mois
+                            &nbsp;·&nbsp;
+                            <i class="fas fa-sun me-1"></i>{{ formatCurrency(stats.stats.revenus_jour) }} aujourd'hui
                         </span>
                     </div>
                 </div>
@@ -78,7 +82,7 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6">
+        <!-- <div class="col-xl-3 col-md-6">
             <div class="stat-card stat-orange">
                 <div class="stat-card-inner">
                     <div class="stat-icon-wrap">
@@ -94,7 +98,7 @@
                 </div>
                 <div class="stat-wave"></div>
             </div>
-        </div>
+        </div> -->
 
     </div>
 
@@ -127,7 +131,6 @@
                             <span class="stats-label">Catégories</span>
                             <span class="stats-value">{{ stats.stats_produits.total_categories }}</span>
                         </div>
-                        <!-- ✅ BUG CORRIGÉ : < remplacé par &lt; et balise fermée correctement -->
                         <div class="stats-item">
                             <span class="stats-label">Stock bas (&lt;10)</span>
                             <span class="stats-value text-danger">{{ stats.stats_produits.produits_stock_bas }}</span>
@@ -173,7 +176,7 @@
     </div>
 
     <!-- ═══════════════════════════════════════════
-         LIGNE 3 — Graphique ventes & Répartition
+         LIGNE 3 — Graphique ventes mensuelles & Répartition
     ═══════════════════════════════════════════ -->
     <div class="row g-4 mb-4">
 
@@ -238,7 +241,113 @@
     </div>
 
     <!-- ═══════════════════════════════════════════
-         LIGNE 4 — Commandes récentes
+     LIGNE 4 — Ventes journalières (7 derniers jours)
+═══════════════════════════════════════════ -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card-custom card-daily">
+
+                <div class="card-header-custom">
+                    <div class="card-header-left">
+                        <div class="card-header-icon icon-sky">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <span>
+                            Ventes journalières
+                            <small class="text-muted fw-normal">(7 derniers jours)</small>
+                        </span>
+                    </div>
+                    <!-- Résumé du jour -->
+                    <div class="daily-summary">
+                        <div class="daily-summary-item">
+                            <i class="fas fa-sun daily-sun-icon"></i>
+                            <span class="daily-summary-label">Aujourd'hui</span>
+                            <span class="daily-summary-value">{{ formatCurrency(stats.stats.revenus_jour) }}</span>
+                        </div>
+                        <div class="daily-summary-divider"></div>
+                        <div class="daily-summary-item">
+                            <i class="fas fa-shopping-bag daily-bag-icon"></i>
+                            <span class="daily-summary-label">Commandes</span>
+                            <span class="daily-summary-value">{{ stats.stats.commandes_jour }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body-custom">
+
+                    <!-- Grille de 7 cartes journalières -->
+                    <div class="daily-cards-grid">
+                        <div *ngFor="let vente of stats.ventes_journalieres; let i = index; let last = last"
+                            class="daily-card" [class.daily-card-today]="last" [style.animation-delay]="i * 0.07 + 's'">
+
+                            <div class="daily-card-top">
+                                <span class="daily-card-day">{{ formatJour(vente.jour) }}</span>
+                                <span class="daily-card-badge" [class.badge-today]="last">
+                                    {{ last ? "Auj." : vente.nb_commandes + " cmd" }}
+                                </span>
+                            </div>
+
+                            <!-- Mini barre verticale -->
+                            <div class="daily-bar-vertical-wrap">
+                                <div class="daily-bar-vertical-fill"
+                                    [style.height.%]="vente.montant / getMaxVenteJournaliere() * 100"
+                                    [class.bar-today]="last" [style.animation-delay]="i * 0.07 + 's'">
+                                </div>
+                            </div>
+
+                            <div class="daily-card-bottom">
+                                <span class="daily-card-amount">{{ formatCurrency(vente.montant) }}</span>
+                                <span class="daily-card-cmd" *ngIf="!last">
+                                    <i class="fas fa-cart-shopping"></i> {{ vente.nb_commandes }}
+                                </span>
+                                <span class="daily-card-cmd today-cmd" *ngIf="last">
+                                    <i class="fas fa-cart-shopping"></i> {{ vente.nb_commandes }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- État vide -->
+                        <div *ngIf="!stats.ventes_journalieres?.length" class="daily-empty">
+                            <i class="fas fa-inbox fa-2x mb-2 d-block text-muted"></i>
+                            Aucune donnée journalière disponible
+                        </div>
+                    </div>
+
+                    <!-- Barre horizontale comparative -->
+                    <div class="daily-bar-section">
+                        <div class="daily-bar-title">
+                            <i class="fas fa-chart-simple me-2"></i>
+                            Comparatif des 7 jours
+                        </div>
+                        <div class="bar-chart daily-bar-chart">
+                            <div *ngFor="let vente of stats.ventes_journalieres; let i = index; let last = last"
+                                class="bar-item">
+                                <div class="bar-label daily-bar-label">{{ formatJour(vente.jour) }}</div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-fill daily-bar-fill" [class.daily-bar-fill-today]="last"
+                                        [style.width.%]="vente.montant / getMaxVenteJournaliere() * 100"
+                                        [style.animation-delay]="i * 0.07 + 's'">
+                                        <span class="bar-value"
+                                            *ngIf="vente.montant / getMaxVenteJournaliere() * 100 > 25">
+                                            {{ formatCurrency(vente.montant) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="bar-amount-outside"
+                                    *ngIf="vente.montant / getMaxVenteJournaliere() * 100 <= 25">
+                                    {{ formatCurrency(vente.montant) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         LIGNE 5 — Commandes récentes
     ═══════════════════════════════════════════ -->
     <div class="row g-4">
         <div class="col-12">
@@ -314,8 +423,8 @@
 </div>
 
 <!-- ═══════════════════════════════════════════
-       CHARGEMENT
-  ═══════════════════════════════════════════ -->
+     CHARGEMENT
+═══════════════════════════════════════════ -->
 <div class="loading-container" *ngIf="loading">
     <div class="loader-ring">
         <div></div>
@@ -327,8 +436,8 @@
 </div>
 
 <!-- ═══════════════════════════════════════════
-       ERREUR
-  ═══════════════════════════════════════════ -->
+     ERREUR
+═══════════════════════════════════════════ -->
 <div class="error-container" *ngIf="error">
     <div class="error-icon">
         <i class="fas fa-triangle-exclamation"></i>

@@ -617,6 +617,498 @@
     color: #ef4444;
 }
 
+
+.card-daily {
+    border-top: 3px solid var(--daily);
+}
+
+/* Résumé dans l'en-tête */
+.daily-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: .5rem 1rem;
+}
+
+.daily-summary-item {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.daily-sun-icon {
+    color: #f59e0b;
+    font-size: .9rem;
+}
+
+.daily-bag-icon {
+    color: var(--daily);
+    font-size: .9rem;
+}
+
+.daily-summary-label {
+    font-size: .75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.daily-summary-value {
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--daily-dk);
+}
+
+.daily-summary-divider {
+    width: 1px;
+    height: 24px;
+    background: #bae6fd;
+}
+
+/* ─── Grille de 7 cartes journalières ─── */
+.daily-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .daily-cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .daily-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.daily-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .85rem .75rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    animation: fadeUp .45s ease both;
+    transition: box-shadow .2s, transform .2s;
+}
+
+.daily-card:hover {
+    box-shadow: 0 4px 14px rgba(14, 165, 233, .15);
+    transform: translateY(-3px);
+}
+
+.daily-card-today {
+    background: linear-gradient(160deg, #e0f2fe, #f0f9ff);
+    border-color: var(--daily);
+    box-shadow: 0 4px 18px rgba(14, 165, 233, .2);
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.daily-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .25rem;
+}
+
+.daily-card-day {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--text-muted);
+}
+
+.daily-card-today .daily-card-day {
+    color: var(--daily-dk);
+}
+
+.daily-card-badge {
+    font-size: .62rem;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: var(--text-muted);
+    padding: .15rem .45rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.daily-card-badge.badge-today {
+    background: var(--daily);
+    color: #fff;
+}
+
+/* Mini barre verticale */
+.daily-bar-vertical-wrap {
+    width: 100%;
+    height: 48px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.daily-bar-vertical-fill {
+    width: 100%;
+    background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+    border-radius: 4px;
+    min-height: 4px;
+    animation: growUp .6s ease both;
+    transition: height .4s ease;
+}
+
+.daily-bar-vertical-fill.bar-today {
+    background: linear-gradient(180deg, #7dd3fc, #0369a1);
+    box-shadow: 0 -2px 8px rgba(14, 165, 233, .4);
+}
+
+@keyframes growUp {
+    from {
+        height: 0 !important;
+    }
+}
+
+.daily-card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .25rem;
+    flex-wrap: wrap;
+}
+
+.daily-card-amount {
+    font-size: .72rem;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.daily-card-today .daily-card-amount {
+    color: var(--daily-dk);
+}
+
+.daily-card-cmd {
+    font-size: .65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.today-cmd {
+    color: var(--daily);
+}
+
+/* ─── Barre horizontale comparative ─── */
+.daily-bar-section {
+    border-top: 1px solid var(--border);
+    padding-top: 1.1rem;
+}
+
+.daily-bar-title {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.daily-bar-chart .bar-label {
+    width: 50px;
+    font-size: .68rem;
+}
+
+.daily-bar-fill {
+    background: linear-gradient(90deg, #0369a1, #38bdf8) !important;
+}
+
+.daily-bar-fill-today {
+    background: linear-gradient(90deg, #0369a1, #7dd3fc) !important;
+    box-shadow: 0 0 10px rgba(14, 165, 233, .35);
+}
+
+/* ─── État vide ─── */
+.daily-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: .9rem;
+}
+
+/* ═══════════════════════════════════════════════════
+   ICÔNE SKY (bleu journalier) — à ajouter avec les autres .icon-*
+═══════════════════════════════════════════════════ */
+.icon-sky {
+    background: linear-gradient(135deg, #0369a1, #0284c7);
+}
+
+/* ═══════════════════════════════════════════════════
+   CARTE DAILY — bordure accent en haut
+═══════════════════════════════════════════════════ */
+.card-daily {
+    border-top: 2px solid #0284c7;
+}
+
+/* ═══════════════════════════════════════════════════
+   RÉSUMÉ DU JOUR (en-tête)
+═══════════════════════════════════════════════════ */
+.daily-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #e6f1fb;
+    border: 0.5px solid #b5d4f4;
+    border-radius: 10px;
+    padding: 8px 14px;
+}
+
+.daily-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.daily-sun-icon {
+    color: #d97706;
+    font-size: 13px;
+}
+
+.daily-bag-icon {
+    color: #0284c7;
+    font-size: 13px;
+}
+
+.daily-summary-label {
+    font-size: 11px;
+    color: #185fa5;
+    font-weight: 500;
+}
+
+.daily-summary-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0c447c;
+}
+
+.daily-summary-divider {
+    width: 1px;
+    height: 20px;
+    background: #b5d4f4;
+}
+
+/* ═══════════════════════════════════════════════════
+   GRILLE DE 7 CARTES JOURNALIÈRES
+═══════════════════════════════════════════════════ */
+.daily-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .daily-cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .daily-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.daily-card {
+    background: #f8fafc;
+    border: 0.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeUp 0.45s ease both;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.daily-card:hover {
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12);
+    transform: translateY(-3px);
+}
+
+.daily-card-today {
+    background: #e6f1fb;
+    border-color: #0284c7;
+    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.15);
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── En-tête de carte journalière ─── */
+.daily-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.daily-card-day {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+}
+
+.daily-card-today .daily-card-day {
+    color: #185fa5;
+}
+
+.daily-card-badge {
+    font-size: 9px;
+    font-weight: 600;
+    background: #e2e8f0;
+    color: #6b7280;
+    padding: 2px 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.daily-card-badge.badge-today {
+    background: #0284c7;
+    color: #fff;
+}
+
+/* ─── Mini barre verticale ─── */
+.daily-bar-vertical-wrap {
+    width: 100%;
+    height: 44px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.daily-bar-vertical-fill {
+    width: 100%;
+    background: #185fa5;
+    border-radius: 4px;
+    min-height: 3px;
+    animation: growUp 0.6s ease both;
+}
+
+.daily-bar-vertical-fill.bar-today {
+    background: #0c447c;
+    box-shadow: 0 -2px 8px rgba(2, 132, 199, 0.3);
+}
+
+@keyframes growUp {
+    from {
+        height: 0 !important;
+    }
+}
+
+/* ─── Pied de carte journalière ─── */
+.daily-card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.daily-card-amount {
+    font-size: 10px;
+    font-weight: 700;
+    color: #1a1a2e;
+    white-space: nowrap;
+}
+
+.daily-card-today .daily-card-amount {
+    color: #0c447c;
+}
+
+.daily-card-cmd {
+    font-size: 9px;
+    font-weight: 600;
+    color: #9ca3af;
+    white-space: nowrap;
+}
+
+.today-cmd {
+    color: #0284c7;
+}
+
+/* ─── État vide ─── */
+.daily-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 32px 16px;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════
+   BARRE HORIZONTALE COMPARATIVE
+═══════════════════════════════════════════════════ */
+.daily-bar-section {
+    border-top: 0.5px solid #f0f0f0;
+    padding-top: 16px;
+}
+
+.daily-bar-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.daily-bar-label {
+    width: 36px !important;
+    font-size: 11px !important;
+}
+
+.daily-bar-fill {
+    background: #185fa5 !important;
+}
+
+.daily-bar-fill-today {
+    background: #0c447c !important;
+    box-shadow: 0 0 8px rgba(2, 132, 199, 0.25);
+}
+
 /* ═══════════════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════════════ */

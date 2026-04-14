@@ -3,12 +3,32 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+// ── Interfaces ──────────────────────────────────────────
+
+export interface VenteJournaliere {
+  jour: string;
+  montant: number;
+  nb_commandes: number;
+}
+
+export interface VenteMensuelle {
+  mois: string;
+  montant: number;
+}
+
+export interface RepartitionStatut {
+  statut: string;
+  total: number;
+}
+
 export interface DashboardStats {
   stats: {
     total_commandes: number;
     commandes_mois: number;
+    commandes_jour: number;
     revenus_total: number;
     revenus_mois: number;
+    revenus_jour: number;
     total_clients: number;
     clients_mois: number;
     taux_conversion: number;
@@ -26,9 +46,12 @@ export interface DashboardStats {
     total_responsables: number;
   };
   commandes_recentes: any[];
-  repartition_statuts: { statut: string; total: number }[];
-  ventes_mensuelles: { mois: string; montant: number }[];
+  repartition_statuts: RepartitionStatut[];
+  ventes_mensuelles: VenteMensuelle[];
+  ventes_journalieres: VenteJournaliere[];
 }
+
+// ── Service ──────────────────────────────────────────────
 
 @Injectable({
   providedIn: 'root'

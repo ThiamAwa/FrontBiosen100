@@ -33,16 +33,7 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   categoriesSport: { id: number; nom: string; count: number }[] = [];
   totalAllProducts = 0;
 
-  /**
-   * Catégories "objectif" (Bio, Perte, Prise…) — hors Sport
-   * Affichées dans les pills "Parcourir par objectif"
-   */
   quickCategoriesBio: { id: number; nom: string; icon: string; count: number }[] = [];
-
-  /**
-   * Catégorie Sport unique — affichée séparément dans les pills
-   * avec ses sous-catégories dépliables
-   */
   quickCategorySport: { id: number; nom: string; count: number } | null = null;
 
   private sportTypeId = '2';
@@ -78,6 +69,9 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
   private prixSubject = new Subject<number>();
+
+  // Noms des gammes à mettre en avant (best sellers fixes)
+  private readonly BEST_SELLER_NAMES = ['Gamme Urgence', 'Gamme Youli'];
 
   constructor(
     private gammeService: GammeService,
@@ -159,7 +153,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     return !this.isAllSelected && !this.isSportSelected;
   }
 
-  /** Nom de la catégorie active affiché au-dessus de la grille */
   get activeCategoryName(): string {
     if (this.isAllSelected) return '';
     const cat = this.typeCategories.find(t => t.id.toString() === this.filters.type_categorie);
@@ -331,26 +324,39 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   // ══════════════════════════════════════════════════════════
-  // Best Sellers — exactement 2 produits
+  // Best Sellers — Gamme Urgence (N°1) & Gamme Youli (N°2)
   // ══════════════════════════════════════════════════════════
 
   /**
-   * Sélectionne les 2 meilleurs produits à mettre en avant.
-   * Règle de priorité :
-   *   1. Produits en promotion avec stock disponible
-   *   2. Produits avec stock disponible (tous types)
-   * On garde exactement 2 produits.
+   * Affiche en priorité "Gamme Urgence" (N°1) et "Gamme Youli" (N°2).
+   * Si l'une d'elles est absente des données chargées, le slot
+   * est comblé par un autre produit en stock (promo en priorité).
    */
   buildBestSellers(): void {
     const allProducts = [...this.gammes, ...this.produitsSport];
 
-    const enPromo = allProducts.filter(p => p.enPromotion && p.prixPromo && p.stock > 0);
-    const enStock = allProducts.filter(p => !(p.enPromotion && p.prixPromo) && p.stock > 0);
+    // Recherche des deux gammes cibles (insensible à la casse et aux espaces)
+    const normalize = (s: string) => s.trim().toLowerCase();
+    const targeted = this.BEST_SELLER_NAMES
+      .map(name => allProducts.find(p => normalize(p.nom ?? '') === normalize(name)))
+      .filter((p): p is any => p !== undefined);
 
-    const candidates = [...enPromo, ...enStock];
-
-    // On prend exactement 2 — si moins de 2 produits dispo, on prend ce qu'on a
-    this.bestSellers = candidates.slice(0, 2);
+    if (targeted.length >= 2) {
+      // Les deux sont trouvées : on les affiche dans l'ordre défini
+      this.bestSellers = targeted.slice(0, 2);
+    } else {
+      // Compléter avec d'autres produits en stock si l'un des deux manque
+      const targetedNames = targeted.map(p => normalize(p.nom ?? ''));
+      const fallbacks = allProducts.filter(p =>
+        p.stock > 0 && !targetedNames.includes(normalize(p.nom ?? ''))
+      );
+      // Promo d'abord dans les fallbacks
+      const fallbacksSorted = [
+        ...fallbacks.filter(p => p.enPromotion && p.prixPromo),
+        ...fallbacks.filter(p => !(p.enPromotion && p.prixPromo))
+      ];
+      this.bestSellers = [...targeted, ...fallbacksSorted].slice(0, 2);
+    }
   }
 
   // ══════════════════════════════════════════════════════════
@@ -399,7 +405,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
               .filter((cat: any) => cat.type_categorie?.id.toString() === this.sportTypeId)
               .map((cat: any) => ({ id: cat.id, nom: cat.nom, count: cat.produits_count || 0 }));
 
-            // Construire les pills rapides
             this.buildQuickCategories();
           },
           error: () => {
@@ -430,11 +435,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Sépare les catégories en deux groupes :
-   *  - quickCategoriesBio  : toutes les catégories NON sport (avec icône selon le nom)
-   *  - quickCategorySport  : la catégorie sport unique (mis en valeur séparément dans la vue)
-   */
   buildQuickCategories(): void {
     this.quickCategoriesBio = this.typeCategories
       .filter(t => !t.isSport)
@@ -451,9 +451,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
       : null;
   }
 
-  /**
-   * Choisit l'icône Font Awesome adaptée au nom de la catégorie.
-   */
   getCategoryIcon(nom: string): string {
     const n = nom.toLowerCase();
 
@@ -577,7 +574,6 @@ export class BoutiqueComponent implements OnInit, OnDestroy {
   }
 
   filterBySousCategoriesSport(categorieId: string): void {
-    // Toggle : cliquer à nouveau sur la même sous-cat la désélectionne
     this.filters.categorie_sport = this.filters.categorie_sport === categorieId ? '' : categorieId;
     this.filters.page = 1;
     this.loadProduitsSport();

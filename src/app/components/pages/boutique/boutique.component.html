@@ -29,9 +29,6 @@
             <button class="btn-voir"><i class="fa fa-eye me-1"></i><span class="d-none d-sm-inline">Voir
                 détails</span><span class="d-sm-none">Voir</span></button>
           </div>
-          @if (bestSellers[0].enPromotion && bestSellers[0].prixPromo) {
-          <span class="bs-badge-promo">-{{ calculateDiscount(bestSellers[0].prix, bestSellers[0].prixPromo) }}%</span>
-          }
           <span class="bs-badge-top"><i class="fas fa-fire me-1"></i>N°1</span>
         </div>
         <div class="bs-card-body">
@@ -65,9 +62,6 @@
             <button class="btn-voir"><i class="fa fa-eye me-1"></i><span class="d-none d-sm-inline">Voir
                 détails</span><span class="d-sm-none">Voir</span></button>
           </div>
-          @if (bestSellers[1].enPromotion && bestSellers[1].prixPromo) {
-          <span class="bs-badge-promo">-{{ calculateDiscount(bestSellers[1].prix, bestSellers[1].prixPromo) }}%</span>
-          }
           <span class="bs-badge-top" style="background: linear-gradient(135deg, #6c757d, #495057);"><i
               class="fas fa-medal me-1"></i>N°2</span>
         </div>
@@ -411,7 +405,9 @@
                 <span class="fw-bold px-2 px-md-3 py-1 rounded-pill text-nowrap"
                   style="background-color: rgba(220,53,69,0.08); color: #dc3545; font-size: 0.82rem; border: 1px solid rgba(220,53,69,0.2);"><i
                     class="fas fa-dumbbell me-1 me-md-2"></i>Sport en promo<span class="badge ms-1 rounded-pill"
-                    style="background:#dc3545; font-size:0.68rem;">{{ produitsSport.length }}</span></span>
+                    style="background:#dc3545; font-size:0.68rem;">{{ produitsSport.length }}
+                  </span>
+                </span>
                 <hr class="flex-grow-1" style="border-color: rgba(220,53,69,0.25);">
               </div>
             </div>
@@ -524,7 +520,7 @@
       @if (isSport) { <i class="fas fa-dumbbell me-1"></i><span class="d-none d-sm-inline">Sport</span> } @else { <i
         class="fas fa-leaf me-1"></i><span class="d-none d-sm-inline">{{ getItemBadgeLabel(item) }}</span> }
     </div>
-    @if (item.enPromotion && item.prixPromo) {
+    <!-- @if (item.enPromotion && item.prixPromo) {
     <div class="badge bg-danger position-absolute fw-semibold"
       style="top: 10px; right: 10px; z-index: 2; font-size: 0.72rem; padding: 6px 8px;"><i
         class="fas fa-tag me-1"></i>-{{ calculateDiscount(item.prix, item.prixPromo) }}%</div>
@@ -532,7 +528,7 @@
       style="top: 10px; right: 10px; z-index: 2; font-size: 0.72rem; padding: 6px 8px;"><i
         class="fas fa-ban me-1"></i>Rupture
   </div>
-  }
+  } -->
   <div class="p-2 p-md-3 p-lg-4">
     <h5 class="text-dark fw-bold mb-1 product-title">{{ item.nom }}</h5>
     <p class="text-muted product-desc mb-2">{{ limitText(item.description) }}</p>

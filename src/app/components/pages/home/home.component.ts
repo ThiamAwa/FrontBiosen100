@@ -163,6 +163,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       ];
 
       this.produitsPromo = promoUniques;
+      this.accueilService.setProduitsPromo(this.produitsPromo);
       console.log('✅ produitsPromo final:', this.produitsPromo);
 
       this.loading = false;

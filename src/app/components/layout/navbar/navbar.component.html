@@ -13,18 +13,19 @@
           <a href="mailto:contact@biosen.com" class="text-white">contact&#64;biosen.com</a>
         </small>
       </div>
-      <!-- <div class="top-link pe-2">
-        <a routerLink="/confidentialite" class="text-white"><small class="mx-2">Confidentialité</small>/</a>
-        <a routerLink="/conditions" class="text-white"><small class="mx-2">Conditions d'utilisation</small>/</a>
-        <a routerLink="/remboursements" class="text-white"><small class="ms-2">Ventes et Remboursements</small></a>
-      </div> -->
     </div>
   </div>
 
   <!-- Navbar principale -->
   <div class="container px-0">
     <nav class="navbar navbar-light bg-white navbar-expand-xl">
-
+     @if (produitsPromo.length > 0) {
+        <img 
+          src="../../../../assets/img/SuperPromo.jpg" 
+          alt="Super Promo" 
+          class="superpromo-icon"
+        />
+      }
       <!-- Logo + marque -->
       <a routerLink="/" class="navbar-brand d-flex align-items-center gap-2">
         <img src="/logo-biosen.jpeg" alt="Sen Bio Logo" class="brand-logo-img"

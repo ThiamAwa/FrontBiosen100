@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, LoginCredentials } from '../../../services/auth/auth.service';
 import { CartService } from '../../../services/cart/cart.service';
+import { HomeService } from '../../../services/home/home.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,6 +14,9 @@ import { CartService } from '../../../services/cart/cart.service';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent implements OnInit {
+
+  produitsPromo: any[] = [];
+  homeService = inject(HomeService);
   authService = inject(AuthService);
   cartService = inject(CartService);
   router = inject(Router);
@@ -27,7 +31,9 @@ export class NavbarComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    // Le service charge automatiquement le panier
+    this.homeService.produitsPromo$.subscribe(data => {
+      this.produitsPromo = data;
+    });
   }
   openLoginModal() {
     this.authService.openLoginModal();

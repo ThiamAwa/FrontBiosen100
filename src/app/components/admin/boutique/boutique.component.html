@@ -37,6 +37,7 @@
                         <table class="table table-custom">
                             <thead>
                                 <tr>
+                                    <th>Image</th>
                                     <th>Nom de la Boutique</th>
                                     <th>Adresse</th>
                                     <th class="text-center">Personnel</th>
@@ -47,6 +48,17 @@
                             <tbody>
                                 @for (boutique of boutiques; track boutique.id) {
                                 <tr>
+                                    <td class="align-middle">
+                                        @if (boutique.image_url) {
+                                        <img [src]="boutique.image_url" alt="Image boutique"
+                                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                        } @else {
+                                        <div class="text-muted text-center"
+                                            style="width: 50px; height: 50px; line-height: 50px; background: #f0f0f0; border-radius: 8px;">
+                                            <i class="fas fa-store"></i>
+                                        </div>
+                                        }
+                                    </td>
                                     <td><strong>{{ boutique.nom }}</strong></td>
                                     <td>
                                         <i class="fas fa-map-marker-alt text-muted me-1"></i>
@@ -83,7 +95,7 @@
                                 </tr>
                                 } @empty {
                                 <tr>
-                                    <td colspan="5">
+                                    <td colspan="6">
                                         <div class="text-center py-4">
                                             <i class="fas fa-store fa-2x text-muted mb-3"></i>
                                             <p class="text-muted">Aucune boutique trouvée</p>
@@ -169,6 +181,17 @@
                     <input type="text" class="form-control" id="adresse_create" [(ngModel)]="createForm.adresse"
                         required placeholder="Ex: 12 Rue du Commerce, Dakar">
                 </div>
+                <div class="mb-3">
+                    <label for="image_create" class="form-label">Image (optionnel)</label>
+                    <input type="file" class="form-control" id="image_create"
+                        (change)="onFileSelected($event, 'create')" accept="image/*">
+                    @if (createImagePreview) {
+                    <div class="mt-2">
+                        <img [src]="createImagePreview"
+                            style="max-width: 150px; max-height: 100px; border-radius: 8px;">
+                    </div>
+                    }
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeCreateModal()">Annuler</button>
@@ -207,6 +230,23 @@
                     <label for="adresse_edit" class="form-label">Adresse *</label>
                     <input type="text" class="form-control" id="adresse_edit" [(ngModel)]="editForm.adresse" required>
                 </div>
+                <div class="mb-3">
+                    <label for="image_edit" class="form-label">Image (laisser vide pour conserver l'actuelle)</label>
+                    <input type="file" class="form-control" id="image_edit" (change)="onFileSelected($event, 'edit')"
+                        accept="image/*">
+                    @if (editImagePreview) {
+                    <div class="mt-2">
+                        <img [src]="editImagePreview" style="max-width: 150px; max-height: 100px; border-radius: 8px;">
+                        <p class="small text-muted mt-1">Nouvelle image</p>
+                    </div>
+                    } @else if (selectedBoutique.image_url) {
+                    <div class="mt-2">
+                        <img [src]="selectedBoutique.image_url"
+                            style="max-width: 150px; max-height: 100px; border-radius: 8px;">
+                        <p class="small text-muted mt-1">Image actuelle</p>
+                    </div>
+                    }
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" (click)="closeEditModal()">Annuler</button>
@@ -217,7 +257,7 @@
 </div>
 }
 
-<!-- ========== MODAL SUPPRESSION ========== -->
+<!-- ========== MODAL SUPPRESSION (inchangée) ========== -->
 @if (showDeleteModal && boutiqueToDelete) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
@@ -292,7 +332,7 @@
 </div>
 }
 
-<!-- ========== MODAL PERSONNEL ========== -->
+<!-- ========== MODAL PERSONNEL (inchangée) ========== -->
 @if (showPersonnelModal && personnelBoutique) {
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg modal-dialog-centered">

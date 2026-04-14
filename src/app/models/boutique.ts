@@ -14,6 +14,8 @@ export interface Boutique {
         telephone?: string;
         role?: { id: number; name: string }
     }[];
+    image?: string;
+    image_url?: string;
 }
 
 export interface BoutiqueResponse {

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { BoutiqueService } from '../../../services/boutique/boutique.service';
 import { Boutique, BoutiqueResponse } from '../../../models/boutique';
 
@@ -31,12 +30,18 @@ export class BoutiqueComponent implements OnInit {
   createForm = { nom: '', adresse: '' };
   editForm = { id: 0, nom: '', adresse: '' };
 
+  createImagePreview: string | null = null;
+  editImagePreview: string | null = null;
+  createImageFile: File | null = null;
+  editImageFile: File | null = null;
+
   successMessage: string | null = null;
   errorMessage: string | null = null;
   validationErrors: string[] = [];
 
   hasPersonnel = false;
 
+  // Plus besoin d'injecter HttpClient
   constructor(private boutiqueService: BoutiqueService) { }
 
   ngOnInit(): void {
@@ -66,8 +71,35 @@ export class BoutiqueComponent implements OnInit {
     }
   }
 
+  onFileSelected(event: any, mode: 'create' | 'edit'): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        if (mode === 'create') {
+          this.createImagePreview = e.target.result;
+          this.createImageFile = file;
+        } else {
+          this.editImagePreview = e.target.result;
+          this.editImageFile = file;
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      if (mode === 'create') {
+        this.createImagePreview = null;
+        this.createImageFile = null;
+      } else {
+        this.editImagePreview = null;
+        this.editImageFile = null;
+      }
+    }
+  }
+
   openCreateModal(): void {
     this.createForm = { nom: '', adresse: '' };
+    this.createImagePreview = null;
+    this.createImageFile = null;
     this.validationErrors = [];
     this.errorMessage = null;
     this.showCreateModal = true;
@@ -75,10 +107,19 @@ export class BoutiqueComponent implements OnInit {
 
   closeCreateModal(): void {
     this.showCreateModal = false;
+    this.createImagePreview = null;
+    this.createImageFile = null;
   }
 
   createBoutique(): void {
-    this.boutiqueService.createBoutique(this.createForm).subscribe({
+    const formData = new FormData();
+    formData.append('nom', this.createForm.nom);
+    formData.append('adresse', this.createForm.adresse);
+    if (this.createImageFile) {
+      formData.append('image', this.createImageFile);
+    }
+
+    this.boutiqueService.createBoutiqueWithImage(formData).subscribe({
       next: () => {
         this.successMessage = 'Boutique créée avec succès.';
         this.closeCreateModal();
@@ -101,6 +142,8 @@ export class BoutiqueComponent implements OnInit {
       nom: boutique.nom,
       adresse: boutique.adresse
     };
+    this.editImagePreview = null;
+    this.editImageFile = null;
     this.validationErrors = [];
     this.errorMessage = null;
     this.showEditModal = true;
@@ -109,11 +152,21 @@ export class BoutiqueComponent implements OnInit {
   closeEditModal(): void {
     this.showEditModal = false;
     this.selectedBoutique = null;
+    this.editImagePreview = null;
+    this.editImageFile = null;
   }
 
   updateBoutique(): void {
     if (!this.selectedBoutique) return;
-    this.boutiqueService.updateBoutique(this.editForm.id, this.editForm).subscribe({
+
+    const formData = new FormData();
+    formData.append('nom', this.editForm.nom);
+    formData.append('adresse', this.editForm.adresse);
+    if (this.editImageFile) {
+      formData.append('image', this.editImageFile);
+    }
+
+    this.boutiqueService.updateBoutiqueWithImage(this.editForm.id, formData).subscribe({
       next: () => {
         this.successMessage = 'Boutique modifiée avec succès.';
         this.closeEditModal();

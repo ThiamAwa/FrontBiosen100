@@ -6,14 +6,15 @@ import { AccueilData } from '../../models/accueilData';
 import { Produit } from '../../models/produit';
 import { Gamme } from '../../models/gamme';
 import { Categorie } from '../../models/categorie';
-
+import { BehaviorSubject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
 export class HomeService {
   private apiUrl = environment.apiUrl;
   private storageUrl = environment.storageUrl;
-
+  private produitsPromoSubject = new BehaviorSubject<any[]>([]);
+  produitsPromo$ = this.produitsPromoSubject.asObservable();
   /**
    * Image de fallback en SVG encodé en base64.
    * Aucun fichier externe requis — fonctionne toujours même si
@@ -112,5 +113,8 @@ export class HomeService {
   limitText(text?: string, limit: number = 60): string {
     if (!text) return '';
     return text.length > limit ? text.substring(0, limit) + '...' : text;
+  }
+  setProduitsPromo(data: any[]) {
+    this.produitsPromoSubject.next(data);
   }
 }

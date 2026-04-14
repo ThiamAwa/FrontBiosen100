@@ -1115,3 +1115,47 @@ body {
         padding-top: 58px;
     }
 }
+/* ============================================================
+   ICÔNE SUPERPROMO ANIMÉE
+   ============================================================ */
+
+.superpromo-icon {
+  height: 100px;
+  width: 100px;
+  object-fit: contain;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  animation: superpromoWiggle 0.6s ease-in-out infinite alternate,
+             superpromoScale 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgb(254, 254, 254));
+  transform-origin: center bottom;
+}
+
+@keyframes superpromoWiggle {
+  0%   { transform: rotate(-10deg) scale(1.05); }
+  25%  { transform: rotate(10deg)  scale(1.08); }
+  50%  { transform: rotate(-8deg)  scale(1.05); }
+  75%  { transform: rotate(8deg)   scale(1.08); }
+  100% { transform: rotate(-10deg) scale(1.05); }
+}
+
+@keyframes superpromoScale {
+  0%,  100% { filter: drop-shadow(0 0 6px  rgb(249, 249, 249)); }
+  50%        { filter: drop-shadow(0 0 14px rgb(254, 254, 254)); }
+}
+
+/* Réduit un peu sur mobile */
+@media (max-width: 767.98px) {
+  .superpromo-icon {
+    height: 80px;
+    width: 80px;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .superpromo-icon {
+    height: 70px;
+    width: 70px;
+  }
+}

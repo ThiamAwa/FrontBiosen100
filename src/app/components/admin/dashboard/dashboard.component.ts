@@ -21,9 +21,6 @@ export class DashboardComponent implements OnInit {
     this.loadDashboard();
   }
 
-  // ──────────────────────────────────────────
-  // Chargement des données
-  // ──────────────────────────────────────────
   loadDashboard(): void {
     this.loading = true;
     this.error = null;
@@ -41,17 +38,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // ──────────────────────────────────────────
-  // Formatage monétaire
-  // ──────────────────────────────────────────
   formatCurrency(value: number): string {
     if (!value && value !== 0) return '— FCFA';
     return new Intl.NumberFormat('fr-FR').format(value) + ' FCFA';
   }
 
-  // ──────────────────────────────────────────
-  // Statuts commandes
-  // ──────────────────────────────────────────
   getStatutClass(statut: string): string {
     switch (statut) {
       case 'en_attente': return 'badge-warning';
@@ -79,12 +70,21 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // ──────────────────────────────────────────
-  // Graphique ventes
-  // ──────────────────────────────────────────
   getMaxVente(): number {
     if (!this.stats?.ventes_mensuelles?.length) return 1;
     const max = Math.max(...this.stats.ventes_mensuelles.map(v => v.montant ?? 0));
     return max > 0 ? max : 1;
+  }
+
+  getMaxVenteJournaliere(): number {
+    if (!this.stats?.ventes_journalieres?.length) return 1;
+    const max = Math.max(...this.stats.ventes_journalieres.map(v => v.montant ?? 0));
+    return max > 0 ? max : 1;
+  }
+
+  formatJour(jour: string): string {
+    if (!jour) return '';
+    const date = new Date(jour);
+    return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric' }).format(date);
   }
 }

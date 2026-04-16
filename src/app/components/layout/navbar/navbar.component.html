@@ -1,5 +1,4 @@
 <div class="container-fluid fixed-top">
-
   <!-- Topbar (masqué sur mobile) -->
   <div class="container topbar d-none d-lg-block" style="background-color:#287747">
     <div class="d-flex justify-content-between">
@@ -19,13 +18,14 @@
   <!-- Navbar principale -->
   <div class="container px-0">
     <nav class="navbar navbar-light bg-white navbar-expand-xl">
-     @if (produitsPromo.length > 0) {
+      @if (produitsPromo.length > 0) {
         <img 
           src="../../../../assets/img/SuperPromo.jpg" 
           alt="Super Promo" 
           class="superpromo-icon"
         />
       }
+      
       <!-- Logo + marque -->
       <a routerLink="/" class="navbar-brand d-flex align-items-center gap-2">
         <img src="/logo-biosen.jpeg" alt="Sen Bio Logo" class="brand-logo-img"
@@ -33,28 +33,25 @@
         <h1 style="color:#287747" class="display-6 mb-0 brand-title">BioSen 100</h1>
       </a>
 
-      <!-- Bouton burger (mobile/tablette) -->
-      <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Menu">
+      <!-- Bouton menu latéral (mobile/tablette) -->
+      <button class="navbar-toggler py-2 px-3" type="button" (click)="toggleOffcanvasMenu()">
         <span class="fa fa-bars text-primary"></span>
       </button>
 
-      <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
-
-        <!-- Navigation -->
+      <!-- Menu desktop (normal) - visible uniquement sur grand écran -->
+      <div class="collapse navbar-collapse d-none d-xl-flex" id="navbarCollapse">
+        <!-- Navigation desktop -->
         <div class="navbar-nav mx-auto">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}"
             class="nav-item nav-link">Accueil</a>
           <a routerLink="/boutique" routerLinkActive="active" class="nav-item nav-link">Nos Produits</a>
           <a routerLink="/temoignages" routerLinkActive="active" class="nav-item nav-link">Témoignages et Conseils</a>
-          <!-- <a routerLink="/sport" routerLinkActive="active" class="nav-item nav-link">Sport</a> -->
           <a routerLink="/about" routerLinkActive="active" class="nav-item nav-link">À propos</a>
           <a routerLink="/contact" routerLinkActive="active" class="nav-item nav-link">Contact</a>
         </div>
 
-        <!-- Actions droite -->
+        <!-- Actions droite desktop -->
         <div class="navbar-actions d-flex align-items-center m-3 me-0 gap-3">
-
           <!-- Recherche -->
           <button class="btn border border-secondary btn-md-square rounded-circle bg-white">
             <i class="fas fa-search text-primary"></i>
@@ -82,173 +79,263 @@
 
             <ul class="dropdown-menu dropdown-menu-end account-dropdown-menu shadow">
               @if (authService.currentUser()) {
-              <!-- Connecté -->
-              <li class="account-dropdown-header">
-                <div class="welcome-text">Connecté en tant que</div>
-                <div class="brand-name">
-                  {{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom }}
+                <!-- Connecté -->
+                <li class="account-dropdown-header">
+                  <div class="welcome-text">Connecté en tant que</div>
+                  <div class="brand-name">
+                    {{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom }}
+                  </div>
+                  <i class="fas fa-leaf leaf-icon"></i>
+                </li>
+
+                <div class="account-dropdown-body">
+                  @if (authService.currentUser()?.isAdmin) {
+                    <li>
+                      <a routerLink="/admin/dashboard" class="account-dropdown-item">
+                        <span class="item-icon purple"><i class="fas fa-tachometer-alt"></i></span>
+                        Dashboard Admin
+                      </a>
+                    </li>
+                  }
+                  <li>
+                    <a routerLink="/profile" class="account-dropdown-item">
+                      <span class="item-icon green"><i class="fas fa-user"></i></span>
+                      Mon Profil
+                    </a>
+                  </li>
+                  <li>
+                    <a routerLink="/mes-commandes" class="account-dropdown-item">
+                      <span class="item-icon orange"><i class="fas fa-shopping-bag"></i></span>
+                      Mes Commandes
+                    </a>
+                  </li>
+                  <li>
+                    <hr class="account-dropdown-divider">
+                  </li>
+                  <li>
+                    <button class="account-dropdown-item text-danger" (click)="logout()">
+                      <span class="item-icon gray"><i class="fas fa-sign-out-alt"></i></span>
+                      Déconnexion
+                    </button>
+                  </li>
                 </div>
-                <i class="fas fa-leaf leaf-icon"></i>
-              </li>
-
-              <div class="account-dropdown-body">
-                @if (authService.currentUser()?.isAdmin) {
-                <li>
-                  <a routerLink="/admin/dashboard" class="account-dropdown-item">
-                    <span class="item-icon purple"><i class="fas fa-tachometer-alt"></i></span>
-                    Dashboard Admin
-                  </a>
-                </li>
-                }
-                <li>
-                  <a routerLink="/profile" class="account-dropdown-item">
-                    <span class="item-icon green"><i class="fas fa-user"></i></span>
-                    Mon Profil
-                  </a>
-                </li>
-                <li>
-                  <a routerLink="/mes-commandes" class="account-dropdown-item">
-                    <span class="item-icon orange"><i class="fas fa-shopping-bag"></i></span>
-                    Mes Commandes
-                  </a>
-                </li>
-                <li>
-                  <hr class="account-dropdown-divider">
-                </li>
-                <li>
-                  <button class="account-dropdown-item text-danger" (click)="logout()">
-                    <span class="item-icon gray"><i class="fas fa-sign-out-alt"></i></span>
-                    Déconnexion
-                  </button>
-                </li>
-              </div>
-
               } @else {
-              <!-- Non connecté -->
-              <li class="account-dropdown-header">
-                <div class="welcome-text">Bienvenue sur</div>
-                <div class="brand-name">BioSen 100</div>
-                <i class="fas fa-leaf leaf-icon"></i>
-              </li>
+                <!-- Non connecté -->
+                <li class="account-dropdown-header">
+                  <div class="welcome-text">Bienvenue sur</div>
+                  <div class="brand-name">BioSen 100</div>
+                  <i class="fas fa-leaf leaf-icon"></i>
+                </li>
 
-              <div class="account-dropdown-body">
-                <li>
-                  <button class="account-dropdown-item" (click)="openLoginModal()">
-                    <span class="item-icon green"><i class="fas fa-sign-in-alt"></i></span>
-                    <strong>Se connecter</strong>
+                <div class="account-dropdown-body">
+                  <li>
+                    <button class="account-dropdown-item" (click)="openLoginModal()">
+                      <span class="item-icon green"><i class="fas fa-sign-in-alt"></i></span>
+                      <strong>Se connecter</strong>
+                    </button>
+                  </li>
+                  <li>
+                    <a routerLink="/register" class="account-dropdown-item">
+                      <span class="item-icon blue"><i class="fas fa-user-plus"></i></span>
+                      Créer un compte
+                    </a>
+                  </li>
+                </div>
+
+                <div class="account-dropdown-footer">
+                  <button class="btn-signin" (click)="openLoginModal()">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
                   </button>
-                </li>
-                <li>
-                  <a routerLink="/register" class="account-dropdown-item">
-                    <span class="item-icon blue"><i class="fas fa-user-plus"></i></span>
-                    Créer un compte
+                  <a routerLink="/register" class="btn-register-link" (click)="close()">
+                    Créer un compte <i class="fas fa-arrow-right"></i>
                   </a>
-                </li>
-              </div>
-
-              <div class="account-dropdown-footer">
-                <button class="btn-signin" (click)="openLoginModal()">
-                  <i class="fas fa-sign-in-alt"></i> Se connecter
-                </button>
-                <a routerLink="/register" class="btn-register-link" (click)="close()">
-                  Créer un compte <i class="fas fa-arrow-right"></i>
-                </a>
-              </div>
+                </div>
               }
             </ul>
           </div>
-
         </div>
       </div>
     </nav>
   </div>
 
-  <!-- MODAL CONNEXION -->
-  @if (authService.loginModalOpen()) {
-  <div class="modal-backdrop-custom" (click)="close()"></div>
-  <div class="modal d-block" tabindex="-1" style="z-index:1055;">
-    <div class="modal-dialog modal-dialog-centered login-modal-dialog">
-      <div class="modal-content login-modal-content">
+  <!-- MENU LATERAL OFF-CANVAS POUR MOBILE ET TABLETTE -->
+  <div class="offcanvas-menu" [class.open]="isOffcanvasOpen" (click)="closeOffcanvasMenu()">
+    <div class="offcanvas-content" [class.open]="isOffcanvasOpen" (click)="$event.stopPropagation()">
+      
+      <!-- En-tête du menu -->
+      <div class="offcanvas-header">
+        <div class="offcanvas-logo">
+          <img src="/logo-biosen.jpeg" alt="BioSen 100" class="offcanvas-logo-img">
+          <span class="offcanvas-brand">BioSen 100</span>
+        </div>
+        <button class="offcanvas-close" (click)="closeOffcanvasMenu()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
 
-        <div class="login-modal-header">
-          <div class="modal-logo">
-            <div class="logo-icon"><i class="fas fa-leaf"></i></div>
-            <div>
-              <h5 class="modal-title-text">Connexion</h5>
-              <p class="modal-subtitle">Accédez à votre espace BioSen</p>
+      <!-- Profil utilisateur (si connecté) -->
+      @if (authService.currentUser()) {
+        <div class="offcanvas-user">
+          <div class="offcanvas-user-info">
+            <div class="offcanvas-user-avatar">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="offcanvas-user-details">
+              <div class="offcanvas-user-name">{{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom }}</div>
+              <div class="offcanvas-user-email">{{ authService.currentUser()?.email }}</div>
             </div>
           </div>
-          <button type="button" class="login-modal-close" (click)="close()">
-            <i class="fas fa-times"></i>
+        </div>
+      }
+
+      <!-- Navigation mobile -->
+      <div class="offcanvas-nav">
+        <a routerLink="/" (click)="closeOffcanvasMenu()" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+          <i class="fas fa-home"></i> Accueil
+        </a>
+        <a routerLink="/boutique" (click)="closeOffcanvasMenu()" routerLinkActive="active">
+          <i class="fas fa-store"></i> Nos Produits
+        </a>
+        <a routerLink="/temoignages" (click)="closeOffcanvasMenu()" routerLinkActive="active">
+          <i class="fas fa-comments"></i> Témoignages et Conseils
+        </a>
+        <a routerLink="/about" (click)="closeOffcanvasMenu()" routerLinkActive="active">
+          <i class="fas fa-info-circle"></i> À propos
+        </a>
+        <a routerLink="/contact" (click)="closeOffcanvasMenu()" routerLinkActive="active">
+          <i class="fas fa-envelope"></i> Contact
+        </a>
+      </div>
+
+      <!-- Actions mobile -->
+      <div class="offcanvas-actions">
+        <!-- Panier -->
+        <button class="offcanvas-action-btn" (click)="openCartModal(); closeOffcanvasMenu()">
+          <i class="fa fa-shopping-bag"></i>
+          <span>Mon Panier</span>
+          <span class="offcanvas-badge">{{ cartService.cartCount$ | async }}</span>
+        </button>
+        
+        @if (!authService.currentUser()) {
+          <!-- Non connecté -->
+          <button class="offcanvas-action-btn primary" (click)="openLoginModal(); closeOffcanvasMenu()">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Se connecter</span>
           </button>
-        </div>
-
-        <div class="modal-body login-modal-body">
-          @if (errors.length > 0) {
-          <div class="login-error-alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            @for (error of errors; track error) {
-            <div>{{ error }}</div>
-            }
-            <button type="button" style="float:right; background:none; border:none; cursor:pointer; color:inherit;"
-              (click)="errors = []">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          }
-
-          <form (ngSubmit)="login()">
-            <div class="mb-3">
-              <label for="email" class="login-label">Email</label>
-              <div class="login-input-wrapper">
-                <i class="fas fa-envelope login-input-icon"></i>
-                <input type="email" id="email" class="form-control login-input" [(ngModel)]="credentials.email"
-                  name="email" placeholder="votre@email.com" required>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label for="password" class="login-label">Mot de passe</label>
-              <div class="login-input-wrapper">
-                <i class="fas fa-lock login-input-icon"></i>
-                <input type="password" id="password" class="form-control login-input" [(ngModel)]="credentials.password"
-                  name="password" placeholder="••••••••" required>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-4 login-remember">
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="remember" [(ngModel)]="credentials.remember"
-                  name="remember">
-                <label class="form-check-label" for="remember">Se souvenir de moi</label>
-              </div>
-              <a href="#" class="forgot-link">Mot de passe oublié ?</a>
-            </div>
-
-            <button type="submit" class="btn-login" [disabled]="isLoading">
-              @if (isLoading) {
-              <span class="spinner-border spinner-border-sm"></span>
-              Connexion...
-              } @else {
-              <i class="fas fa-sign-in-alt"></i>
-              Se connecter
-              }
-            </button>
-          </form>
-
-          <div class="login-divider">ou</div>
-        </div>
-
-        <div class="login-footer">
-          <p>Pas encore de compte ?</p>
-          <a routerLink="/register" (click)="close()">
-            Créer un compte <i class="fas fa-arrow-right"></i>
+          <a routerLink="/register" class="offcanvas-action-btn outline" (click)="closeOffcanvasMenu()">
+            <i class="fas fa-user-plus"></i>
+            <span>Créer un compte</span>
           </a>
-        </div>
-
+        } @else {
+          <!-- Connecté -->
+          <a routerLink="/profile" class="offcanvas-action-btn" (click)="closeOffcanvasMenu()">
+            <i class="fas fa-user"></i>
+            <span>Mon Profil</span>
+          </a>
+          <a routerLink="/mes-commandes" class="offcanvas-action-btn" (click)="closeOffcanvasMenu()">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Mes Commandes</span>
+          </a>
+          @if (authService.currentUser()?.isAdmin) {
+            <a routerLink="/admin/dashboard" class="offcanvas-action-btn" (click)="closeOffcanvasMenu()">
+              <i class="fas fa-tachometer-alt"></i>
+              <span>Dashboard Admin</span>
+            </a>
+          }
+          <button class="offcanvas-action-btn danger" (click)="logout(); closeOffcanvasMenu()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Déconnexion</span>
+          </button>
+        }
       </div>
     </div>
   </div>
-  }
 
+  <!-- MODAL CONNEXION -->
+  @if (authService.loginModalOpen()) {
+    <div class="modal-backdrop-custom" (click)="close()"></div>
+    <div class="modal d-block" tabindex="-1" style="z-index:1055;">
+      <div class="modal-dialog modal-dialog-centered login-modal-dialog">
+        <div class="modal-content login-modal-content">
+
+          <div class="login-modal-header">
+            <div class="modal-logo">
+              <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+              <div>
+                <h5 class="modal-title-text">Connexion</h5>
+                <p class="modal-subtitle">Accédez à votre espace BioSen</p>
+              </div>
+            </div>
+            <button type="button" class="login-modal-close" (click)="close()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="modal-body login-modal-body">
+            @if (errors.length > 0) {
+              <div class="login-error-alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                @for (error of errors; track error) {
+                  <div>{{ error }}</div>
+                }
+                <button type="button" style="float:right; background:none; border:none; cursor:pointer; color:inherit;"
+                  (click)="errors = []">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            }
+
+            <form (ngSubmit)="login()">
+              <div class="mb-3">
+                <label for="email" class="login-label">Email</label>
+                <div class="login-input-wrapper">
+                  <i class="fas fa-envelope login-input-icon"></i>
+                  <input type="email" id="email" class="form-control login-input" [(ngModel)]="credentials.email"
+                    name="email" placeholder="votre@email.com" required>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="password" class="login-label">Mot de passe</label>
+                <div class="login-input-wrapper">
+                  <i class="fas fa-lock login-input-icon"></i>
+                  <input type="password" id="password" class="form-control login-input" [(ngModel)]="credentials.password"
+                    name="password" placeholder="••••••••" required>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-4 login-remember">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="remember" [(ngModel)]="credentials.remember"
+                    name="remember">
+                  <label class="form-check-label" for="remember">Se souvenir de moi</label>
+                </div>
+                <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+              </div>
+
+              <button type="submit" class="btn-login" [disabled]="isLoading">
+                @if (isLoading) {
+                  <span class="spinner-border spinner-border-sm"></span>
+                  Connexion...
+                } @else {
+                  <i class="fas fa-sign-in-alt"></i>
+                  Se connecter
+                }
+              </button>
+            </form>
+
+            <div class="login-divider">ou</div>
+          </div>
+
+          <div class="login-footer">
+            <p>Pas encore de compte ?</p>
+            <a routerLink="/register" (click)="close()">
+              Créer un compte <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  }
 </div>

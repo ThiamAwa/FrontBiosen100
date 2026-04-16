@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +14,6 @@ import { HomeService } from '../../../services/home/home.service';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent implements OnInit {
-
   produitsPromo: any[] = [];
   homeService = inject(HomeService);
   authService = inject(AuthService);
@@ -30,13 +29,42 @@ export class NavbarComponent implements OnInit {
     remember: false
   };
 
+  // Propriété pour le menu latéral
+  isOffcanvasOpen = false;
+
   ngOnInit(): void {
     this.homeService.produitsPromo$.subscribe(data => {
       this.produitsPromo = data;
     });
   }
+
+  // Ouvrir le menu latéral
+  toggleOffcanvasMenu() {
+    this.isOffcanvasOpen = !this.isOffcanvasOpen;
+    if (this.isOffcanvasOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Fermer le menu latéral
+  closeOffcanvasMenu() {
+    this.isOffcanvasOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  // Fermer le menu avec la touche Echap
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isOffcanvasOpen) {
+      this.closeOffcanvasMenu();
+    }
+  }
+
   openLoginModal() {
     this.authService.openLoginModal();
+    this.closeOffcanvasMenu();
   }
 
   close() {
@@ -45,7 +73,6 @@ export class NavbarComponent implements OnInit {
     this.credentials = { email: '', password: '', remember: false };
   }
 
-  // navbar.component.ts
   async login() {
     this.isLoading = true;
     this.errors = [];
@@ -53,7 +80,6 @@ export class NavbarComponent implements OnInit {
     try {
       await this.authService.login(this.credentials);
       this.close();
-      // La redirection est gérée dans le service
     } catch (err: any) {
       this.errors = [err?.message ?? 'Une erreur est survenue lors de la connexion.'];
     } finally {
@@ -63,7 +89,9 @@ export class NavbarComponent implements OnInit {
 
   logout() {
     this.authService.logout();
+    this.closeOffcanvasMenu();
   }
+
   openCartModal() {
     const cartModal = document.getElementById('cartModal');
     if (cartModal) {

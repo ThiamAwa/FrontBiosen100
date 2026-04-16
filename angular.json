@@ -54,6 +54,7 @@
               "src/assets/css/styleAdmin.css"
             ],
             "scripts": [
+              "src/assets/js/bootstrap.bundle.min.js",
               "src/assets/lib/easing/easing.min.js",
               "src/assets/lib/waypoints/waypoints.min.js",
               "src/assets/lib/lightbox/js/lightbox.min.js",

@@ -223,7 +223,7 @@ export class CheckoutComponent implements OnInit {
    * Construire l'URL WhatsApp — utilisée par onSubmit()
    */
   buildWhatsAppUrl(orderNumber: string): string {
-    const vendeurTel = '221782904830';
+    const vendeurTel = '221782007936';
 
     let lignesProduits = '';
     this.cart.forEach((item, index) => {

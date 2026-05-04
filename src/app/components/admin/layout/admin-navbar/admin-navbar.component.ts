@@ -13,7 +13,7 @@ import { AuthService } from '../../../../services/auth/auth.service';
 })
 export class AdminNavbarComponent implements AfterViewInit {
   authService = inject(AuthService);
-  router = inject(Router);  // Pour la redirection après logout
+  router = inject(Router);  
 
   @Input() sidebarCollapsed = false;
   @Output() toggleSidebar = new EventEmitter<void>();
